@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -24,9 +25,9 @@ namespace MFBot_1701_E.CustomControls
             string value = "";
             if(e.Index >= 0)
             {
-                var val = Items[e.Index];
-                var t = val.GetType();
-                var valProp = t.GetProperty("Value");
+                object val = Items[e.Index];
+                Type t = val.GetType();
+                PropertyInfo valProp = t.GetProperty("Value");
                 if(valProp != null)
                 {
                     value = valProp.GetValue(val).ToString();
@@ -37,7 +38,7 @@ namespace MFBot_1701_E.CustomControls
                 }
             }
             SolidBrush bgBrush = new SolidBrush(BackColor);
-            var brush = new SolidBrush(ForeColor);
+            SolidBrush brush = new SolidBrush(ForeColor);
             e.Graphics.FillRectangle(bgBrush, this.ClientRectangle);
             e.Graphics.DrawString(value, e.Font, brush, e.Bounds, StringFormat.GenericDefault);
             e.DrawFocusRectangle();
