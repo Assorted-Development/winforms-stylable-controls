@@ -37,16 +37,16 @@ namespace MFBot_1701_E.CustomControls
             }
 
             // Ignore column and row headers, first row, not sorted columns and not-frozen columns 
-            if (args.RowIndex < 1 || args.ColumnIndex < 0 || args.ColumnIndex != SortedColumn?.Index || !Columns[args.ColumnIndex].Frozen)
+            if (args.RowIndex < 1 || args.RowIndex >= Rows.Count - 1 || args.ColumnIndex < 0 || args.ColumnIndex != SortedColumn?.Index || !Columns[args.ColumnIndex].Frozen)
                 return;
 
-            args.AdvancedBorderStyle.Bottom =
+            args.AdvancedBorderStyle.Top =
               DataGridViewAdvancedCellBorderStyle.None;
 
-            args.AdvancedBorderStyle.Top =
-                IsRepeatedCellValue(args.RowIndex, args.ColumnIndex)
+            args.AdvancedBorderStyle.Bottom =
+                IsRepeatedCellValue(args.RowIndex + 1, args.ColumnIndex)
                     ? DataGridViewAdvancedCellBorderStyle.None
-                    : AdvancedCellBorderStyle.Top;
+                    : AdvancedCellBorderStyle.Bottom;
         }
 
 
