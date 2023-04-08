@@ -26,7 +26,7 @@ namespace MFBot_1701_E.CustomControls
         {
             DoubleBuffered = true;
         }
-        
+
         protected override void OnCellPainting(DataGridViewCellPaintingEventArgs args)
         {
             base.OnCellPainting(args);
