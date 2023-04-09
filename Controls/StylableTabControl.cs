@@ -212,13 +212,17 @@ namespace MFBot_1701_E.CustomControls
             bool bSelected = SelectedIndex == nIndex;
 
             Point[] pt = new Point[7];
+
+            // Sets the difference in positioning of top/bottom line for the selected vs unselected tabs.
+            int posDifference = bSelected ? 0 : 2;
+            tabTextArea.Y += (int)(posDifference/2);
             if (Alignment == TabAlignment.Top)
             {
                 pt[0] = new Point(recBounds.Left, recBounds.Bottom);
-                pt[1] = new Point(recBounds.Left, recBounds.Top + (UseRoundedCorners ? 3 : 0));
-                pt[2] = new Point(recBounds.Left + (UseRoundedCorners ? 3 : 0), recBounds.Top);
-                pt[3] = new Point(recBounds.Right - (UseRoundedCorners ? 3 : 0), recBounds.Top);
-                pt[4] = new Point(recBounds.Right, recBounds.Top + (UseRoundedCorners ? 3 : 0));
+                pt[1] = new Point(recBounds.Left, recBounds.Top + posDifference + (UseRoundedCorners ? 3 : 0));
+                pt[2] = new Point(recBounds.Left + (UseRoundedCorners ? 3 : 0), recBounds.Top + posDifference);
+                pt[3] = new Point(recBounds.Right - (UseRoundedCorners ? 3 : 0), recBounds.Top + posDifference);
+                pt[4] = new Point(recBounds.Right, recBounds.Top + posDifference + (UseRoundedCorners ? 3 : 0));
                 pt[5] = new Point(recBounds.Right, recBounds.Bottom);
                 pt[6] = new Point(recBounds.Left, recBounds.Bottom);
             }
@@ -226,10 +230,10 @@ namespace MFBot_1701_E.CustomControls
             {
                 pt[0] = new Point(recBounds.Left, recBounds.Top);
                 pt[1] = new Point(recBounds.Right, recBounds.Top);
-                pt[2] = new Point(recBounds.Right, recBounds.Bottom - (UseRoundedCorners ? 3 : 0));
-                pt[3] = new Point(recBounds.Right - (UseRoundedCorners ? 3 : 0), recBounds.Bottom);
-                pt[4] = new Point(recBounds.Left + (UseRoundedCorners ? 3 : 0), recBounds.Bottom);
-                pt[5] = new Point(recBounds.Left, recBounds.Bottom - (UseRoundedCorners ? 3 : 0));
+                pt[2] = new Point(recBounds.Right, recBounds.Bottom + posDifference - (UseRoundedCorners ? 3 : 0));
+                pt[3] = new Point(recBounds.Right - (UseRoundedCorners ? 3 : 0), recBounds.Bottom + posDifference);
+                pt[4] = new Point(recBounds.Left + (UseRoundedCorners ? 3 : 0), recBounds.Bottom + posDifference);
+                pt[5] = new Point(recBounds.Left, recBounds.Bottom + posDifference - (UseRoundedCorners ? 3 : 0));
                 pt[6] = new Point(recBounds.Left, recBounds.Top);
             }
 
