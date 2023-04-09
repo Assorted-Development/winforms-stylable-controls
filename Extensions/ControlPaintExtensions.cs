@@ -8,6 +8,14 @@ namespace MFBot_1701_E.CustomControls
 {
     internal class ControlPaintExtensions
     {
+        //use these value to signify ANY of the right, top, left, center, or bottom alignments with the ContentAlignment enum.
+        public static readonly ContentAlignment AnyRightAlign = ContentAlignment.TopRight | ContentAlignment.MiddleRight | ContentAlignment.BottomRight;
+        public static readonly ContentAlignment AnyLeftAlign = ContentAlignment.TopLeft | ContentAlignment.MiddleLeft | ContentAlignment.BottomLeft;
+        public static readonly ContentAlignment AnyTopAlign = ContentAlignment.TopLeft | ContentAlignment.TopCenter | ContentAlignment.TopRight;
+        public static readonly ContentAlignment AnyBottomAlign = ContentAlignment.BottomLeft | ContentAlignment.BottomCenter | ContentAlignment.BottomRight;
+        public static readonly ContentAlignment AnyMiddleAlign = ContentAlignment.MiddleLeft | ContentAlignment.MiddleCenter | ContentAlignment.MiddleRight;
+        public static readonly ContentAlignment AnyCenterAlign = ContentAlignment.TopCenter | ContentAlignment.MiddleCenter | ContentAlignment.BottomCenter;
+        
         // Taken from ControlPaint.DrawBackgroundImage, slightly modified to pass backColor as Brush
         internal static void DrawBackgroundImage(
             Graphics g,
@@ -24,7 +32,7 @@ namespace MFBot_1701_E.CustomControls
 
             if (backgroundImageLayout == ImageLayout.Tile)
             {
-                using TextureBrush textureBrush = new TextureBrush(backgroundImage, WrapMode.Tile);
+                using TextureBrush textureBrush = new(backgroundImage, WrapMode.Tile);
 
                 // Make sure the brush origin matches the display rectangle, not the client rectangle,
                 // so the background image scrolls on AutoScroll forms.
@@ -69,7 +77,7 @@ namespace MFBot_1701_E.CustomControls
                         imageRectangle.Offset(clipRect.Location);
                         Rectangle imageRect = imageRectangle;
                         imageRect.Intersect(clipRect);
-                        Rectangle partOfImageToDraw = new Rectangle(Point.Empty, imageRect.Size);
+                        Rectangle partOfImageToDraw = new(Point.Empty, imageRect.Size);
                         g.DrawImage(
                             backgroundImage,
                             imageRect,
@@ -83,7 +91,7 @@ namespace MFBot_1701_E.CustomControls
                     {
                         Rectangle imageRect = imageRectangle;
                         imageRect.Intersect(clipRect);
-                        Rectangle partOfImageToDraw = new Rectangle(
+                        Rectangle partOfImageToDraw = new(
                             new Point(imageRect.X - imageRectangle.X, imageRect.Y - imageRectangle.Y),
                             imageRect.Size);
 
@@ -99,7 +107,7 @@ namespace MFBot_1701_E.CustomControls
                 }
                 else
                 {
-                    ImageAttributes imageAttrib = new ImageAttributes();
+                    ImageAttributes imageAttrib = new();
                     imageAttrib.SetWrapMode(WrapMode.TileFlipXY);
                     g.DrawImage(
                         backgroundImage,
@@ -186,6 +194,110 @@ namespace MFBot_1701_E.CustomControls
             }
 
             return result;
+        }
+        internal static TextFormatFlags CreateTextFormatFlags(Control ctl, ContentAlignment textAlign, bool showEllipsis, bool useMnemonic)
+        {
+            textAlign = RtlTranslateContent(ctl, textAlign);
+            TextFormatFlags flags = TextFormatFlagsForAlignmentGDI(textAlign);
+
+            // The effect of the TextBoxControl flag is that in-word line breaking will occur if needed, this happens when AutoSize 
+            // is false and a one-word line still doesn't fit the binding box (width).  The other effect is that partially visible 
+            // lines are clipped; this is how GDI+ works by default.
+            flags |= TextFormatFlags.WordBreak | TextFormatFlags.TextBoxControl;
+
+            if (showEllipsis)
+            {
+                flags |= TextFormatFlags.EndEllipsis;
+            }
+
+            // Adjust string format for Rtl controls
+            if (ctl.RightToLeft == RightToLeft.Yes)
+            {
+                flags |= TextFormatFlags.RightToLeft;
+            }
+
+            //if we don't use mnemonic, set formatFlag to NoPrefix as this will show the ampersand
+            if (!useMnemonic)
+            {
+                flags |= TextFormatFlags.NoPrefix;
+            }
+            //else if we don't show keyboard cues, set formatFlag to HidePrefix as this will hide
+            //the ampersand if we don't press down the alt key
+            else if (/*!ctl.ShowKeyboardCues*/ false) // disabled for simplicity
+            {
+                flags |= TextFormatFlags.HidePrefix;
+            }
+
+            return flags;
+        }
+        internal static TextFormatFlags TextFormatFlagsForAlignmentGDI(ContentAlignment align)
+        {
+            TextFormatFlags output = new();
+            output |= TranslateAlignmentForGDI(align);
+            output |= TranslateLineAlignmentForGDI(align);
+            return output;
+        }
+        internal static TextFormatFlags TranslateAlignmentForGDI(ContentAlignment align)
+        {
+            TextFormatFlags result;
+            if ((align & AnyBottomAlign) != 0)
+                result = TextFormatFlags.Bottom;
+            else if ((align & AnyMiddleAlign) != 0)
+                result = TextFormatFlags.VerticalCenter;
+            else
+                result = TextFormatFlags.Top;
+            return result;
+        }
+        internal static TextFormatFlags TranslateLineAlignmentForGDI(ContentAlignment align)
+        {
+            TextFormatFlags result;
+            if ((align & AnyRightAlign) != 0)
+                result = TextFormatFlags.Right;
+            else if ((align & AnyCenterAlign) != 0)
+                result = TextFormatFlags.HorizontalCenter;
+            else
+                result = TextFormatFlags.Left;
+            return result;
+        }
+        internal static ContentAlignment RtlTranslateContent(Control ctl, ContentAlignment align)
+        {
+            if (RightToLeft.Yes == ctl.RightToLeft)
+            {
+                if ((align & AnyTopAlign) != 0)
+                {
+                    switch (align)
+                    {
+                        case ContentAlignment.TopLeft:
+                            return ContentAlignment.TopRight;
+                        case ContentAlignment.TopRight:
+                            return ContentAlignment.TopLeft;
+                    }
+                }
+
+                if ((align & AnyMiddleAlign) != 0)
+                {
+                    switch (align)
+                    {
+                        case ContentAlignment.MiddleLeft:
+                            return ContentAlignment.MiddleRight;
+                        case ContentAlignment.MiddleRight:
+                            return ContentAlignment.MiddleLeft;
+                    }
+                }
+
+                if ((align & AnyBottomAlign) != 0)
+                {
+                    switch (align)
+                    {
+                        case ContentAlignment.BottomLeft:
+                            return ContentAlignment.BottomRight;
+                        case ContentAlignment.BottomRight:
+                            return ContentAlignment.BottomLeft;
+                    }
+                }
+            }
+
+            return align;
         }
     }
 }
