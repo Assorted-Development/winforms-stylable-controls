@@ -6,7 +6,7 @@ namespace MFBot_1701_E.CustomControls
     /// <summary>
     /// the default WinForms Button does not allow styling the disabled version
     /// </summary>
-    public partial class StylableButton : Button
+    public class StylableButton : Button
     {
         public Color EnabledBackColor { get; set; } = Color.White;
         public Color EnabledHoverColor { get; set; } = Color.LightGray;
@@ -15,40 +15,57 @@ namespace MFBot_1701_E.CustomControls
         public Color DisabledForeColor { get; set; } = Color.Black;
         public Color BorderColor { get; set; } = Color.Black;
 
-        protected override void OnPaint(PaintEventArgs pevent)
+        protected override void OnPaint(PaintEventArgs e)
         {
             if (!this.Enabled)
             {
                 SolidBrush brush = new SolidBrush(DisabledBackColor);
 
-                pevent.Graphics.FillRectangle(brush, this.ClientRectangle);
-                TextRenderer.DrawText(pevent.Graphics, this.Text, this.Font, this.ClientRectangle, DisabledForeColor, DisabledBackColor);
+                e.Graphics.FillRectangle(brush, this.ClientRectangle);
+                TextRenderer.DrawText(e.Graphics, this.Text, this.Font, this.ClientRectangle, DisabledForeColor, DisabledBackColor);
 
                 // border
                 Pen borderPen = new Pen(BorderColor, 1);
-                pevent.Graphics.DrawRectangle(borderPen, this.ClientRectangle.X, ClientRectangle.Y, ClientRectangle.Width - 1, ClientRectangle.Height - 1);
+                e.Graphics.DrawRectangle(borderPen, this.ClientRectangle.X, ClientRectangle.Y, ClientRectangle.Width - 1, ClientRectangle.Height - 1);
             }
             else
             {
                 // background
                 SolidBrush backBrush;
-                bool MouseInControl = pevent.ClipRectangle.Contains(PointToClient(Cursor.Position));
+                bool MouseInControl = e.ClipRectangle.Contains(PointToClient(Cursor.Position));
                 if (MouseInControl)
                 {
                     backBrush = new SolidBrush(EnabledHoverColor);
-                    pevent.Graphics.FillRectangle(backBrush, this.ClientRectangle);
+                    e.Graphics.FillRectangle(backBrush, this.ClientRectangle);
                 }
                 else
                 {
                     backBrush = new SolidBrush(EnabledBackColor);
-                    pevent.Graphics.FillRectangle(backBrush, this.ClientRectangle);
+                    e.Graphics.FillRectangle(backBrush, this.ClientRectangle);
                 }
-                
-                TextRenderer.DrawText(pevent.Graphics, this.Text, this.Font, this.ClientRectangle, EnabledForeColor, backBrush.Color);
+
+                if (BackgroundImage != null)
+                {
+                    // draw image, but leave a bit of margin to all sides
+                    ControlPaintExtensions.DrawBackgroundImage(
+                        e.Graphics,
+                        BackgroundImage,
+                        backBrush,
+                        BackgroundImageLayout,
+                        new Rectangle(ClientRectangle.X + 2, ClientRectangle.Y + 2, ClientRectangle.Width - 4, ClientRectangle.Height - 4),
+                        new Rectangle(ClientRectangle.X + 2, ClientRectangle.Y + 2, ClientRectangle.Width - 4, ClientRectangle.Height - 4),
+                        default,
+                        RightToLeft);
+                }
+                else
+                {
+                    TextRenderer.DrawText(e.Graphics, this.Text, this.Font, this.ClientRectangle, EnabledForeColor,
+                            backBrush.Color);
+                }
 
                 // border
-                ControlPaint.DrawBorder(pevent.Graphics,
-                    new Rectangle(ClientRectangle.X, ClientRectangle.Y, ClientRectangle.Width - 1, ClientRectangle.Height - 1),
+                ControlPaint.DrawBorder(e.Graphics,
+                    new Rectangle(ClientRectangle.X, ClientRectangle.Y, ClientRectangle.Width, ClientRectangle.Height),
                     BorderColor,
                     ButtonBorderStyle.Solid);
             }
