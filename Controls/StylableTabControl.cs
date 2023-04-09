@@ -4,7 +4,6 @@ using System.ComponentModel;
 using System.ComponentModel.Design;
 using System.Drawing;
 using System.Drawing.Design;
-using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
 namespace MFBot_1701_E.CustomControls
@@ -28,15 +27,43 @@ namespace MFBot_1701_E.CustomControls
         private bool _bUpDown;
         private ImageList _upDownImages;
 
+        private Brush _backgroundColorBrush;
+        private Pen _borderColorPen = new(SystemColors.ControlDark);
+
         /// <summary>
         /// Background color of the entire tab control
         /// </summary>
-        public Color BackgroundColor { get; set; }
+        public Color BackgroundColor
+        {
+            set
+            {
+                _backgroundColorBrush?.Dispose();
+                _backgroundColorBrush = new SolidBrush(value);
+            }
+        }
+
+        /// <summary>
+        /// Background color of the currently active tab rectangle
+        /// </summary>
+        public Color ActiveTabBackgroundColor { get; set; }
+
+        /// <summary>
+        /// Foreground color of the currently active tab rectangle
+        /// </summary>
+        public Color ActiveTabForegroundColor { get; set; }
 
         /// <summary>
         /// Border color of border in the tab control and around the tabs
         /// </summary>
-        public Color BorderColor { get; set; } = SystemColors.ControlDark;
+        public Color BorderColor
+        {
+            set
+            {
+                _borderColorPen?.Dispose();
+                _borderColorPen = new Pen(value);
+            }
+        }
+
 
         /// <summary>
         /// Gets or sets a value indicating whether tab page controls have a corner radius or not.
@@ -104,9 +131,9 @@ namespace MFBot_1701_E.CustomControls
 
             _bUpDown = false;
 
-            ControlAdded += new ControlEventHandler(StylableTabControl_ControlAdded);
-            ControlRemoved += new ControlEventHandler(StylableTabControl_ControlRemoved);
-            SelectedIndexChanged += new EventHandler(StylableTabControl_SelectedIndexChanged);
+            ControlAdded += StylableTabControl_ControlAdded;
+            ControlRemoved += StylableTabControl_ControlRemoved;
+            SelectedIndexChanged += StylableTabControl_SelectedIndexChanged;
         }
 
         /// <summary> 
@@ -138,18 +165,14 @@ namespace MFBot_1701_E.CustomControls
             Rectangle TabArea = DisplayRectangle;
 
             #region fill client area
-            Brush br = new SolidBrush(BackgroundColor);
-            g.FillRectangle(br, TabControlArea);
-            br.Dispose();
+            g.FillRectangle(_backgroundColorBrush, TabControlArea);
             #endregion
 
             #region draw border
             int nDelta = SystemInformation.Border3DSize.Width;
 
-            Pen border = new(BorderColor);
             TabArea.Inflate(nDelta, nDelta);
-            g.DrawRectangle(border, TabArea);
-            border.Dispose();
+            g.DrawRectangle(_borderColorPen, TabArea);
             #endregion
 
 
@@ -188,7 +211,7 @@ namespace MFBot_1701_E.CustomControls
             {
                 TabPage tabPage = SelectedTab;
                 Color color = tabPage.BackColor;
-                border = new Pen(color);
+                Pen border = new Pen(color);
 
                 TabArea.Offset(1, 1);
                 TabArea.Width -= 2;
@@ -215,7 +238,7 @@ namespace MFBot_1701_E.CustomControls
 
             // Sets the difference in positioning of top/bottom line for the selected vs unselected tabs.
             int posDifference = bSelected ? 0 : 2;
-            tabTextArea.Y += (int)(posDifference/2);
+            tabTextArea.Y += (int)(posDifference / 2);
             if (Alignment == TabAlignment.Top)
             {
                 pt[0] = new Point(recBounds.Left, recBounds.Bottom);
@@ -238,38 +261,43 @@ namespace MFBot_1701_E.CustomControls
             }
 
             // fill this tab with background color
-            Brush backColorBrush = new SolidBrush(tabPage.BackColor);
-            g.FillPolygon(backColorBrush, pt);
-            backColorBrush.Dispose();
+            Color activeBackgroundColor = bSelected ? ActiveTabBackgroundColor : tabPage.BackColor;
+            using (Brush backColorBrush = new SolidBrush(activeBackgroundColor))
+            {
+                g.FillPolygon(backColorBrush, pt);
+            }
 
             // draw border
-            Pen borderPen = new(BorderColor);
-            g.DrawPolygon(borderPen, pt);
+            g.DrawPolygon(_borderColorPen, pt);
 
             // clear bottom lines for selected tab page
             if (bSelected)
             {
-                Pen pen = new(tabPage.BackColor);
-
-                switch (Alignment)
+                using (Pen pen = new(activeBackgroundColor))
                 {
-                    case TabAlignment.Top:
-                        g.DrawLine(pen, recBounds.Left + 1, recBounds.Bottom, recBounds.Right - 1, recBounds.Bottom);
-                        g.DrawLine(pen, recBounds.Left + 1, recBounds.Bottom + 1, recBounds.Right - 1, recBounds.Bottom + 1);
-                        break;
 
-                    case TabAlignment.Bottom:
-                        g.DrawLine(pen, recBounds.Left + 1, recBounds.Top, recBounds.Right - 1, recBounds.Top);
-                        g.DrawLine(pen, recBounds.Left + 1, recBounds.Top - 1, recBounds.Right - 1, recBounds.Top - 1);
-                        g.DrawLine(pen, recBounds.Left + 1, recBounds.Top - 2, recBounds.Right - 1, recBounds.Top - 2);
-                        break;
+                    switch (Alignment)
+                    {
+                        case TabAlignment.Top:
+                            g.DrawLine(pen, recBounds.Left + 1, recBounds.Bottom, recBounds.Right - 1,
+                                recBounds.Bottom);
+                            g.DrawLine(pen, recBounds.Left + 1, recBounds.Bottom + 1, recBounds.Right - 1,
+                                recBounds.Bottom + 1);
+                            break;
+
+                        case TabAlignment.Bottom:
+                            g.DrawLine(pen, recBounds.Left + 1, recBounds.Top, recBounds.Right - 1, recBounds.Top);
+                            g.DrawLine(pen, recBounds.Left + 1, recBounds.Top - 1, recBounds.Right - 1,
+                                recBounds.Top - 1);
+                            g.DrawLine(pen, recBounds.Left + 1, recBounds.Top - 2, recBounds.Right - 1,
+                                recBounds.Top - 2);
+                            break;
+                    }
                 }
-
-                pen.Dispose();
             }
 
             // draw tab's icon
-            if (tabPage.ImageIndex >= 0 && ImageList != null && ImageList.Images[tabPage.ImageIndex] != null)
+            if (tabPage.ImageIndex >= 0 && ImageList != null)
             {
                 const int nLeftMargin = 8;
                 const int nRightMargin = 2;
@@ -290,13 +318,17 @@ namespace MFBot_1701_E.CustomControls
             }
 
             // draw string
-            StringFormat stringFormat = new();
-            stringFormat.Alignment = StringAlignment.Center;
-            stringFormat.LineAlignment = StringAlignment.Center;
+            StringFormat stringFormat = new()
+            {
+                Alignment = StringAlignment.Center,
+                LineAlignment = StringAlignment.Center
+            };
 
-            backColorBrush = new SolidBrush(tabPage.ForeColor);
-
-            g.DrawString(tabPage.Text, Font, backColorBrush, tabTextArea, stringFormat);
+            Color activeForegroundColor = bSelected ? ActiveTabForegroundColor : tabPage.ForeColor;
+            using (Brush foreColorBrush = new SolidBrush(activeForegroundColor))
+            {
+                g.DrawString(tabPage.Text, Font, foreColorBrush, tabTextArea, stringFormat);
+            }
         }
 
         /// <summary>
@@ -314,15 +346,15 @@ namespace MFBot_1701_E.CustomControls
             Rectangle r0 = new();
             NativeMethods.GetClientRect(_scUpDown.Handle, ref r0);
 
-            Brush br = new SolidBrush(SystemColors.Control);
-            g.FillRectangle(br, r0);
-            br.Dispose();
+            using (Brush br = new SolidBrush(SystemColors.Control))
+            {
+                g.FillRectangle(br, r0);
+                br.Dispose();
+            }
 
-            Pen border = new(BorderColor);
             Rectangle rBorder = r0;
             rBorder.Inflate(-1, -1);
-            g.DrawRectangle(border, rBorder);
-            border.Dispose();
+            g.DrawRectangle(_borderColorPen, rBorder);
 
             int nMiddle = r0.Width / 2;
             int nTop = (r0.Height - 16) / 2;
@@ -410,11 +442,8 @@ namespace MFBot_1701_E.CustomControls
 
                     if (!_bUpDown)
                     {
-                        //----------------------------
-                        // Subclass it
                         _scUpDown = new NativeSubClass(pWnd, true);
-                        _scUpDown.SubClassedWndProc += new NativeSubClass.SubClassWndProcEventHandler(scUpDown_SubClassedWndProc);
-                        //----------------------------
+                        _scUpDown.SubClassedWndProc += scUpDown_SubClassedWndProc;
 
                         _bUpDown = true;
                     }
@@ -430,19 +459,16 @@ namespace MFBot_1701_E.CustomControls
 
         private void UpdateUpDown()
         {
-            if (_bUpDown)
+            if (!_bUpDown || NativeMethods.IsWindowVisible(_scUpDown.Handle))
             {
-                if (NativeMethods.IsWindowVisible(_scUpDown.Handle))
-                {
-                    Rectangle rect = new();
-
-                    NativeMethods.GetClientRect(_scUpDown.Handle, ref rect);
-                    NativeMethods.InvalidateRect(_scUpDown.Handle, ref rect, true);
-                }
+                return;
             }
-        }
 
-        #region scUpDown_SubClassedWndProc Event Handler
+            Rectangle rect = new();
+
+            NativeMethods.GetClientRect(_scUpDown.Handle, ref rect);
+            NativeMethods.InvalidateRect(_scUpDown.Handle, ref rect, true);
+        }
 
         private int scUpDown_SubClassedWndProc(ref Message m)
         {
@@ -453,11 +479,10 @@ namespace MFBot_1701_E.CustomControls
                         //------------------------
                         // redraw
                         IntPtr hDC = NativeMethods.GetWindowDC(_scUpDown.Handle);
-                        Graphics g = Graphics.FromHdc(hDC);
-
-                        DrawUpDown(g);
-
-                        g.Dispose();
+                        using (Graphics g = Graphics.FromHdc(hDC))
+                        {
+                            DrawUpDown(g);
+                        }
                         NativeMethods.ReleaseDC(_scUpDown.Handle, hDC);
                         //------------------------
 
@@ -477,7 +502,6 @@ namespace MFBot_1701_E.CustomControls
 
             return 0;
         }
-        #endregion
 
         #region Component Designer code
         /// <summary>
