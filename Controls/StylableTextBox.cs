@@ -1,5 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Drawing;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using MFBot_1701_E.Theming;
 
@@ -12,28 +14,15 @@ namespace MFBot_1701_E.CustomControls
 
         public event EventHandler DelayedTextChanged;
 
-        public StylableTextBox(bool isDelayActive)
+        private Color borderColor = Color.Blue;
+        public Color BorderColor
         {
-            IsDelayActive = isDelayActive;
-            DelayedTextChangedTimeout = 900; // 0.9 seconds
-
-            /* standard on initializing form: hint is enabled */
-            ThemeRegistry.Current.Apply(this, ThemeOptions.Hint);
-            IsHintActive = true;
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            if (m_delayedTextChangedTimer != null)
+            get => borderColor;
+            set
             {
-                m_delayedTextChangedTimer.Stop();
-                if (disposing)
-                    m_delayedTextChangedTimer.Dispose();
+                borderColor = value;
             }
-
-            base.Dispose(disposing);
         }
-
         [Editor]
         public int DelayedTextChangedTimeout { get; set; }
 
@@ -52,9 +41,32 @@ namespace MFBot_1701_E.CustomControls
 
         public bool IsHintActive { get; private set; }
 
-        public bool IsDelayActive { get; set; }
+        public bool IsDelayActive { get; set; } = true;
 
         public new string Text => base.Text == Hint ? "" : base.Text;
+
+        public StylableTextBox()
+        {
+            DelayedTextChangedTimeout = 900; // 0.9 seconds
+
+            /* standard on initializing form: hint is enabled */
+            ThemeRegistry.Current.Apply(this, ThemeOptions.Hint);
+            IsHintActive = true;
+            BorderStyle = BorderStyle.None;
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (m_delayedTextChangedTimer != null)
+            {
+                m_delayedTextChangedTimer.Stop();
+                if (disposing)
+                    m_delayedTextChangedTimer.Dispose();
+            }
+
+            base.Dispose(disposing);
+        }
+        
 
         #region timer events / methods
         protected virtual void OnDelayedTextChanged(EventArgs e)
@@ -73,13 +85,12 @@ namespace MFBot_1701_E.CustomControls
 
         private void InitializeDelayedTextChangedEvent()
         {
-            if (m_delayedTextChangedTimer != null)
-                m_delayedTextChangedTimer.Stop();
+            m_delayedTextChangedTimer?.Stop();
 
             if (m_delayedTextChangedTimer == null || m_delayedTextChangedTimer.Interval != DelayedTextChangedTimeout)
             {
                 m_delayedTextChangedTimer = new Timer();
-                m_delayedTextChangedTimer.Tick += new EventHandler(HandleDelayedTextChangedTimerTick);
+                m_delayedTextChangedTimer.Tick += HandleDelayedTextChangedTimerTick;
                 m_delayedTextChangedTimer.Interval = DelayedTextChangedTimeout;
             }
 
@@ -88,8 +99,10 @@ namespace MFBot_1701_E.CustomControls
 
         private void HandleDelayedTextChangedTimerTick(object sender, EventArgs e)
         {
-            Timer timer = sender as Timer;
-            timer.Stop();
+            if (sender is Timer timer)
+            {
+                timer.Stop();
+            }
 
             OnDelayedTextChanged(EventArgs.Empty);
         }

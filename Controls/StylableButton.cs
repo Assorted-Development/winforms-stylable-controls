@@ -47,8 +47,10 @@ namespace MFBot_1701_E.CustomControls
                 TextRenderer.DrawText(pevent.Graphics, this.Text, this.Font, this.ClientRectangle, EnabledForeColor, backBrush.Color);
 
                 // border
-                Pen borderPen = new Pen(BorderColor, 1);
-                pevent.Graphics.DrawRectangle(borderPen, this.ClientRectangle.X, ClientRectangle.Y, ClientRectangle.Width - 1, ClientRectangle.Height - 1);
+                ControlPaint.DrawBorder(pevent.Graphics,
+                    new Rectangle(ClientRectangle.X, ClientRectangle.Y, ClientRectangle.Width - 1, ClientRectangle.Height - 1),
+                    BorderColor,
+                    ButtonBorderStyle.Solid);
             }
         }
     }
