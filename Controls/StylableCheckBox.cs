@@ -1,16 +1,16 @@
-﻿using System;
+﻿using MFBot_1701_E.Theming;
+using System;
 using System.Drawing;
 using System.Windows.Forms;
 using System.Windows.Forms.VisualStyles;
 
 namespace MFBot_1701_E.CustomControls
 {
-    // modified by MFBot team
     // note: this doesn't support AutoSize
     internal class StylableCheckBox : CheckBox
     {
-        private Rectangle textRectangleValue = new();
-        private bool clicked = false;
+        private Rectangle textRectangleValue;
+        private bool clicked;
         private CheckBoxState state = CheckBoxState.UncheckedNormal;
 
 
@@ -29,72 +29,107 @@ namespace MFBot_1701_E.CustomControls
             set;
         }
 
-        public override Color ForeColor
-        {
-            get;
-            set;
-        }
-
         public StylableCheckBox()
         {
-            this.SetStyle(ControlStyles.UserPaint, true);
-            this.SetStyle(ControlStyles.AllPaintingInWmPaint, true);
+            SetStyle(ControlStyles.UserPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
         }
 
-        // Calculate the text bounds, excluding the check box.
-        public Rectangle TextRectangle
+        protected override void OnPaintBackground(PaintEventArgs e)
         {
-            get
-            {
-                using (Graphics g = this.CreateGraphics())
-                {
-                    textRectangleValue.X = ClientRectangle.X +
-                        CheckBoxRenderer.GetGlyphSize(g, CheckBoxState.UncheckedNormal).Width +
-                        3;
-                    textRectangleValue.Y = ClientRectangle.Y;
-                    textRectangleValue.Width = ClientRectangle.Width -
-                        CheckBoxRenderer.GetGlyphSize(g, CheckBoxState.UncheckedNormal).Width;
-                    textRectangleValue.Height = ClientRectangle.Height;
-                }
-
-                return textRectangleValue;
-            }
+            // skip because we draw it.
         }
 
         protected override void OnPaint(PaintEventArgs e)
         {
-            e.Graphics.Clear(BackColor);
+            drawCheckBox(e.Graphics);
+        }
 
-            Rectangle textRectangle = TextRectangle;
+        protected override void WndProc(ref Message m)
+        {
+            // Filter out the WM_ERASEBKGND message since we do that on our own with foreground painting
+            if (m.Msg == NativeMethods.WM_ERASEBKGND)
+            {
+                // return 0 (no erasing)
+                m.Result = (IntPtr)1;
 
-            Size glyphSize = CheckBoxRenderer.GetGlyphSize(e.Graphics, state);
+                return;
+            }
 
-            // center box vertically with text, especially necessary for multiline
+            base.WndProc(ref m);
+        }
+        
+        private void drawCheckBox(Graphics graphics)
+        {
+            Size glyphSize = CheckBoxRenderer.GetGlyphSize(graphics, state);
+            Rectangle textRectangle = GetTextRectangle(glyphSize);
+
+            // center box vertically with text, especially necessary for multiline,
+            // but align if disabled because the glyph looks slightly different then.
             Rectangle glyphBounds = new(
-                ClientRectangle.Location with { Y = textRectangle.Location.Y +
-                                                    (textRectangle.Height - textRectangle.Location.Y) / 2 -
-                                                    (glyphSize.Height / 2) },
+                ClientRectangle.Location with
+                {
+                    Y = textRectangle.Location.Y +
+                        (textRectangle.Height - textRectangle.Location.Y) / 2 -
+                        (glyphSize.Height / 2)
+                },
                 glyphSize);
+
+            // Paint over text since ít might look slightly offset
+            // if the calculation between disabled and enabled control positions differ
+            // and the previous checkbox doesn't get correctly erased (which happens sometimes)
+            // And: Don't do Graphics.Clear, not good with RDP sessions
+            using (Brush backBrush = new SolidBrush(BackColor))
+            {
+                graphics.FillRectangle(backBrush, ClientRectangle);
+            }
 
             if (IsMixed(state))
             {
-                ControlPaint.DrawMixedCheckBox(e.Graphics, glyphBounds, ConvertToButtonState(state));
+                ControlPaint.DrawMixedCheckBox(graphics, glyphBounds, ConvertToButtonState(state) | ButtonState.Flat);
             }
             else
             {
-                ControlPaint.DrawCheckBox(e.Graphics, glyphBounds, ConvertToButtonState(state));
+                ControlPaint.DrawCheckBox(graphics, glyphBounds, ConvertToButtonState(state) | ButtonState.Flat);
             }
 
             Color textColor = Enabled ? ForeColor : DisabledForeColor;
 
             TextRenderer.DrawText(
-                e.Graphics, Text, Font, textRectangle, textColor,
+                graphics, Text, Font, textRectangle, textColor,
                 TextFormatFlags.VerticalCenter);
 
-            if (ShowFocusCues && Focused)
+            if (Focused && ShowFocusCues)
             {
-                ControlPaint.DrawFocusRectangle(e.Graphics, ClientRectangle);
+                ControlPaint.DrawFocusRectangle(graphics, ClientRectangle);
             }
+        }
+
+        // Calculate the text bounds, excluding the check box.
+        private Rectangle _oldClientRectangle = Rectangle.Empty;
+        private Size _oldGlyphSize = Size.Empty;
+        private Rectangle _textRectangle = Rectangle.Empty;
+
+        private Rectangle GetTextRectangle(Size glyphSize)
+        {
+            // don't spend unnecessary time on PInvokes
+            if (_oldClientRectangle == ClientRectangle && _oldGlyphSize == glyphSize)
+            {
+                return _textRectangle;
+            }
+
+            textRectangleValue.X = ClientRectangle.X +
+                                   glyphSize.Width +
+                                   3;
+
+            textRectangleValue.Y = ClientRectangle.Y;
+            textRectangleValue.Width = ClientRectangle.Width - glyphSize.Width;
+            textRectangleValue.Height = ClientRectangle.Height;
+
+            _oldClientRectangle = ClientRectangle;
+            _textRectangle = textRectangleValue;
+            _oldGlyphSize = glyphSize;
+
+            return textRectangleValue;
         }
 
         private static ButtonState ConvertToButtonState(CheckBoxState state)
@@ -142,44 +177,43 @@ namespace MFBot_1701_E.CustomControls
                     return false;
             }
         }
+        
         // Draw the check box in the checked or unchecked state, alternately.
         protected override void OnMouseDown(MouseEventArgs e)
         {
-            base.OnMouseDown(e);
-
             if (!clicked)
             {
                 clicked = true;
                 state = CheckBoxState.CheckedPressed;
-                Invalidate();
             }
             else
             {
                 clicked = false;
                 state = CheckBoxState.UncheckedNormal;
-                Invalidate();
             }
+
+            base.OnMouseDown(e);
         }
 
         protected override void OnMouseHover(EventArgs e)
         {
-            base.OnMouseHover(e);
             state = clicked ? CheckBoxState.CheckedHot : CheckBoxState.UncheckedHot;
-            Invalidate();
+            // Invalidate is unnecessary as long as we don't handle hovers visually
+            //Invalidate();
+            base.OnMouseHover(e);
         }
 
         protected override void OnMouseUp(MouseEventArgs e)
         {
             base.OnMouseUp(e);
-            this.OnMouseHover(e);
+            OnMouseHover(e);
         }
 
         // Draw the check box in the unpressed state.
         protected override void OnMouseLeave(EventArgs e)
         {
-            base.OnMouseLeave(e);
             state = clicked ? CheckBoxState.CheckedNormal : CheckBoxState.UncheckedNormal;
-            Invalidate();
+            base.OnMouseLeave(e);
         }
     }
 }
