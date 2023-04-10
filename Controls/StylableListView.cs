@@ -80,7 +80,7 @@ namespace MFBot_1701_E.CustomControls
         protected override void OnNotifyMessage(Message m)
         {
             //Filter out the WM_ERASEBKGND message
-            if (m.Msg != 0x14)
+            if (m.Msg != NativeMethods.WM_ERASEBKGND)
             {
                 base.OnNotifyMessage(m);
             }
