@@ -19,14 +19,17 @@ namespace MFBot_1701_E.CustomControls
         {
             if (!this.Enabled)
             {
-                SolidBrush brush = new SolidBrush(DisabledBackColor);
+                using (SolidBrush brush = new(DisabledBackColor))
+                {
+                    e.Graphics.FillRectangle(brush, this.ClientRectangle);
+                    TextRenderer.DrawText(e.Graphics, this.Text, this.Font, this.ClientRectangle, DisabledForeColor,
+                        DisabledBackColor);
 
-                e.Graphics.FillRectangle(brush, this.ClientRectangle);
-                TextRenderer.DrawText(e.Graphics, this.Text, this.Font, this.ClientRectangle, DisabledForeColor, DisabledBackColor);
-
-                // border
-                Pen borderPen = new Pen(BorderColor, 1);
-                e.Graphics.DrawRectangle(borderPen, this.ClientRectangle.X, ClientRectangle.Y, ClientRectangle.Width - 1, ClientRectangle.Height - 1);
+                    // border
+                    Pen borderPen = new Pen(BorderColor, 1);
+                    e.Graphics.DrawRectangle(borderPen, this.ClientRectangle.X, ClientRectangle.Y,
+                        ClientRectangle.Width - 1, ClientRectangle.Height - 1);
+                }
             }
             else
             {
@@ -62,7 +65,8 @@ namespace MFBot_1701_E.CustomControls
                     TextRenderer.DrawText(e.Graphics, this.Text, this.Font, this.ClientRectangle, EnabledForeColor,
                             backBrush.Color);
                 }
-
+                backBrush.Dispose();
+                
                 // border
                 ControlPaint.DrawBorder(e.Graphics,
                     new Rectangle(ClientRectangle.X, ClientRectangle.Y, ClientRectangle.Width, ClientRectangle.Height),

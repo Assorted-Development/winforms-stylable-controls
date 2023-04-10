@@ -63,8 +63,7 @@ namespace MFBot_1701_E.CustomControls
                 _borderColorPen = new Pen(value);
             }
         }
-
-
+        
         /// <summary>
         /// Gets or sets a value indicating whether tab page controls have a corner radius or not.
         /// </summary>
@@ -145,6 +144,8 @@ namespace MFBot_1701_E.CustomControls
             {
                 components?.Dispose();
                 _upDownImages?.Dispose();
+                _borderColorPen?.Dispose();
+                _backgroundColorBrush?.Dispose();
             }
             base.Dispose(disposing);
         }

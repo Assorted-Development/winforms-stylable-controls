@@ -63,6 +63,20 @@ namespace MFBot_1701_E.CustomControls
             this.SetStyle(ControlStyles.EnableNotifyMessage, true);
         }
 
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                _groupHeaderBackColorBrush?.Dispose();
+                _groupHeaderForeColorBrush?.Dispose();
+                _groupHeaderForeColorPen?.Dispose();
+                _selectedItemForeColorBrush?.Dispose();
+                _selectedItemBackColorBrush?.Dispose();
+            }
+
+            base.Dispose(disposing);
+        }
+
         protected override void OnNotifyMessage(Message m)
         {
             //Filter out the WM_ERASEBKGND message
