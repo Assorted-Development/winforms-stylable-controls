@@ -9,15 +9,15 @@ namespace MFBot_1701_E.CustomControls
     // Note that this doesn't support .NET Framework 1.0/1.1
     internal class StylableLabel : Label
     {
-        MeasureTextCache _textMeasurementCache;
-        MeasureTextCache MeasureTextCache => _textMeasurementCache ??= new MeasureTextCache();
+        private MeasureTextCache _textMeasurementCache;
+        private MeasureTextCache MeasureTextCache => _textMeasurementCache ??= new MeasureTextCache();
 
         /// <summary>
         /// Gets or sets the foreground color if a label is disabled
         /// </summary>
         public Color DisabledForeColor { get; set; }
 
-        protected override void OnPaint(System.Windows.Forms.PaintEventArgs e)
+        protected override void OnPaint(PaintEventArgs e)
         {
             // if the label isn't disabled, text rendering can be controlled via ForeColor
             if (Enabled)
@@ -47,7 +47,7 @@ namespace MFBot_1701_E.CustomControls
 
         private TextFormatFlags CreateTextFormatFlags()
         {
-            return CreateTextFormatFlags(this.Size - GetBordersAndPadding());
+            return CreateTextFormatFlags(Size - GetBordersAndPadding());
         }
 
         private Size GetBordersAndPadding()
