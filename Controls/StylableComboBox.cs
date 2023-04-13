@@ -13,7 +13,7 @@ namespace MFBot_1701_E.CustomControls
     {
         private Pen _borderColorPen = new(SystemColors.ControlDark);
         /// <summary>
-        /// Border color of border in the tab control and around the tabs
+        /// Sets the color of the border around the combobox (not the item list box)
         /// </summary>
         public Color BorderColor
         {
@@ -21,6 +21,43 @@ namespace MFBot_1701_E.CustomControls
             {
                 _borderColorPen?.Dispose();
                 _borderColorPen = new Pen(value, 2);
+            }
+        }
+
+        private Brush _itemHoverColorBrush = new SolidBrush(SystemColors.Highlight);
+        /// <summary>
+        /// Sets the background color of the item in the list that's currently hovered/selected.
+        /// </summary>
+        public Color ItemHoverColor
+        {
+            set
+            {
+                _itemHoverColorBrush?.Dispose();
+                _itemHoverColorBrush = new SolidBrush(value);
+            }
+        }
+
+        private Brush _backColorBrush = new SolidBrush(DefaultBackColor);
+        public override Color BackColor
+        {
+            get => base.BackColor;
+            set
+            {
+                base.BackColor = value;
+                _backColorBrush?.Dispose();
+                _backColorBrush = new SolidBrush(value);
+            }
+        }
+
+        private Brush _foreColorBrush = new SolidBrush(DefaultForeColor);
+        public override Color ForeColor
+        {
+            get => base.ForeColor;
+            set
+            {
+                base.ForeColor = value;
+                _foreColorBrush?.Dispose();
+                _foreColorBrush = new SolidBrush(value);
             }
         }
 
@@ -35,6 +72,9 @@ namespace MFBot_1701_E.CustomControls
             if (disposing)
             {
                 _borderColorPen?.Dispose();
+                _itemHoverColorBrush?.Dispose();
+                _backColorBrush?.Dispose();
+                _foreColorBrush?.Dispose();
             }
 
             base.Dispose(disposing);
@@ -54,11 +94,9 @@ namespace MFBot_1701_E.CustomControls
                     : Items[e.Index].ToString();
             }
 
-            SolidBrush bgBrush = e.State.HasFlag(DrawItemState.Focus) ? new SolidBrush(Color.Yellow) : new SolidBrush(BackColor);
-            SolidBrush brush = new(ForeColor);
+            Brush bgBrush = e.State.HasFlag(DrawItemState.Focus) ? _itemHoverColorBrush : _backColorBrush;
             e.Graphics.FillRectangle(bgBrush, e.Bounds);
-            e.Graphics.DrawString(value, e.Font ?? Font, brush, e.Bounds, StringFormat.GenericDefault);
-            
+            e.Graphics.DrawString(value, e.Font ?? Font, _foreColorBrush, e.Bounds, StringFormat.GenericDefault);
         }
 
         protected override void OnPaint(PaintEventArgs e)
