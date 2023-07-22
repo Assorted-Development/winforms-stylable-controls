@@ -4,7 +4,7 @@ using System.Drawing.Text;
 using System.Windows.Forms;
 using System.Windows.Forms.VisualStyles;
 
-namespace MFBot_1701_E.CustomControls
+namespace AssortedDevelopment.StylableWinFormsControls
 {
     /// <summary>
     /// the default datetime picker does not support styling

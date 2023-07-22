@@ -1,7 +1,7 @@
 ﻿using System.Drawing;
 using System.Windows.Forms;
 
-namespace MFBot_1701_E.CustomControls
+namespace AssortedDevelopment.StylableWinFormsControls
 {
     /// <summary>
     /// the default WinForms Button does not allow styling the disabled version

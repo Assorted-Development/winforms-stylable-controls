@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
-using MFBot_1701_E.Theming;
 
-namespace MFBot_1701_E.CustomControls
+namespace AssortedDevelopment.StylableWinFormsControls
 {
     /// <summary>
     /// This class adds on to the functionality provided in System.Windows.Forms.ToolStrip.

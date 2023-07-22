@@ -1,12 +1,11 @@
-﻿using MFBot_1701_E.Theming;
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.ComponentModel.Design;
 using System.Drawing;
 using System.Drawing.Design;
 using System.Windows.Forms;
 
-namespace MFBot_1701_E.CustomControls
+namespace AssortedDevelopment.StylableWinFormsControls
 {
     // Source: https://www.codeproject.com/Articles/12185/A-NET-Flat-TabControl-CustomDraw
     // Modified by the MFBot team

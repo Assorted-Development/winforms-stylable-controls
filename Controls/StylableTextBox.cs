@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using MFBot_1701_E.Theming;
 
-namespace MFBot_1701_E.CustomControls
+namespace AssortedDevelopment.StylableWinFormsControls
 {
     public class StylableTextBox : TextBox
     {

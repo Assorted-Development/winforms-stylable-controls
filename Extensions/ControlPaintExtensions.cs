@@ -4,7 +4,7 @@ using System.Drawing.Imaging;
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace MFBot_1701_E.CustomControls
+namespace AssortedDevelopment.StylableWinFormsControls
 {
     internal class ControlPaintExtensions
     {

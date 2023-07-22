@@ -1,10 +1,9 @@
-﻿using MFBot_1701_E.Theming;
-using System;
+﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
 using System.Windows.Forms.VisualStyles;
 
-namespace MFBot_1701_E.CustomControls
+namespace AssortedDevelopment.StylableWinFormsControls
 {
     // note: this doesn't support AutoSize
     internal class StylableCheckBox : CheckBox

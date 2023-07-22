@@ -1,10 +1,9 @@
-﻿using MFBot_1701_E.Theming;
-using System;
+﻿using System;
 using System.Drawing;
 using System.Reflection;
 using System.Windows.Forms;
 
-namespace MFBot_1701_E.CustomControls
+namespace AssortedDevelopment.StylableWinFormsControls
 {
     /// <summary>
     /// the default combobox does not allow styling the background - only the background of the dropdown
