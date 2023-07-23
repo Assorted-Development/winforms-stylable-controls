@@ -12,5 +12,35 @@ This project contains custom WinForms controls that support more styling options
 # ToC
 * [WinForms stylable controls](#winforms-stylable-controls)
   * [License](#license)
-  * [Table of Contents](#toc)
- 
+  * [Usage](#usage)
+  * [Controls](#controls)
+  * [Contributions](#contributions)
+
+## Usage
+To use this project, just add a reference to our nuget package (`dotnet add package AssortedDevelopment.StylableWinFormsControls`) and replace the standard controls by our custom controls. All the controls can be found in the namespace `StylableWinFormsControls`.
+
+## Controls
+This is the currently available list of custom controls.
+
+### Button => StylableButton
+
+### CheckBox => StylableCheckBox
+
+### ComboBox => StylableComboBox
+
+### DataGridView => StylableDataGridView
+
+### DateTimePicker => StylableDateTimePicker
+
+### Label => StylableLabel
+
+### ListView => StylableListView
+
+### TabControl => StylableTabControl
+
+### TextBox => StylableTextBox
+This Textbox supports providing hints to be shown when the control does not have focus and the value is empty.
+
+## Contributions
+
+Please view the [contributing guide](/CONTRIBUTING.md) for more information.
