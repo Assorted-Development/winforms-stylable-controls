@@ -34,9 +34,9 @@ jobs:
         prerelease: true
         title: "Development Build"
         files: |
-          LICENSE.txt
+          LICENSE
           StylableWinFormsControls/StylableWinFormsControls/bin/Debug/net6.0-windows/StylableWinFormsControls.dll
-          *.nupkg
-          *.snupkg
+          StylableWinFormsControls/StylableWinFormsControls/bin/Debug/*.nupkg
+          StylableWinFormsControls/StylableWinFormsControls/bin/Debug/*.snupkg
       
       
