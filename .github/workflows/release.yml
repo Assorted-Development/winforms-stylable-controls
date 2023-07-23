@@ -5,8 +5,6 @@ name: .NET Release
 
 on:
   push:
-    # just for testing - remove before merging
-    branches: [ "wolframhaussig-patch-auto-release" ]
     tags:
       - "v*"
 
@@ -30,10 +28,6 @@ jobs:
     - uses: "marvinpinto/action-automatic-releases@latest"
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
-        #TODO: Remove before merging
-        automatic_release_tag: "latest"
-        #TODO: Remove before merging
-        title: "Development Build"
         prerelease: false
         files: |
           LICENSE
