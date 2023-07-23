@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace AssortedDevelopment.StylableWinFormsControls;
+namespace StylableWinFormsControls.Native;
 
 internal class NativeMethods
 {
