@@ -12,7 +12,8 @@ on:
 
 jobs:
   build:
-
+    permissions:
+      contents: write
     runs-on: windows-latest
 
     steps:
@@ -21,12 +22,10 @@ jobs:
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: 6.0.x
-    - name: Debug Output
-      run: dir
     - name: Restore dependencies
-      run: dotnet restore ${{ github.workspace }}/StylableWinFormsControls/StylableWinFormsControls.sln
+      run: dotnet restore StylableWinFormsControls/StylableWinFormsControls.sln
     - name: Build
-      run: dotnet build ${{ github.workspace }}/StylableWinFormsControls --no-restore
+      run: dotnet build StylableWinFormsControls/StylableWinFormsControls.sln --no-restore
 
     - uses: "marvinpinto/action-automatic-releases@latest"
       with:
