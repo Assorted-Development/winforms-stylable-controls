@@ -16,6 +16,18 @@ public class StylableLabel : Label
     /// </summary>
     public Color DisabledForeColor { get; set; }
 
+    protected override void OnTextChanged(EventArgs e)
+    {
+        MeasureTextCache.InvalidateCache();
+        base.OnTextChanged(e);
+    }
+
+    protected override void OnFontChanged(EventArgs e)
+    {
+        MeasureTextCache.InvalidateCache();
+        base.OnFontChanged(e);
+    }
+    
     protected override void OnPaint(PaintEventArgs e)
     {
         // if the label isn't disabled, text rendering can be controlled via ForeColor
