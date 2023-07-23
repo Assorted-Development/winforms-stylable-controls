@@ -40,8 +40,6 @@ jobs:
           StylableWinFormsControls/StylableWinFormsControls/bin/Release/net6.0-windows/StylableWinFormsControls.dll
           StylableWinFormsControls/StylableWinFormsControls/bin/Release/*.nupkg
           StylableWinFormsControls/StylableWinFormsControls/bin/Release/*.snupkg
-    - name: go to release dir
-      run: cd StylableWinFormsControls/StylableWinFormsControls/bin/Release/
     - name: Push to NuGet
-      run: dotnet nuget push *.nupkg --api-key ${{secrets.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json
+      run: dotnet nuget push StylableWinFormsControls/StylableWinFormsControls/bin/Release/ --api-key ${{secrets.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json
       
