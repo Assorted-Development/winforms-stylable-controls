@@ -1,7 +1,5 @@
 ﻿using System.ComponentModel;
-using System.Drawing;
 using System.Drawing.Text;
-using System.Windows.Forms;
 using System.Windows.Forms.VisualStyles;
 
 namespace AssortedDevelopment.StylableWinFormsControls
@@ -9,13 +7,13 @@ namespace AssortedDevelopment.StylableWinFormsControls
     /// <summary>
     /// the default datetime picker does not support styling
     /// </summary>
-    public class StyleableDateTimePicker : DateTimePicker
+    public class StylableDateTimePicker : DateTimePicker
     {
         public Color EnabledBackColor { get; set; } = Color.White;
         public Color DisabledBackColor { get; set; } = Color.Gray;
         public Color EnabledForeColor { get; set; } = Color.Black;
         public Color DisabledForeColor { get; set; } = Color.Black;
-        public StyleableDateTimePicker()
+        public StylableDateTimePicker()
         {
             this.SetStyle(ControlStyles.UserPaint, true);
         }

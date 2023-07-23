@@ -1,7 +1,4 @@
-﻿using System.Drawing;
-using System.Windows.Forms;
-
-namespace AssortedDevelopment.StylableWinFormsControls
+﻿namespace AssortedDevelopment.StylableWinFormsControls
 {
     public class StylableDataGridView : DataGridView
     {

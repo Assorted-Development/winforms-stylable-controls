@@ -1,7 +1,4 @@
-﻿using System;
-using System.Windows.Forms;
-
-namespace AssortedDevelopment.StylableWinFormsControls
+﻿namespace AssortedDevelopment.StylableWinFormsControls
 {
     /// <summary>
     /// Win32 Native Window SubClass

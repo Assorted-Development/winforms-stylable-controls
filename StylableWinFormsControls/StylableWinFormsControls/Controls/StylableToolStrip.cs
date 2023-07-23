@@ -1,7 +1,4 @@
-﻿using System;
-using System.Windows.Forms;
-
-namespace AssortedDevelopment.StylableWinFormsControls
+﻿namespace AssortedDevelopment.StylableWinFormsControls
 {
     /// <summary>
     /// This class adds on to the functionality provided in System.Windows.Forms.ToolStrip.

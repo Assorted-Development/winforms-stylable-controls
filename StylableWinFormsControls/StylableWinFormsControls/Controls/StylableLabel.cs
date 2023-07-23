@@ -1,8 +1,4 @@
-﻿using System;
-using System.Drawing;
-using System.Windows.Forms;
-
-namespace AssortedDevelopment.StylableWinFormsControls
+﻿namespace AssortedDevelopment.StylableWinFormsControls
 {
     // Based on original Label.cs code
     // Note that this doesn't support AutoEllipsis on disabled labels

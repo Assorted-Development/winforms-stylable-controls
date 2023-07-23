@@ -1,7 +1,4 @@
-﻿using System.Drawing;
-using System.Windows.Forms;
-
-namespace AssortedDevelopment.StylableWinFormsControls
+﻿namespace AssortedDevelopment.StylableWinFormsControls
 {
     /// <summary>
     /// the default WinForms Button does not allow styling the disabled version
