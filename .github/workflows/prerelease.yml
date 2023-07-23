@@ -5,9 +5,6 @@ name: .NET Pre-Release
 
 on:
   push:
-    # just for testing - switch to main before merging
-    branches: [ "wolframhaussig-patch-auto-release" ]
-  pull_request:
     branches: [ "main" ]
 
 jobs:
