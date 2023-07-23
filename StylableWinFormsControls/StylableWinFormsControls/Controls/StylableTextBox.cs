@@ -1,9 +1,5 @@
-﻿using System;
-using System.ComponentModel;
-using System.Drawing;
-using System.Runtime.InteropServices;
-using System.Windows.Forms;
-using MFBot_1701_E.Theming;
+﻿using System.ComponentModel;
+using Timer = System.Windows.Forms.Timer;
 
 namespace AssortedDevelopment.StylableWinFormsControls
 {

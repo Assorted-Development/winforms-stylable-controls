@@ -513,7 +513,7 @@ namespace AssortedDevelopment.StylableWinFormsControls
             components = new System.ComponentModel.Container();
         }
 
-        internal class TabpageExCollectionEditor : CollectionEditor
+        public class TabpageExCollectionEditor : CollectionEditor
         {
             public TabpageExCollectionEditor(Type type) : base(type)
             {

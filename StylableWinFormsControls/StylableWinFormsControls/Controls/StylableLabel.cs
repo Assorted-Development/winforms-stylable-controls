@@ -7,7 +7,7 @@ namespace AssortedDevelopment.StylableWinFormsControls
     // Based on original Label.cs code
     // Note that this doesn't support AutoEllipsis on disabled labels
     // Note that this doesn't support .NET Framework 1.0/1.1
-    internal class StylableLabel : Label
+    public class StylableLabel : Label
     {
         private MeasureTextCache _textMeasurementCache;
         private MeasureTextCache MeasureTextCache => _textMeasurementCache ??= new MeasureTextCache();
@@ -87,7 +87,7 @@ namespace AssortedDevelopment.StylableWinFormsControls
     /// Source: MeasureTextCache in System.Windows.Forms.Layout.LayoutUtils (part of it)
     /// Cache mechanism added for VSWhidbey 500516
     /// 3000 character strings take 9 seconds to load the form
-    internal class MeasureTextCache
+    public class MeasureTextCache
     {
         private Size unconstrainedPreferredSize = InvalidSize;
 

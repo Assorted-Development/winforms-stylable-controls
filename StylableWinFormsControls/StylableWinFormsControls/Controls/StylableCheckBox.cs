@@ -6,7 +6,7 @@ using System.Windows.Forms.VisualStyles;
 namespace AssortedDevelopment.StylableWinFormsControls
 {
     // note: this doesn't support AutoSize
-    internal class StylableCheckBox : CheckBox
+    public class StylableCheckBox : CheckBox
     {
         private Rectangle textRectangleValue;
         private bool clicked;

@@ -5,7 +5,7 @@ using System.Windows.Forms;
 
 namespace AssortedDevelopment.StylableWinFormsControls
 {
-    internal class StylableListView : ListView
+    public class StylableListView : ListView
     {
         private Brush _groupHeaderBackColorBrush = new SolidBrush(Color.Transparent);
 
