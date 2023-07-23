@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.6.33717.318
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StylableWinFormsControls", "StylableWinFormsControls\StylableWinFormsControls.csproj", "{E99F3798-3265-471F-B42C-6008ADDE69DE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E99F3798-3265-471F-B42C-6008ADDE69DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E99F3798-3265-471F-B42C-6008ADDE69DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E99F3798-3265-471F-B42C-6008ADDE69DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E99F3798-3265-471F-B42C-6008ADDE69DE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {259C7C3A-EDC6-4305-A017-0A0E3FCACBA1}
+	EndGlobalSection
+EndGlobal

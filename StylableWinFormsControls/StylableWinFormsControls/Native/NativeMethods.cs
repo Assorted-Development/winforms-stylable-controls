@@ -1,8 +1,6 @@
-﻿using System;
-using System.Drawing;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 
-namespace AssortedDevelopment.StylableWinFormsControls;
+namespace StylableWinFormsControls.Native;
 
 internal class NativeMethods
 {
