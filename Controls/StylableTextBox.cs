@@ -13,6 +13,25 @@ namespace AssortedDevelopment.StylableWinFormsControls
         private string _hint;
 
         public event EventHandler DelayedTextChanged;
+        private EventHandler _hintActiveChanged;
+        /// <summary>
+        /// will be triggered when IsHintActive changes.
+        /// this event will detect when a callback is already registered and will not register again
+        /// </summary>
+        public event EventHandler HintActiveChanged
+        {
+            add
+            {
+                if (_hintActiveChanged == null || !_hintActiveChanged.GetInvocationList().Contains(value))
+                {
+                    _hintActiveChanged += value;
+                }
+            }
+            remove
+            {
+                _hintActiveChanged -= value;
+            }
+        }
 
         private Color borderColor = Color.Blue;
         public Color BorderColor
@@ -48,9 +67,6 @@ namespace AssortedDevelopment.StylableWinFormsControls
         public StylableTextBox()
         {
             DelayedTextChangedTimeout = 900; // 0.9 seconds
-
-            /* standard on initializing form: hint is enabled */
-            ThemeRegistry.Current.Apply(this, ThemeOptions.Hint);
             IsHintActive = true;
             BorderStyle = BorderStyle.None;
         }
@@ -114,8 +130,9 @@ namespace AssortedDevelopment.StylableWinFormsControls
             if (!IsHintActive && string.IsNullOrEmpty(base.Text))
             {
                 IsHintActive = true;
-                ThemeRegistry.Current.Apply(this, ThemeOptions.Hint);
                 base.Text = Hint;
+                if(_hintActiveChanged != null)
+                    _hintActiveChanged(this, EventArgs.Empty);
             }
 
             base.OnLostFocus(e);
@@ -127,7 +144,8 @@ namespace AssortedDevelopment.StylableWinFormsControls
             {
                 IsHintActive = false;
                 base.Text = "";
-                ThemeRegistry.Current.Apply(this, ThemeOptions.None);
+                if (_hintActiveChanged != null)
+                    _hintActiveChanged(this, EventArgs.Empty);
             }
 
             base.OnGotFocus(e);
