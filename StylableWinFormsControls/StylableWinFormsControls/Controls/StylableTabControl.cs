@@ -24,7 +24,7 @@ public class StylableTabControl : TabControl
     private bool _bUpDown;
     private ImageList _upDownImages;
 
-    private Brush _backgroundColorBrush;
+    private Brush _backgroundColorBrush = new SolidBrush(DefaultBackColor);
     private Pen _borderColorPen = new(SystemColors.ControlDark);
 
     /// <summary>
@@ -42,12 +42,12 @@ public class StylableTabControl : TabControl
     /// <summary>
     /// Background color of the currently active tab rectangle
     /// </summary>
-    public Color ActiveTabBackgroundColor { get; set; }
+    public Color ActiveTabBackgroundColor { get; set; } = DefaultBackColor;
 
     /// <summary>
     /// Foreground color of the currently active tab rectangle
     /// </summary>
-    public Color ActiveTabForegroundColor { get; set; }
+    public Color ActiveTabForegroundColor { get; set; } = DefaultForeColor;
 
     /// <summary>
     /// Border color of border in the tab control and around the tabs
