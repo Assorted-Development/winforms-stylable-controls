@@ -64,7 +64,7 @@ public class StylableTextBox : TextBox
     {
         DelayedTextChangedTimeout = 900; // 0.9 seconds
         IsHintActive = true;
-        BorderStyle = BorderStyle.None;
+        BorderStyle = BorderStyle.FixedSingle;
     }
 
     protected override void Dispose(bool disposing)
