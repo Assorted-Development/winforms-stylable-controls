@@ -1,3 +1,7 @@
+using System;
+using System.Reflection.Metadata;
+using System.Runtime.InteropServices;
+
 namespace StylableWinFormsControls.Example
 {
     public partial class FrmDefault : Form
@@ -5,6 +9,11 @@ namespace StylableWinFormsControls.Example
         public FrmDefault()
         {
             InitializeComponent();
+        }
+
+        private void stylableButton1_Click(object sender, EventArgs e)
+        {
+            new FrmMdi(true).Show();
         }
     }
 }
