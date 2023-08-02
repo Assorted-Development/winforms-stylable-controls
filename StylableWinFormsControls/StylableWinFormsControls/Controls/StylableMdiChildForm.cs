@@ -99,6 +99,12 @@ namespace StylableWinFormsControls.Controls
                 //no need to draw a titlebar or a border so we can rely on the normal Drawing
                 return;
             }
+            if(!IsMdiChild)
+            {
+                //when the form is not an MDI child, the form will be drawn by the Desktop Window Manager
+                //so we don't need to draw it ourselves as the DWM correctly styles the form
+                return;
+            }
             if (m.Msg == WM_NCPAINT || m.Msg == WM_NCACTIVATE)
             {
                 DrawFrame();
