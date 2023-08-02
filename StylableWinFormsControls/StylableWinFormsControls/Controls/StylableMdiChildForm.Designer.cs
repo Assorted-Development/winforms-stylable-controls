@@ -37,7 +37,6 @@
             ClientSize = new Size(800, 450);
             Name = "StylableMdiChildForm";
             Text = "StylableMdiChildForm";
-            Load += Form_Load;
             ResumeLayout(false);
         }
 

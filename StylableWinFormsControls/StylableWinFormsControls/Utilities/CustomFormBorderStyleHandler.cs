@@ -20,7 +20,7 @@ namespace StylableWinFormsControls.Utilities
         /// <param name="f">the form to get the settings from</param>
         public static void DrawBorder(this Graphics g, Color borderColor, Form f)
         {
-            g.DrawBorder(borderColor, f.FormBorderStyle, topOffset: f.GetTitleBarHeight());
+            g.DrawBorder(borderColor, f.FormBorderStyle);
         }
 
         /// <summary>

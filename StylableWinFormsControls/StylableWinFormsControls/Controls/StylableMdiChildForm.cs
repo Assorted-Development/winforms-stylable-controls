@@ -9,6 +9,10 @@ namespace StylableWinFormsControls.Controls
     public partial class StylableMdiChildForm : Form
     {
         /// <summary>
+        /// the width of the Controlbox
+        /// </summary>
+        private const int CONTROLBOX_WIDTH = 35;
+        /// <summary>
         /// Sent to a window when its nonclient area needs to be changed to indicate an active or
         /// inactive state.
         /// </summary>
@@ -54,20 +58,6 @@ namespace StylableWinFormsControls.Controls
             }
         }
 
-        public int TitleHeight
-        {
-            get
-            {
-                return _titleHeight;
-            }
-            set
-            {
-                _titleHeight = value;
-                _titleIconCanvas = new Rectangle(6, 6, _titleHeight - 12, _titleHeight - 12);
-                RecalcDimensions();
-            }
-        }
-
         protected override void WndProc(ref Message m)
         {
             base.WndProc(ref m);
@@ -100,33 +90,30 @@ namespace StylableWinFormsControls.Controls
             IntPtr hdc = GetWindowDC(this.Handle);
             using (Graphics g = Graphics.FromHdc(hdc))
             {
-                DrawTitleBar(g);
-
                 g.DrawBorder(this);
+                DrawTitleBar(g);
             }
             ReleaseDC(this.Handle, hdc);
         }
 
         private void DrawTitleBar(Graphics g)
         {
+            //calculate controlbox width
+            int controlBoxWidth = 0;
+            if (ControlBox)
+            {
+                controlBoxWidth = CONTROLBOX_WIDTH + this.GetBorderWidth();
+                if (MinimizeBox ||  MaximizeBox)
+                {
+                    //minimize/maximize are only hidden if both are disabled
+                    controlBoxWidth += 2 * CONTROLBOX_WIDTH;
+                }
+            }
             //draw title bar
-            g.FillRectangle(_titleBrush, 0, 0, this.Width, TitleHeight);
+            g.FillRectangle(_titleBrush, 0, 0, this.Width - controlBoxWidth, this.GetTitleBarHeight());
             g.DrawString(this.Text, this.Font, Brushes.Coral, 35, 8);
             if (this.Icon != null)
                 g.DrawIcon(this.Icon, _titleIconCanvas);
-        }
-
-        private void Form_Load(object sender, EventArgs e)
-        {
-            RecalcDimensions();
-        }
-
-        private void RecalcDimensions()
-        {
-            int borderWidth = (this.Width - this.ClientSize.Width) / 2;
-            if (TitleHeight == 0)
-                TitleHeight = this.Height - this.ClientSize.Height - borderWidth - 8;
-            this.Height = _titleHeight + this.ClientSize.Height + borderWidth + 8;
         }
     }
 }
