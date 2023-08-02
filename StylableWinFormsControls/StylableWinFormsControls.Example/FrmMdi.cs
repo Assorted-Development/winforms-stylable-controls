@@ -1,14 +1,5 @@
 ﻿using StylableWinFormsControls.Controls;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace StylableWinFormsControls.Example
 {
@@ -22,6 +13,21 @@ namespace StylableWinFormsControls.Example
         /// constant to define dark mode option
         /// </summary>
         internal const int DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1 = 19;
+
+        public FrmMdi()
+        {
+            InitializeComponent();
+            //set the dark mode to better show the styling support of the MDI child form
+            SetWindowTheme(this.Handle, "DarkMode_Explorer", null);
+            OpenThemeData(IntPtr.Zero, "Explorer::ScrollBar");
+            int useImmersiveDarkMode = 1;
+            DwmSetWindowAttribute(this.Handle, DWMWA_USE_IMMERSIVE_DARK_MODE, ref useImmersiveDarkMode, sizeof(int));
+
+            this.IsMdiContainer = true;
+            var child = new StylableMdiChildForm();
+            child.MdiParent = this;
+            child.Show();
+        }
 
         /// <summary>
         /// native method to set the title bar style
@@ -39,25 +45,5 @@ namespace StylableWinFormsControls.Example
 
         [DllImport("uxtheme.dll", CharSet = CharSet.Unicode)]
         internal static extern int SetWindowTheme(IntPtr hWnd, string pszSubAppName, string pszSubIdList);
-
-        public FrmMdi()
-        {
-            InitializeComponent();
-            SetWindowTheme(this.Handle, "DarkMode_Explorer", null);
-            OpenThemeData(IntPtr.Zero, "Explorer::ScrollBar");
-            int useImmersiveDarkMode = 1;
-            DwmSetWindowAttribute(this.Handle, DWMWA_USE_IMMERSIVE_DARK_MODE, ref useImmersiveDarkMode, sizeof(int));
-        }
-        public FrmMdi(bool parent = true): this()
-        {
-            if (parent)
-            {
-                this.IsMdiContainer = true;
-                var child = new StylableMdiChildForm();
-                child.TitleHeight = 40;
-                child.MdiParent = this;
-                child.Show();
-            }
-        }
     }
 }

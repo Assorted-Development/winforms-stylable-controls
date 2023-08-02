@@ -13,7 +13,7 @@ namespace StylableWinFormsControls.Example
 
         private void stylableButton1_Click(object sender, EventArgs e)
         {
-            new FrmMdi(true).Show();
+            new FrmMdi().Show();
         }
     }
 }

@@ -1,5 +1,5 @@
-﻿using System.Runtime.InteropServices;
-using System.Windows.Forms.VisualStyles;
+﻿using StylableWinFormsControls.Utilities;
+using System.Runtime.InteropServices;
 
 namespace StylableWinFormsControls.Controls
 {
@@ -19,40 +19,16 @@ namespace StylableWinFormsControls.Controls
         /// </summary>
         private const int WM_NCPAINT = 0x0085;
 
+        private Brush _titleBrush = new SolidBrush(Color.FromArgb(32, 32, 32));
+
+        private Color _titleColor = Color.FromArgb(32, 32, 32);
+
+        private int _titleHeight = 0;
+
         /// <summary>
         /// defines the place where the icon is drawn
         /// </summary>
         private Rectangle _titleIconCanvas = new Rectangle(6, 6, 20, 20);
-
-        private Color _borderColor = Color.FromArgb(32,32,32);
-        private Brush _borderBrush = new SolidBrush(Color.FromArgb(32, 32, 32));
-        private Brush _titleBrush = new SolidBrush(Color.FromArgb(32, 32, 32));
-        private Color _titleColor = Color.FromArgb(32, 32, 32);
-        private int _titleHeight = 0;
-        public int TitleHeight {
-            get
-            {
-                return _titleHeight;
-            }
-            set
-            {
-                _titleHeight = value;
-                _titleIconCanvas = new Rectangle(6, 6, _titleHeight - 12, _titleHeight - 12);
-                RecalcDimensions();
-            }
-        }
-        private int _borderWidth = 0;
-        public int BorderWidth {
-            get
-            {
-                return _borderWidth;
-            }
-            set
-            {
-                _borderWidth = value;
-                RecalcDimensions();
-            }
-        }
 
         /// <summary>
         /// constructor
@@ -63,18 +39,7 @@ namespace StylableWinFormsControls.Controls
             this.DoubleBuffered = true;
         }
 
-        public Color BorderColor
-        {
-            get
-            {
-                return _borderColor;
-            }
-            set
-            {
-                _borderColor = value;
-                _borderBrush = new SolidBrush(_borderColor);
-            }
-        }
+        public Color BorderColor { get; set; } = Color.FromArgb(32, 32, 32);
 
         public Color TitleColor
         {
@@ -89,6 +54,19 @@ namespace StylableWinFormsControls.Controls
             }
         }
 
+        public int TitleHeight
+        {
+            get
+            {
+                return _titleHeight;
+            }
+            set
+            {
+                _titleHeight = value;
+                _titleIconCanvas = new Rectangle(6, 6, _titleHeight - 12, _titleHeight - 12);
+                RecalcDimensions();
+            }
+        }
 
         protected override void WndProc(ref Message m)
         {
@@ -99,7 +77,7 @@ namespace StylableWinFormsControls.Controls
                 //no need to draw a titlebar or a border so we can rely on the normal Drawing
                 return;
             }
-            if(!IsMdiChild)
+            if (!IsMdiChild)
             {
                 //when the form is not an MDI child, the form will be drawn by the Desktop Window Manager
                 //so we don't need to draw it ourselves as the DWM correctly styles the form
@@ -122,34 +100,33 @@ namespace StylableWinFormsControls.Controls
             IntPtr hdc = GetWindowDC(this.Handle);
             using (Graphics g = Graphics.FromHdc(hdc))
             {
-                //draw title bar
-                g.FillRectangle(_titleBrush, 0, 0, this.Width, TitleHeight);
-                g.DrawString(this.Text, this.Font, Brushes.Coral, 35, 8);
-                if (this.Icon != null)
-                    g.DrawIcon(this.Icon, _titleIconCanvas);
-                //draw left border
-                g.FillRectangle(_borderBrush, 0, TitleHeight, BorderWidth, this.Height - TitleHeight);
-                //draw bottom border
-                g.FillRectangle(_borderBrush, BorderWidth, this.Height - BorderWidth, this.ClientSize.Width, BorderWidth);
-                //draw right border
-                g.FillRectangle(_borderBrush, this.Width - BorderWidth, TitleHeight, BorderWidth, this.Height - TitleHeight);
+                DrawTitleBar(g);
+
+                g.DrawBorder(this);
             }
             ReleaseDC(this.Handle, hdc);
         }
 
-        private void RecalcDimensions()
+        private void DrawTitleBar(Graphics g)
         {
-            if (TitleHeight == 0)
-                TitleHeight = this.Height - this.ClientSize.Height - BorderWidth - 8;
-            if (BorderWidth == 0)
-                BorderWidth = (this.Width - this.ClientSize.Width) / 2;
-            this.Height = _titleHeight + this.ClientSize.Height + BorderWidth + 8;
-            this.Width = 2 * BorderWidth + this.ClientSize.Width;
+            //draw title bar
+            g.FillRectangle(_titleBrush, 0, 0, this.Width, TitleHeight);
+            g.DrawString(this.Text, this.Font, Brushes.Coral, 35, 8);
+            if (this.Icon != null)
+                g.DrawIcon(this.Icon, _titleIconCanvas);
         }
 
         private void Form_Load(object sender, EventArgs e)
         {
             RecalcDimensions();
+        }
+
+        private void RecalcDimensions()
+        {
+            int borderWidth = (this.Width - this.ClientSize.Width) / 2;
+            if (TitleHeight == 0)
+                TitleHeight = this.Height - this.ClientSize.Height - borderWidth - 8;
+            this.Height = _titleHeight + this.ClientSize.Height + borderWidth + 8;
         }
     }
 }
