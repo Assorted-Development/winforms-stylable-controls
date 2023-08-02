@@ -12,6 +12,7 @@ namespace StylableWinFormsControls.Controls
         /// the width of the Controlbox
         /// </summary>
         private const int CONTROLBOX_WIDTH = 35;
+
         /// <summary>
         /// Sent to a window when its nonclient area needs to be changed to indicate an active or
         /// inactive state.
@@ -26,8 +27,6 @@ namespace StylableWinFormsControls.Controls
         private Brush _titleBrush = new SolidBrush(Color.FromArgb(32, 32, 32));
 
         private Color _titleColor = Color.FromArgb(32, 32, 32);
-
-        private int _titleHeight = 0;
 
         /// <summary>
         /// defines the place where the icon is drawn
@@ -45,7 +44,7 @@ namespace StylableWinFormsControls.Controls
 
         public Color BorderColor { get; set; } = Color.FromArgb(32, 32, 32);
 
-        public Color TitleColor
+        public Color TitleBackColor
         {
             get
             {
@@ -57,6 +56,8 @@ namespace StylableWinFormsControls.Controls
                 _titleBrush = new SolidBrush(_titleColor);
             }
         }
+
+        public Color TitleForeColor { get; set; } = Color.White;
 
         protected override void WndProc(ref Message m)
         {
@@ -103,17 +104,27 @@ namespace StylableWinFormsControls.Controls
             if (ControlBox)
             {
                 controlBoxWidth = CONTROLBOX_WIDTH + this.GetBorderWidth();
-                if (MinimizeBox ||  MaximizeBox)
+                if (MinimizeBox || MaximizeBox)
                 {
                     //minimize/maximize are only hidden if both are disabled
                     controlBoxWidth += 2 * CONTROLBOX_WIDTH;
                 }
             }
-            //draw title bar
+            //draw title bar background
             g.FillRectangle(_titleBrush, 0, 0, this.Width - controlBoxWidth, this.GetTitleBarHeight());
-            g.DrawString(this.Text, this.Font, Brushes.Coral, 35, 8);
-            if (this.Icon != null)
-                g.DrawIcon(this.Icon, _titleIconCanvas);
+
+            //draw icon if available
+            int offset = 0;
+            if (this.Width > (controlBoxWidth + _titleIconCanvas.X + _titleIconCanvas.Width))
+            {
+                if (this.Icon != null)
+                    g.DrawIcon(this.Icon, _titleIconCanvas);
+                offset = _titleIconCanvas.X + _titleIconCanvas.Width;
+            }
+            //draw titlebar text
+            int widthAvailable = this.Width - controlBoxWidth - offset;
+            Rectangle bounds = new Rectangle(offset, 6, widthAvailable, 20);
+            TextRenderer.DrawText(g, Text, Font, bounds, TitleForeColor, TextFormatFlags.EndEllipsis);
         }
     }
 }
