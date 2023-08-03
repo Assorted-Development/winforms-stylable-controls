@@ -118,8 +118,10 @@ namespace StylableWinFormsControls.Controls
             if (this.Width > (controlBoxWidth + _titleIconCanvas.X + _titleIconCanvas.Width))
             {
                 if (this.Icon != null)
+                {
                     g.DrawIcon(this.Icon, _titleIconCanvas);
-                offset = _titleIconCanvas.X + _titleIconCanvas.Width;
+                    offset = _titleIconCanvas.X + _titleIconCanvas.Width;
+                }
             }
             //draw titlebar text
             int widthAvailable = this.Width - controlBoxWidth - offset;
