@@ -44,6 +44,21 @@ namespace StylableWinFormsControls.Controls
 
         public Color BorderColor { get; set; } = Color.FromArgb(32, 32, 32);
 
+        /// <summary>
+        /// the Icon to close the form
+        /// </summary>
+        public Icon CloseIcon { get; set; } = Properties.Resources.close_window_24;
+
+        /// <summary>
+        /// the Icon to maximize the form
+        /// </summary>
+        public Icon MaximizeIcon { get; set; } = Properties.Resources.maximize_window_24;
+
+        /// <summary>
+        /// the Icon to minimize the form
+        /// </summary>
+        public Icon MinimizeIcon { get; set; } = Properties.Resources.minimize_window_24;
+
         public Color TitleBackColor
         {
             get
@@ -104,14 +119,17 @@ namespace StylableWinFormsControls.Controls
             if (ControlBox)
             {
                 controlBoxWidth = CONTROLBOX_WIDTH + this.GetBorderWidth();
-                if (MinimizeBox || MaximizeBox)
+                if (MinimizeBox)
                 {
-                    //minimize/maximize are only hidden if both are disabled
-                    controlBoxWidth += 2 * CONTROLBOX_WIDTH;
+                    controlBoxWidth += CONTROLBOX_WIDTH;
+                }
+                if (MaximizeBox)
+                {
+                    controlBoxWidth += CONTROLBOX_WIDTH;
                 }
             }
             //draw title bar background
-            g.FillRectangle(_titleBrush, 0, 0, this.Width - controlBoxWidth, this.GetTitleBarHeight());
+            g.FillRectangle(_titleBrush, 0, 0, this.Width, this.GetTitleBarHeight());
 
             //draw icon if available
             int offset = 0;
@@ -127,6 +145,23 @@ namespace StylableWinFormsControls.Controls
             int widthAvailable = this.Width - controlBoxWidth - offset;
             Rectangle bounds = new Rectangle(offset, 6, widthAvailable, 20);
             TextRenderer.DrawText(g, Text, Font, bounds, TitleForeColor, TextFormatFlags.EndEllipsis);
+
+            //draw controlbox
+            if (ControlBox)
+            {
+                int startPos = this.Width - controlBoxWidth;
+                if (MinimizeBox)
+                {
+                    g.DrawIcon(MinimizeIcon, startPos, 6);
+                    startPos += CONTROLBOX_WIDTH;
+                }
+                if (MaximizeBox)
+                {
+                    g.DrawIcon(MaximizeIcon, startPos, 6);
+                    startPos += CONTROLBOX_WIDTH;
+                }
+                g.DrawIcon(CloseIcon, startPos, 6);
+            }
         }
     }
 }
