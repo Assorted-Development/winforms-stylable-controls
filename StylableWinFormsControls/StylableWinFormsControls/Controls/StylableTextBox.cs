@@ -58,8 +58,8 @@ public class StylableTextBox : TextBox
                 _hintRefresh = true;
                 base.Text = value;
                 _hintRefresh = false;
+            }
         }
-    }
     }
 
     public bool IsHintActive { get; private set; }
@@ -85,7 +85,7 @@ public class StylableTextBox : TextBox
 
         base.Dispose(disposing);
     }
-        
+
 
     #region timer events / methods
     protected virtual void OnDelayedTextChanged(EventArgs e)
@@ -143,7 +143,7 @@ public class StylableTextBox : TextBox
             _hintRefresh = true;
             base.Text = Hint;
             _hintRefresh = false;
-            if(_hintActiveChanged != null)
+            if (_hintActiveChanged != null)
                 _hintActiveChanged(this, EventArgs.Empty);
         }
 
