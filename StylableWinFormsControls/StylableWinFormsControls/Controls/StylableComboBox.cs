@@ -98,7 +98,7 @@ public class StylableComboBox : ComboBox
 
     protected override void OnPaint(PaintEventArgs e)
     {
-        if (this.DropDownStyle == ComboBoxStyle.DropDownList)
+        if (this.DropDownStyle != ComboBoxStyle.Simple)
         {
             drawComboBox(e.Graphics);
             return;
