@@ -9,11 +9,14 @@ public class StylableTextBox : TextBox
     private string _hint;
 
     public event EventHandler DelayedTextChanged;
+
     private EventHandler _hintActiveChanged;
+
     /// <summary>
     /// will be set when the Text is being set because of Hint logic
     /// </summary>
     private bool _hintRefresh = false;
+
     /// <summary>
     /// will be triggered when IsHintActive changes.
     /// this event will detect when a callback is already registered and will not register again
@@ -34,6 +37,7 @@ public class StylableTextBox : TextBox
     }
 
     private Color borderColor = Color.Blue;
+
     public Color BorderColor
     {
         get => borderColor;
@@ -42,8 +46,35 @@ public class StylableTextBox : TextBox
             borderColor = value;
         }
     }
+
+    /// <summary>
+    /// used to set the color of the hint text
+    /// </summary>
+    public Color HintForeColor { get; set; } = Color.Gray;
+
+    /// <summary>
+    /// used to set the color of the hint text
+    /// </summary>
+    public Color TextForeColor { get; set; } = Color.Black;
+
     [Editor]
     public int DelayedTextChangedTimeout { get; set; }
+
+    /// <summary>
+    /// Gets or sets the foreground color of the control.
+    /// We are hiding this as it is only the current color of the text.
+    /// Use <see cref="TextForeColor"/> to set the color of the text or <see cref="HintForeColor"/> for the hint.
+    /// </summary>
+    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+    [Obsolete("Use TextForeColor or HintForeColor instead")]
+    public new Color ForeColor
+    {
+        get => base.ForeColor;
+        set
+        {
+            base.ForeColor = value;
+        }
+    }
 
     [Editor]
     [Description("If set, this text will be shown as grayed hint until the user enters the box")]
@@ -68,6 +99,7 @@ public class StylableTextBox : TextBox
 
     public StylableTextBox()
     {
+        InitializeComponent();
         DelayedTextChangedTimeout = 900; // 0.9 seconds
         IsHintActive = true;
         BorderStyle = BorderStyle.None;
@@ -86,8 +118,8 @@ public class StylableTextBox : TextBox
         base.Dispose(disposing);
     }
 
-
     #region timer events / methods
+
     protected virtual void OnDelayedTextChanged(EventArgs e)
     {
         DelayedTextChanged?.Invoke(this, e);
@@ -125,22 +157,32 @@ public class StylableTextBox : TextBox
 
         OnDelayedTextChanged(EventArgs.Empty);
     }
-    #endregion
+
+    #endregion timer events / methods
+
     #region hint events / methods
+
     private void OnTextChanged(Object? sender, EventArgs e)
     {
         if (!_hintRefresh)
         {
             //The text change either comes from the user or the application setting a default value
             IsHintActive = false;
+#pragma warning disable CS0618 //Obsolete
+            this.ForeColor = TextForeColor;
+#pragma warning restore CS0618 //Obsolete
         }
     }
+
     protected override void OnLostFocus(EventArgs e)
     {
         if (!IsHintActive && string.IsNullOrEmpty(base.Text))
         {
             IsHintActive = true;
             _hintRefresh = true;
+#pragma warning disable CS0618 //Obsolete
+            this.ForeColor = HintForeColor;
+#pragma warning restore CS0618 //Obsolete
             base.Text = Hint;
             _hintRefresh = false;
             if (_hintActiveChanged != null)
@@ -155,6 +197,9 @@ public class StylableTextBox : TextBox
         if (IsHintActive && !string.IsNullOrEmpty(base.Text))
         {
             IsHintActive = false;
+#pragma warning disable CS0618 //Obsolete
+            this.ForeColor = TextForeColor;
+#pragma warning restore CS0618 //Obsolete
             _hintRefresh = true;
             base.Text = "";
             _hintRefresh = false;
@@ -164,5 +209,37 @@ public class StylableTextBox : TextBox
 
         base.OnGotFocus(e);
     }
-    #endregion
+
+    #endregion hint events / methods
+
+    private void InitializeComponent()
+    {
+        SuspendLayout();
+        //
+        // StylableTextBox
+        //
+        VisibleChanged += StylableTextBox_VisibleChanged;
+        ResumeLayout(false);
+    }
+
+    /// <summary>
+    /// ensure the correct forecolor is set when the control is first shown
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void StylableTextBox_VisibleChanged(object sender, EventArgs e)
+    {
+        if (IsHintActive)
+        {
+#pragma warning disable CS0618 //Obsolete
+            this.ForeColor = HintForeColor;
+#pragma warning restore CS0618 //Obsolete
+        }
+        else
+        {
+#pragma warning disable CS0618 //Obsolete
+            this.ForeColor = TextForeColor;
+#pragma warning restore CS0618 //Obsolete
+        }
+    }
 }
