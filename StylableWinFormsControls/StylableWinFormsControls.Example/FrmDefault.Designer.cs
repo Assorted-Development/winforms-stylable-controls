@@ -28,20 +28,18 @@
         /// </summary>
         private void InitializeComponent()
         {
-            ListViewItem listViewItem1 = new ListViewItem("Content");
-            ListViewItem listViewItem2 = new ListViewItem("Content");
-            ListViewItem listViewItem3 = new ListViewItem(new string[] { "Content", "Content" }, -1);
-            ListViewItem listViewItem4 = new ListViewItem("Content");
-            ListViewItem listViewItem5 = new ListViewItem("Content");
+            ListViewItem listViewItem6 = new ListViewItem("Content");
+            ListViewItem listViewItem7 = new ListViewItem("Content");
+            ListViewItem listViewItem8 = new ListViewItem(new string[] { "Content", "Content" }, -1);
+            ListViewItem listViewItem9 = new ListViewItem("Content");
+            ListViewItem listViewItem10 = new ListViewItem("Content");
             stylableButton1 = new StylableButton();
             stylableCheckBox1 = new StylableCheckBox();
-            stylableComboBox1 = new StylableComboBox();
             stylableDataGridView1 = new StylableDataGridView();
             Column1 = new DataGridViewTextBoxColumn();
             Column2 = new DataGridViewTextBoxColumn();
             Column3 = new DataGridViewTextBoxColumn();
             Column4 = new DataGridViewTextBoxColumn();
-            stylableDateTimePicker1 = new StylableDateTimePicker();
             stylableLabel1 = new StylableLabel();
             stylableListView1 = new StylableListView();
             columnHeader1 = new ColumnHeader();
@@ -49,7 +47,6 @@
             stylableTabControl1 = new StylableTabControl();
             tabPage1 = new TabPage();
             tabPage2 = new TabPage();
-            stylableTextBox1 = new StylableTextBox();
             lbl_description = new StylableLabel();
             gb_stylabletabcontrol = new GroupBox();
             gb_stylablelistview = new GroupBox();
@@ -60,6 +57,9 @@
             gb_stylableDataGridView = new GroupBox();
             gb_stylableLabel = new GroupBox();
             gb_stylableTextBox = new GroupBox();
+            stylableTextBox1 = new StylableTextBox();
+            stylableComboBox1 = new StylableComboBox();
+            stylableDateTimePicker1 = new StylableDateTimePicker();
             ((System.ComponentModel.ISupportInitialize)stylableDataGridView1).BeginInit();
             stylableTabControl1.SuspendLayout();
             gb_stylabletabcontrol.SuspendLayout();
@@ -97,17 +97,6 @@
             stylableCheckBox1.TabIndex = 1;
             stylableCheckBox1.Text = "This is content";
             stylableCheckBox1.UseVisualStyleBackColor = true;
-            // 
-            // stylableComboBox1
-            // 
-            stylableComboBox1.DrawMode = DrawMode.OwnerDrawFixed;
-            stylableComboBox1.FormattingEnabled = true;
-            stylableComboBox1.Items.AddRange(new object[] { "This is content 1", "This is content 2", "This is content 3", "This is content with slightly more length" });
-            stylableComboBox1.Location = new Point(6, 22);
-            stylableComboBox1.Name = "stylableComboBox1";
-            stylableComboBox1.Size = new Size(199, 24);
-            stylableComboBox1.TabIndex = 2;
-            stylableComboBox1.Text = "This is content";
             // 
             // stylableDataGridView1
             // 
@@ -147,17 +136,6 @@
             Column4.Name = "Column4";
             Column4.Resizable = DataGridViewTriState.True;
             // 
-            // stylableDateTimePicker1
-            // 
-            stylableDateTimePicker1.DisabledBackColor = Color.Gray;
-            stylableDateTimePicker1.DisabledForeColor = Color.Black;
-            stylableDateTimePicker1.EnabledBackColor = Color.White;
-            stylableDateTimePicker1.EnabledForeColor = Color.Black;
-            stylableDateTimePicker1.Location = new Point(6, 22);
-            stylableDateTimePicker1.Name = "stylableDateTimePicker1";
-            stylableDateTimePicker1.Size = new Size(200, 23);
-            stylableDateTimePicker1.TabIndex = 4;
-            // 
             // stylableLabel1
             // 
             stylableLabel1.AutoSize = true;
@@ -171,7 +149,7 @@
             // stylableListView1
             // 
             stylableListView1.Columns.AddRange(new ColumnHeader[] { columnHeader1, columnHeader2 });
-            stylableListView1.Items.AddRange(new ListViewItem[] { listViewItem1, listViewItem2, listViewItem3, listViewItem4, listViewItem5 });
+            stylableListView1.Items.AddRange(new ListViewItem[] { listViewItem6, listViewItem7, listViewItem8, listViewItem9, listViewItem10 });
             stylableListView1.Location = new Point(6, 18);
             stylableListView1.Name = "stylableListView1";
             stylableListView1.Size = new Size(242, 178);
@@ -219,19 +197,6 @@
             tabPage2.TabIndex = 1;
             tabPage2.Text = "tabPage2";
             tabPage2.UseVisualStyleBackColor = true;
-            // 
-            // stylableTextBox1
-            // 
-            stylableTextBox1.BorderColor = Color.Blue;
-            stylableTextBox1.BorderStyle = BorderStyle.None;
-            stylableTextBox1.DelayedTextChangedTimeout = 900;
-            stylableTextBox1.Hint = "Hello, my name is ...";
-            stylableTextBox1.IsDelayActive = true;
-            stylableTextBox1.Location = new Point(6, 22);
-            stylableTextBox1.Name = "stylableTextBox1";
-            stylableTextBox1.Size = new Size(207, 16);
-            stylableTextBox1.TabIndex = 8;
-            stylableTextBox1.Text = "This is content";
             // 
             // lbl_description
             // 
@@ -333,6 +298,41 @@
             gb_stylableTextBox.TabStop = false;
             gb_stylableTextBox.Text = "StylableTextBox";
             // 
+            // stylableTextBox1
+            // 
+            stylableTextBox1.BorderColor = Color.Blue;
+            stylableTextBox1.BorderStyle = BorderStyle.FixedSingle;
+            stylableTextBox1.DelayedTextChangedTimeout = 900;
+            stylableTextBox1.Hint = "Hello, my name is..";
+            stylableTextBox1.IsDelayActive = true;
+            stylableTextBox1.Location = new Point(6, 17);
+            stylableTextBox1.Name = "stylableTextBox1";
+            stylableTextBox1.Size = new Size(207, 23);
+            stylableTextBox1.TabIndex = 0;
+            stylableTextBox1.Text = "This is content";
+            // 
+            // stylableComboBox1
+            // 
+            stylableComboBox1.DrawMode = DrawMode.OwnerDrawFixed;
+            stylableComboBox1.FormattingEnabled = true;
+            stylableComboBox1.Items.AddRange(new object[] { "This is content 1", "This is content 2", "This is content 3", "This is content with slightly more length" });
+            stylableComboBox1.Location = new Point(6, 22);
+            stylableComboBox1.Name = "stylableComboBox1";
+            stylableComboBox1.Size = new Size(200, 24);
+            stylableComboBox1.TabIndex = 0;
+            stylableComboBox1.Text = "This is content";
+            // 
+            // stylableDateTimePicker1
+            // 
+            stylableDateTimePicker1.DisabledBackColor = Color.Gray;
+            stylableDateTimePicker1.DisabledForeColor = Color.Black;
+            stylableDateTimePicker1.EnabledBackColor = Color.White;
+            stylableDateTimePicker1.EnabledForeColor = Color.Black;
+            stylableDateTimePicker1.Location = new Point(6, 22);
+            stylableDateTimePicker1.Name = "stylableDateTimePicker1";
+            stylableDateTimePicker1.Size = new Size(200, 23);
+            stylableDateTimePicker1.TabIndex = 0;
+            // 
             // FrmDefault
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -371,9 +371,7 @@
 
         private StylableButton stylableButton1;
         private StylableCheckBox stylableCheckBox1;
-        private StylableComboBox stylableComboBox1;
         private StylableDataGridView stylableDataGridView1;
-        private StylableDateTimePicker stylableDateTimePicker1;
         private StylableLabel stylableLabel1;
         private StylableListView stylableListView1;
         private ColumnHeader columnHeader1;
@@ -381,7 +379,6 @@
         private StylableTabControl stylableTabControl1;
         private TabPage tabPage1;
         private TabPage tabPage2;
-        private StylableTextBox stylableTextBox1;
         private StylableLabel lbl_description;
         private TextBox textBox1;
         private GroupBox gb_stylabletabcontrol;
@@ -397,5 +394,8 @@
         private DataGridViewTextBoxColumn Column2;
         private DataGridViewTextBoxColumn Column3;
         private DataGridViewTextBoxColumn Column4;
+        private StylableTextBox stylableTextBox1;
+        private StylableComboBox stylableComboBox1;
+        private StylableDateTimePicker stylableDateTimePicker1;
     }
 }
