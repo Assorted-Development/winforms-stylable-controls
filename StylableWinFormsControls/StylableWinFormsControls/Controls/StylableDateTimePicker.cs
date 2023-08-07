@@ -17,6 +17,16 @@ public class StylableDateTimePicker : DateTimePicker
     {
         this.SetStyle(ControlStyles.UserPaint, true);
     }
+    protected override CreateParams CreateParams
+    {
+        get
+        {
+            CreateParams handleParam = base.CreateParams;
+            //prevent flickering of the control
+            handleParam.ExStyle |= 0x02000000;   // WS_EX_COMPOSITED       
+            return handleParam;
+        }
+    }
     /// <summary>
     ///  Gets or sets the background color of the control
     ///  </summary>
