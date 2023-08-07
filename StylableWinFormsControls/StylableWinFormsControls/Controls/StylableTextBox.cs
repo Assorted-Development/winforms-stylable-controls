@@ -11,6 +11,10 @@ public class StylableTextBox : TextBox
     public event EventHandler DelayedTextChanged;
     private EventHandler _hintActiveChanged;
     /// <summary>
+    /// will be set when the Text is being set because of Hint logic
+    /// </summary>
+    private bool _hintRefresh = false;
+    /// <summary>
     /// will be triggered when IsHintActive changes.
     /// this event will detect when a callback is already registered and will not register again
     /// </summary>
@@ -50,21 +54,24 @@ public class StylableTextBox : TextBox
         {
             _hint = value;
             if (string.IsNullOrEmpty(base.Text))
+            {
+                _hintRefresh = true;
                 base.Text = value;
+                _hintRefresh = false;
         }
+    }
     }
 
     public bool IsHintActive { get; private set; }
 
     public bool IsDelayActive { get; set; } = true;
 
-    public new string Text => base.Text == Hint ? "" : base.Text;
-
     public StylableTextBox()
     {
         DelayedTextChangedTimeout = 900; // 0.9 seconds
         IsHintActive = true;
         BorderStyle = BorderStyle.FixedSingle;
+        this.TextChanged += OnTextChanged;
     }
 
     protected override void Dispose(bool disposing)
@@ -120,13 +127,22 @@ public class StylableTextBox : TextBox
     }
     #endregion
     #region hint events / methods
-
+    private void OnTextChanged(Object? sender, EventArgs e)
+    {
+        if (!_hintRefresh)
+        {
+            //The text change either comes from the user or the application setting a default value
+            IsHintActive = false;
+        }
+    }
     protected override void OnLostFocus(EventArgs e)
     {
         if (!IsHintActive && string.IsNullOrEmpty(base.Text))
         {
             IsHintActive = true;
+            _hintRefresh = true;
             base.Text = Hint;
+            _hintRefresh = false;
             if(_hintActiveChanged != null)
                 _hintActiveChanged(this, EventArgs.Empty);
         }
@@ -139,7 +155,9 @@ public class StylableTextBox : TextBox
         if (IsHintActive && !string.IsNullOrEmpty(base.Text))
         {
             IsHintActive = false;
+            _hintRefresh = true;
             base.Text = "";
+            _hintRefresh = false;
             if (_hintActiveChanged != null)
                 _hintActiveChanged(this, EventArgs.Empty);
         }
