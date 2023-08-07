@@ -20,26 +20,90 @@ This project contains custom WinForms controls that support more styling options
 To use this project, just add a reference to our nuget package (`dotnet add package AssortedDevelopment.StylableWinFormsControls`) and replace the standard controls by our custom controls. All the controls can be found in the namespace `StylableWinFormsControls`.
 
 ## Controls
-This is the currently available list of custom controls.
+This is the currently available list of custom controls and their extended features and known characteristics compared to the original WInForms controls.
 
 ### Button => StylableButton
+Exposes the following additional properties:
+* `Color EnabledHoverColor`: Gets/Sets the background color while the mouse is over the enabled Button.
+* `Color EnabledBackColor`: Gets/Sets the background color of an enabled Button.
+* `Color DisabledBackColor`: Gets/Sets the background color of a disabled Button.
+* `Color EnabledForeColor`:  Gets/Sets the foreground color of an enabled Button.
+* `Color DisabledForeColor`: Gets/Sets the foreground color of a disabled Button.
+* `Color BorderColor`: Gets/sets the border color in any of the scenarios described above.
 
 ### CheckBox => StylableCheckBox
+Exposes the following additional properties:
+* `Color DisabledForeColor`: Gets/Sets the foreground color if the checkbox is disabled.
+
+Has the following additional characteristics:
+* Does not support AutoSize at the moment
 
 ### ComboBox => StylableComboBox
+Exposes the following additional properties:
+* `Color BorderColor`: Sets the color of the border around the combobox (not the item list box)
+* `Color ItemHoverColor`: Sets the background color of the item in the list that's currently hovered/selected.
 
 ### DataGridView => StylableDataGridView
+Exposes the following additional properties:
+* `bool DoubleBuffered`: Exposes the underlying `Control.DoubleBuffered` to enable/disable double-buffering on the `DataGridView` control
+* `bool EnableFirstColumnGrouping`: Gets/sets a value indicating whether multiple occurences of the same text in multiple rows of the first column should all be hidden except for the first one.
 
 ### DateTimePicker => StylableDateTimePicker
+Exposes the following additional properties:
+* `Color EnabledBackColor`: Gets/Sets the background color of an enabled DateTimePicker.
+* `Color DisabledBackColor`: Gets/Sets the background color of a disabled DateTimePicker.
+* `Color EnabledForeColor`:  Gets/Sets the foreground color of an enabled DateTimePicker.
+* `Color DisabledForeColor`: Gets/Sets the foreground color of a disabled DateTimePicker.
+
+Has the following additional characteristics:
+* The control behavior via keyboard is currently unreliable (see #24)
+* The `BackColor` property is additionally accessable via Designer
 
 ### Label => StylableLabel
+Exposes the following additional properties:
+* `Color DisabledForeColor`: Gets/Sets the foreground color of a disabled Label.
+
+Has the following additional characteristics:
+* Does not currently support AutoEllipsis on disabled labels
 
 ### ListView => StylableListView
+Exposes the following additional properties:
+* `Color GroupHeaderBackColor`: Sets the color that builds the background of any group header row.
+* `Color GroupHeaderForeColor`: Sets the foreground color of any group header row.
+* `Color SelectedItemBackColor`: Sets the color that builds the background of selected item rows.
+* `Color SelectedItemForeColor`: Sets the foreground color of any selected item row.
+
+Has the following additional characteristics:
+* DoubleBuffering is forced to be enabled for technical reasons
 
 ### TabControl => StylableTabControl
+Exposes the following additional properties:
+* `Color BackgroundColor`: Sets the background color of the entire TabControl.
+* `Color ActiveTabBackgroundColor`: Gets/sets the background color of the currently active tab rectangle.
+* `Color ActiveTabForegroundColor`: Gets/sets the foreground color of the currently active tab rectangle.
+* `Color BorderColor`: Sets color of the border in the TabControl itself and around the tabs
+* `bool UseRoundedCorners`: Gets or sets a value indicating whether tab page controls have a corner radius or not.
+* `Bitmap[] UpDownImages`: Gets or sets the currently used images for the UpDown control.
+   [0] = Left, [1] = Right, [2] = Left (disabled), [3] = Right (disabled)
+ 
+Has the following additional characteristics:
+* Only supports `Alignment` values `Top` and `Bottom`
+* `Multiline` is currently not supported
 
 ### TextBox => StylableTextBox
-This Textbox supports providing hints to be shown when the control does not have focus and the value is empty.
+Exposes the following additional properties:
+* `Color BorderColor`: Gets/Sets the color of the border around the TextBox
+* `Color HintForeColor`: Gets/Sets the foreground color of the hint text
+* `Color TextForeColor`: Gets/Sets the foreground color of non-hint text
+* `string Hint`: Gets/Sets the value to be shown if no user-provided text or default text is shown
+* `bool IsHintActive`: Gets a value indicating whether the text currently shows a hint text or not.
+* `bool IsDelayActive`: Gets/Sets a value indicating whether the `TextChanged` event is to be triggered only after a specified amount of time.
+* `DelayedTextChangedTimeout`: Gets/Sets the delay time for triggering the `TextChanged` event after the last user input
+
+Has the following additional characteristics:
+* Supports providing hints to be shown when the control does not have focus and the value is empty.
+* Supports delaying `TextChanged` events
+
 
 ## Contributions
 
