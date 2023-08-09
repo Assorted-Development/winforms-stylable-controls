@@ -150,13 +150,14 @@ public class StylableDateTimePicker : DateTimePicker
         var highlightBrush = new SolidBrush(this.ForeColor.Highlight());
         foreach (var part in _dateParts)
         {
+            Rectangle bounds = new Rectangle(part.Start, 2, part.End - part.Start, this.Height - 2);
             if (part.Selected)
-                g.DrawString(this.Value.ToString(part.Format), this.Font, highlightBrush, part.Start, 2);
+                TextRenderer.DrawText(g, this.Value.ToString(part.Format), Font, bounds, this.ForeColor.Highlight(), TextFormatFlags.EndEllipsis);
             else
-                g.DrawString(this.Value.ToString(part.Format), this.Font, brush, part.Start, 2);
+                TextRenderer.DrawText(g, this.Value.ToString(part.Format), Font, bounds, this.ForeColor, TextFormatFlags.EndEllipsis);
         }
     }
-    int counter = 0;
+
     /// <summary>
     /// increment/decrement the selected part
     /// </summary>
@@ -325,22 +326,7 @@ public class StylableDateTimePicker : DateTimePicker
             this.Invalidate();
         }
     }
-    /// <summary>
-    /// increment or decrement the month part of the DateTime
-    /// </summary>
-    /// <param name="num"></param>
-    private void UpdatePartMonth(int num)
-    {
-        this.Value = this.Value.AddMonths(num);
-    }
-    /// <summary>
-    /// increment or decrement the year part of the DateTime
-    /// </summary>
-    /// <param name="num"></param>
-    private void UpdatePartYear(int num)
-    {
-        this.Value = this.Value.AddYears(num);
-    }
+
     /// <summary>
     /// generically increment or decrement the selected part of the DateTime. Does not work for months and years
     /// </summary>
@@ -360,11 +346,28 @@ public class StylableDateTimePicker : DateTimePicker
             tsFmt = "dd";
         }
         TimeSpan ts = TimeSpan.ParseExact(tmp.ToString(dFmt, CultureInfo.CurrentCulture), tsFmt, CultureInfo.CurrentCulture);
-        counter += num;
         if (num > 0)
             this.Value = this.Value.Add(ts);
         else
             this.Value = this.Value.Subtract(ts);
+    }
+
+    /// <summary>
+    /// increment or decrement the month part of the DateTime
+    /// </summary>
+    /// <param name="num"></param>
+    private void UpdatePartMonth(int num)
+    {
+        this.Value = this.Value.AddMonths(num);
+    }
+
+    /// <summary>
+    /// increment or decrement the year part of the DateTime
+    /// </summary>
+    /// <param name="num"></param>
+    private void UpdatePartYear(int num)
+    {
+        this.Value = this.Value.AddYears(num);
     }
 
     /// <summary>
