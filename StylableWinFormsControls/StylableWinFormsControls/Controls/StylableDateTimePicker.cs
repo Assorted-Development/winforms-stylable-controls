@@ -256,6 +256,7 @@ public class StylableDateTimePicker : DateTimePicker
         else if (e.KeyCode == Keys.Left || e.KeyCode == Keys.Right)
         {
             NavigateParts(e.KeyCode);
+            this.Invalidate();
         }
         e.Handled = true;
     }
@@ -309,17 +310,61 @@ public class StylableDateTimePicker : DateTimePicker
         var part = _dateParts.FirstOrDefault(p => p.Selected);
         if (num != 0 && part != null)
         {
-            //create a timespan with the given number of days, months, years, hours, minutes or seconds
-            int absNumber = Math.Abs(num);
-            DateTime tmp = new(absNumber, absNumber, absNumber, absNumber, absNumber, absNumber);
-            var tsFmt = Regex.Replace(part.Format, @"([^a-zA-Z0-9]+)", "\\$1").ToLower();
-            TimeSpan ts = TimeSpan.ParseExact(tmp.ToString(part.Format, CultureInfo.CurrentCulture), tsFmt, CultureInfo.CurrentCulture);
-            counter += num;
-            if (num > 0)
-                this.Value = this.Value.Add(ts);
+            if (part.Format.StartsWith("M"))
+            {
+                UpdatePartMonth(num);
+            }
+            else if (part.Format.StartsWith("y"))
+            {
+                UpdatePartYear(num);
+            }
             else
-                this.Value = this.Value.Subtract(ts);
+            {
+                UpdatePartGeneric(num, part);
+            }
+            this.Invalidate();
         }
+    }
+    /// <summary>
+    /// increment or decrement the month part of the DateTime
+    /// </summary>
+    /// <param name="num"></param>
+    private void UpdatePartMonth(int num)
+    {
+        this.Value = this.Value.AddMonths(num);
+    }
+    /// <summary>
+    /// increment or decrement the year part of the DateTime
+    /// </summary>
+    /// <param name="num"></param>
+    private void UpdatePartYear(int num)
+    {
+        this.Value = this.Value.AddYears(num);
+    }
+    /// <summary>
+    /// generically increment or decrement the selected part of the DateTime. Does not work for months and years
+    /// </summary>
+    /// <param name="num"></param>
+    /// <param name="part"></param>
+    private void UpdatePartGeneric(int num, DatePartInfo part)
+    {
+        //create a timespan with the given number of days, hours, minutes or seconds
+        int absNumber = Math.Abs(num);
+        DateTime tmp = new(absNumber, absNumber, absNumber, absNumber, absNumber, absNumber);
+        var dFmt = part.Format;
+        var tsFmt = Regex.Replace(dFmt, @"([^a-zA-Z0-9]+)", "\\$1").ToLower();
+        //special handling for fullname of days as we want to get a numeric value to add or subtract
+        if (dFmt.StartsWith("d") && dFmt.Length > 3)
+        {
+            dFmt = "dd";
+            tsFmt = "dd";
+        }
+        TimeSpan ts = TimeSpan.ParseExact(tmp.ToString(dFmt, CultureInfo.CurrentCulture), tsFmt, CultureInfo.CurrentCulture);
+        counter += num;
+        if (num > 0)
+            this.Value = this.Value.Add(ts);
+        else
+            this.Value = this.Value.Subtract(ts);
     }
 
     /// <summary>
