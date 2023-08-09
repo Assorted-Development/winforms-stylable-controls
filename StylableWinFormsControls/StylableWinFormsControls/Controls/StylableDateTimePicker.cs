@@ -156,7 +156,7 @@ public class StylableDateTimePicker : DateTimePicker
                 g.DrawString(this.Value.ToString(part.Format), this.Font, brush, part.Start, 2);
         }
     }
-
+    int counter = 0;
     /// <summary>
     /// increment/decrement the selected part
     /// </summary>
@@ -257,6 +257,7 @@ public class StylableDateTimePicker : DateTimePicker
         {
             NavigateParts(e.KeyCode);
         }
+        e.Handled = true;
     }
 
     /// <summary>
@@ -313,6 +314,7 @@ public class StylableDateTimePicker : DateTimePicker
             DateTime tmp = new(absNumber, absNumber, absNumber, absNumber, absNumber, absNumber);
             var tsFmt = Regex.Replace(part.Format, @"([^a-zA-Z0-9]+)", "\\$1").ToLower();
             TimeSpan ts = TimeSpan.ParseExact(tmp.ToString(part.Format, CultureInfo.CurrentCulture), tsFmt, CultureInfo.CurrentCulture);
+            counter += num;
             if (num > 0)
                 this.Value = this.Value.Add(ts);
             else
