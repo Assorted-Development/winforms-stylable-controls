@@ -20,7 +20,7 @@ public class StylableDateTimePicker : DateTimePicker
     /// <summary>
     /// contains all DateTime parts and their positions
     /// </summary>
-    private readonly List<DatePartInfo> _dateParts = new List<DatePartInfo>();
+    private readonly List<DatePartInfo> _dateParts = new();
 
     /// <summary>
     /// when the format is changed we need to recalculate the positions of the parts
@@ -39,6 +39,7 @@ public class StylableDateTimePicker : DateTimePicker
         this.Leave += StylableDateTimePicker_Leave;
         this.MouseWheel += StylableDateTimePicker_MouseWheel;
         this.KeyDown += StylableDateTimePicker_KeyDown;
+        this.KeyPress += StylableDateTimePicker_KeyPress;
     }
 
     /// <summary>
@@ -117,32 +118,38 @@ public class StylableDateTimePicker : DateTimePicker
     }
 
     /// <summary>
+    /// replace a part of the date with the manually entered input
+    /// </summary>
+    /// <param name="date">the old date</param>
+    /// <param name="format">the full format</param>
+    /// <param name="partFormat">the part format</param>
+    /// <param name="value">the new part value</param>
+    /// <returns></returns>
+    private static DateTime Replace(DateTime date, string format, string partFormat, string value)
+    {
+        //remove the day of week from the format as DateTime.ParseExact throws if date and day of week do not match
+        format = format.Replace("dddd", "");
+        format = format.Replace("ddd", "");
+        //remove the ful month name as this is not numeric and we do not support it currently
+        format = format.Replace("MMMM", "");
+        format = format.Replace("MMM", "");
+        //convert the old date to a string where the part to replace is XXXX
+        string partFormatRegex = @"\b" + Regex.Replace(partFormat, "[^a-zA-Z0-9]+", "") + @"\b";
+        string formattedDate = date.ToString(Regex.Replace(format, partFormatRegex, @"\X\X\X\X"));
+        //now we can simply replace the XXXX with the new value and reparse the date
+        string replacedDateString = formattedDate.Replace("XXXX", value);
+        var replacedDate = DateTime.ParseExact(replacedDateString, format, CultureInfo.CurrentCulture);
+        return replacedDate;
+    }
+
+    /// <summary>
     /// this draw the datetime text manually so we can save the information where day, month and year is
     /// </summary>
     /// <param name="g"></param>
     private void DrawDateTime(Graphics g)
     {
         // Drawing the datetime text
-        string format;
-        DateTimeFormatInfo dtfi = (new CultureInfo("hr-HR")).DateTimeFormat;
-        switch (Format)
-        {
-            case DateTimePickerFormat.Long:
-                format = dtfi.LongDatePattern;
-                break;
-
-            case DateTimePickerFormat.Short:
-                format = dtfi.ShortDatePattern;
-                break;
-
-            case DateTimePickerFormat.Time:
-                format = dtfi.LongTimePattern;
-                break;
-
-            default:
-                format = CustomFormat;
-                break;
-        }
+        string format = GetFormat();
         //recalculate the positions of the DateTime parts within the DateTimePicker
         RecalcPartPositions(format);
         //draw the DateTime parts
@@ -150,12 +157,25 @@ public class StylableDateTimePicker : DateTimePicker
         var highlightBrush = new SolidBrush(this.ForeColor.Highlight());
         foreach (var part in _dateParts)
         {
-            Rectangle bounds = new Rectangle(part.Start, 2, part.End - part.Start, this.Height - 2);
+            Rectangle bounds = new(part.Start, 2, part.End - part.Start, this.Height - 2);
             if (part.Selected)
                 TextRenderer.DrawText(g, this.Value.ToString(part.Format), Font, bounds, this.ForeColor.Highlight(), TextFormatFlags.EndEllipsis);
             else
                 TextRenderer.DrawText(g, this.Value.ToString(part.Format), Font, bounds, this.ForeColor, TextFormatFlags.EndEllipsis);
         }
+    }
+
+    private string GetFormat()
+    {
+        DateTimeFormatInfo dtfi = (CultureInfo.CurrentCulture).DateTimeFormat;
+        string format = Format switch
+        {
+            DateTimePickerFormat.Long => dtfi.LongDatePattern,
+            DateTimePickerFormat.Short => dtfi.ShortDatePattern,
+            DateTimePickerFormat.Time => dtfi.LongTimePattern,
+            _ => CustomFormat,
+        };
+        return format;
     }
 
     /// <summary>
@@ -171,10 +191,27 @@ public class StylableDateTimePicker : DateTimePicker
     }
 
     /// <summary>
+    /// move the selection to the next part
+    /// </summary>
+    /// <param name="part"></param>
+    /// <returns>the newly selected part</returns>
+    private DatePartInfo NavigatePartRight(DatePartInfo part)
+    {
+        part.Reset();
+        var index = _dateParts.IndexOf(part);
+        DatePartInfo newPart;
+        if (index == _dateParts.Count - 1)
+            newPart = _dateParts.First();
+        else
+            newPart = _dateParts[index + 1];
+        newPart.Selected = true;
+        return newPart;
+    }
+
+    /// <summary>
     /// navigate through the DateTime parts with the arrow keys
     /// </summary>
     /// <param name="keyCode"></param>
-    /// <exception cref="NotImplementedException"></exception>
     private void NavigateParts(Keys keyCode)
     {
         var part = _dateParts.FirstOrDefault(p => p.Selected);
@@ -184,7 +221,7 @@ public class StylableDateTimePicker : DateTimePicker
         }
         else if (part != null && keyCode == Keys.Left)
         {
-            part.Selected = false;
+            part.Reset();
             var index = _dateParts.IndexOf(part);
             if (index == 0)
                 _dateParts.Last().Selected = true;
@@ -197,12 +234,7 @@ public class StylableDateTimePicker : DateTimePicker
         }
         else if (part != null && keyCode == Keys.Right)
         {
-            part.Selected = false;
-            var index = _dateParts.IndexOf(part);
-            if (index == _dateParts.Count - 1)
-                _dateParts.First().Selected = true;
-            else
-                _dateParts[index + 1].Selected = true;
+            NavigatePartRight(part);
         }
     }
 
@@ -247,7 +279,6 @@ public class StylableDateTimePicker : DateTimePicker
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
-    /// <exception cref="NotImplementedException"></exception>
     private void StylableDateTimePicker_KeyDown(object? sender, KeyEventArgs e)
     {
         if (e.KeyCode == Keys.Up || e.KeyCode == Keys.Down)
@@ -263,14 +294,37 @@ public class StylableDateTimePicker : DateTimePicker
     }
 
     /// <summary>
+    /// allow directly editing a value with the number keys
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void StylableDateTimePicker_KeyPress(object? sender, KeyPressEventArgs e)
+    {
+        if (Char.IsNumber(e.KeyChar))
+        {
+            var part = _dateParts.FirstOrDefault(p => p.Selected);
+            if (part != null)
+            {
+                part.NewValue += e.KeyChar;
+                if (part.NewValue.Length >= part.Format.Length)
+                {
+                    this.Value = Replace(this.Value, GetFormat(), part.Format, part.NewValue);
+                    part = NavigatePartRight(part);
+                }
+                this.Invalidate();
+            }
+        }
+        e.Handled = true;
+    }
+
+    /// <summary>
     /// reset select part of the format when the control lost focus
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
-    /// <exception cref="NotImplementedException"></exception>
     private void StylableDateTimePicker_Leave(object? sender, EventArgs e)
     {
-        _dateParts.ForEach(p => p.Selected = false);
+        _dateParts.ForEach(p => p.Reset());
         this.Invalidate();
     }
 
@@ -279,10 +333,9 @@ public class StylableDateTimePicker : DateTimePicker
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
-    /// <exception cref="NotImplementedException"></exception>
     private void StylableDateTimePicker_MouseDown(object? sender, MouseEventArgs e)
     {
-        _dateParts.ForEach(p => p.Selected = false);
+        _dateParts.ForEach(p => p.Reset());
         var part = _dateParts.FirstOrDefault(p => p.Start <= e.X && p.End >= e.X);
         if (part != null)
         {
@@ -296,7 +349,6 @@ public class StylableDateTimePicker : DateTimePicker
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
-    /// <exception cref="NotImplementedException"></exception>
     private void StylableDateTimePicker_MouseWheel(object? sender, MouseEventArgs e)
     {
         UpdatePart(e.Delta / 100);
@@ -383,7 +435,9 @@ public class StylableDateTimePicker : DateTimePicker
         /// <summary>
         /// the format of the DateTime part
         /// </summary>
-        public string Format { get; set; }
+        public string Format { get; set; } = string.Empty;
+
+        public string NewValue { get; set; } = string.Empty;
 
         /// <summary>
         /// if true, this part is selected and can be changed by the user
@@ -394,5 +448,14 @@ public class StylableDateTimePicker : DateTimePicker
         /// the start X position of the DateTime part
         /// </summary>
         public int Start { get; set; }
+
+        /// <summary>
+        ///
+        /// </summary>
+        public void Reset()
+        {
+            NewValue = string.Empty;
+            Selected = false;
+        }
     }
 }
