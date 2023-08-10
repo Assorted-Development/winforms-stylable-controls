@@ -25,6 +25,10 @@ namespace StylableWinFormsControls.Example
 
             this.IsMdiContainer = true;
             var child = new StylableMdiChildForm();
+            Button button = new StylableButton();
+            button.Text = "Click me";
+            button.Click += (s, e) => MessageBox.Show("Hello World");
+            child.Controls.Add(button);
             child.MdiParent = this;
             child.Show();
         }

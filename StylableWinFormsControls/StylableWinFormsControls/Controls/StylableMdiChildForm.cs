@@ -1,4 +1,5 @@
-﻿using StylableWinFormsControls.Utilities;
+﻿using StylableWinFormsControls.Native;
+using StylableWinFormsControls.Utilities;
 using System.Runtime.InteropServices;
 
 namespace StylableWinFormsControls.Controls
@@ -9,21 +10,18 @@ namespace StylableWinFormsControls.Controls
     public partial class StylableMdiChildForm : Form
     {
         /// <summary>
+        /// the width of the space between two controlbox icons
+        /// </summary>
+        private const int CONTROLBOX_SPACE = 5;
+
+        /// <summary>
         /// the width of the Controlbox
         /// </summary>
-        private const int CONTROLBOX_WIDTH = 35;
+        private const int CONTROLBOX_WIDTH = 32;
 
-        /// <summary>
-        /// Sent to a window when its nonclient area needs to be changed to indicate an active or
-        /// inactive state.
-        /// </summary>
-        private const int WM_NCACTIVATE = 0x0086;
-
-        /// <summary>
-        /// The WM_NCPAINT message is sent to a window when its frame must be painted.
-        /// </summary>
-        private const int WM_NCPAINT = 0x0085;
-
+        private Rectangle? _closeBox;
+        private Rectangle? _maximizeBox;
+        private Rectangle? _minimizeBox;
         private Brush _titleBrush = new SolidBrush(Color.FromArgb(32, 32, 32));
 
         private Color _titleColor = Color.FromArgb(32, 32, 32);
@@ -39,6 +37,7 @@ namespace StylableWinFormsControls.Controls
         public StylableMdiChildForm()
         {
             InitializeComponent();
+            this.BackColor = Color.DarkGray;
             this.DoubleBuffered = true;
         }
 
@@ -76,22 +75,55 @@ namespace StylableWinFormsControls.Controls
 
         protected override void WndProc(ref Message m)
         {
-            base.WndProc(ref m);
+            bool runCustomWndProc = true;
 
             if (IsMdiChild && WindowState == FormWindowState.Maximized)
             {
                 //no need to draw a titlebar or a border so we can rely on the normal Drawing
-                return;
+                runCustomWndProc = false;
             }
             if (!IsMdiChild)
             {
                 //when the form is not an MDI child, the form will be drawn by the Desktop Window Manager
                 //so we don't need to draw it ourselves as the DWM correctly styles the form
-                return;
+                runCustomWndProc = false;
             }
-            if (m.Msg == WM_NCPAINT || m.Msg == WM_NCACTIVATE)
+
+            if (
+                (
+                    //we want to custom draw the non-client area
+                    m.Msg != (int)WindowsMessages.WM_NCPAINT &&
+                    m.Msg != (int)WindowsMessages.WM_NCACTIVATE &&
+                    //WM_NCLBUTTONDOWN is required to handle clicking the controlbox
+                    m.Msg != (int)WindowsMessages.WM_NCLBUTTONDOWN &&
+                    m.Msg != (int)WindowsMessages.WM_NCLBUTTONDBLCLK
+                ) ||
+                runCustomWndProc == false
+                )
+            {
+                base.WndProc(ref m);
+            }
+            //custom draw the non-client area
+            if (
+                (
+                    m.Msg == (int)WindowsMessages.WM_NCPAINT ||
+                    m.Msg == (int)WindowsMessages.WM_NCACTIVATE
+                ) &&
+                runCustomWndProc
+            )
             {
                 DrawFrame();
+            }
+            //handle controlbox clicks
+            if (
+                (
+                    m.Msg == (int)WindowsMessages.WM_NCLBUTTONDOWN ||
+                    m.Msg == (int)WindowsMessages.WM_NCLBUTTONDBLCLK
+                ) &&
+                runCustomWndProc
+            )
+            {
+                RunMouseHitCalculation(m.Msg == (int)WindowsMessages.WM_NCLBUTTONDBLCLK);
             }
         }
 
@@ -118,14 +150,14 @@ namespace StylableWinFormsControls.Controls
             int controlBoxWidth = 0;
             if (ControlBox)
             {
-                controlBoxWidth = CONTROLBOX_WIDTH + this.GetBorderWidth();
+                controlBoxWidth = CONTROLBOX_WIDTH + CONTROLBOX_SPACE + this.GetBorderWidth();
                 if (MinimizeBox)
                 {
-                    controlBoxWidth += CONTROLBOX_WIDTH;
+                    controlBoxWidth += CONTROLBOX_WIDTH + CONTROLBOX_SPACE;
                 }
                 if (MaximizeBox)
                 {
-                    controlBoxWidth += CONTROLBOX_WIDTH;
+                    controlBoxWidth += CONTROLBOX_WIDTH + CONTROLBOX_SPACE;
                 }
             }
             //draw title bar background
@@ -150,17 +182,68 @@ namespace StylableWinFormsControls.Controls
             if (ControlBox)
             {
                 int startPos = this.Width - controlBoxWidth;
+                var target = new Rectangle(startPos, 6, CONTROLBOX_WIDTH, this.GetTitleBarHeight() - 6 - 6);
                 if (MinimizeBox)
                 {
-                    g.DrawIcon(MinimizeIcon, startPos, 6);
-                    startPos += CONTROLBOX_WIDTH;
+                    g.DrawIcon(MinimizeIcon, target);
+                    startPos += CONTROLBOX_WIDTH + CONTROLBOX_SPACE;
+                    _minimizeBox = target;
+                    target = new Rectangle(startPos, 6, CONTROLBOX_WIDTH, this.GetTitleBarHeight() - 6 - 6);
                 }
                 if (MaximizeBox)
                 {
-                    g.DrawIcon(MaximizeIcon, startPos, 6);
-                    startPos += CONTROLBOX_WIDTH;
+                    g.DrawIcon(MaximizeIcon, target);
+                    startPos += CONTROLBOX_WIDTH + CONTROLBOX_SPACE;
+                    _maximizeBox = target;
+                    target = new Rectangle(startPos, 6, CONTROLBOX_WIDTH, this.GetTitleBarHeight() - 6 - 6);
                 }
-                g.DrawIcon(CloseIcon, startPos, 6);
+                g.DrawIcon(CloseIcon, target);
+                _closeBox = target;
+            }
+        }
+
+        /// <summary>
+        /// checks if the user clicked on a button in the controlbox
+        /// </summary>
+        private void RunMouseHitCalculation(bool doubleClick)
+        {
+            if (!ControlBox) return;
+            var screenPos = Control.MousePosition;
+            var clientPos = this.PointToClient(screenPos);
+            //as the clientPos has the coordinates for the client area and the controlbox is not part of the client area
+            //we need to update the coordinates with titlebar height and border width
+            var titleBarPos = new Point(clientPos.X + this.GetBorderWidth(), clientPos.Y + this.GetTitleBarHeight());
+            if (this._closeBox != null && this._closeBox.Value.Contains(titleBarPos))
+            {
+                this.Close();
+            }
+            else if (this._minimizeBox != null && this._minimizeBox.Value.Contains(titleBarPos))
+            {
+                this.WindowState = FormWindowState.Minimized;
+            }
+            else if (this._maximizeBox != null && this._maximizeBox.Value.Contains(titleBarPos))
+            {
+                if (this.WindowState == FormWindowState.Maximized)
+                {
+                    this.WindowState = FormWindowState.Normal;
+                }
+                else
+                {
+                    this.WindowState = FormWindowState.Maximized;
+                }
+            }
+            else
+            {
+                //if the user double clicked the titlebar, we want to maximize the window
+                if (doubleClick && this.WindowState == FormWindowState.Normal)
+                {
+                    this.WindowState = FormWindowState.Maximized;
+                }
+                //or restore the minimized window
+                else if (doubleClick && this.WindowState == FormWindowState.Minimized)
+                {
+                    this.WindowState = FormWindowState.Normal;
+                }
             }
         }
     }
