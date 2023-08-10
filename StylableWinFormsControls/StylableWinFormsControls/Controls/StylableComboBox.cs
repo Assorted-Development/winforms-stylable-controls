@@ -61,7 +61,11 @@ public class StylableComboBox : ComboBox
     public StylableComboBox()
     {
         this.DrawMode = DrawMode.OwnerDrawFixed;
-        SetStyle(ControlStyles.UserPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
+        //calling SetStyle before the handle is created will cause erros like wrong fonts
+        this.HandleCreated += (sender, args) =>
+        {
+            SetStyle(ControlStyles.UserPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
+        };
     }
 
     protected override void Dispose(bool disposing)
