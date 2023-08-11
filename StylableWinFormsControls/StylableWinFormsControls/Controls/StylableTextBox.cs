@@ -102,7 +102,7 @@ public class StylableTextBox : TextBox
         InitializeComponent();
         DelayedTextChangedTimeout = 900; // 0.9 seconds
         IsHintActive = true;
-        BorderStyle = BorderStyle.None;
+        BorderStyle = BorderStyle.FixedSingle;
         this.TextChanged += OnTextChanged;
     }
 

@@ -5,7 +5,7 @@ namespace StylableWinFormsControls;
 
 public class StylableListView : ListView
 {
-    private Brush _groupHeaderBackColorBrush = new SolidBrush(Color.Transparent);
+    private Brush _groupHeaderBackColorBrush = new SolidBrush(Color.LightGray);
 
     /// <summary>
     /// Sets the color that build the background of any group header row
@@ -15,8 +15,8 @@ public class StylableListView : ListView
         set => _groupHeaderBackColorBrush = new SolidBrush(value);
     }
 
-    private Brush _groupHeaderForeColorBrush = new SolidBrush(Color.Orange);
-    private Pen _groupHeaderForeColorPen = new(Color.Orange);
+    private Brush _groupHeaderForeColorBrush = new SolidBrush(Color.Black);
+    private Pen _groupHeaderForeColorPen = new(Color.Black);
 
     /// <summary>
     /// Sets the color that build the background of any group header row
@@ -30,20 +30,20 @@ public class StylableListView : ListView
         }
     }
 
-    private Brush _selectedItemForeColorBrush = new SolidBrush(Color.Orange);
+    private Brush _selectedItemForeColorBrush = new SolidBrush(Color.Black);
 
     /// <summary>
-    /// Sets the color that build the background of any group header row
+    /// Sets the color that build the background of the selected row
     /// </summary>
     public Color SelectedItemForeColor
     {
         set => _selectedItemForeColorBrush = new SolidBrush(value);
     }
 
-    private Brush _selectedItemBackColorBrush = new SolidBrush(Color.Orange);
+    private Brush _selectedItemBackColorBrush = new SolidBrush(Color.LightGray);
 
     /// <summary>
-    /// Sets the color that build the background of any group header row
+    /// Sets the color that build the background of the selected row
     /// </summary>
     public Color SelectedItemBackColor
     {

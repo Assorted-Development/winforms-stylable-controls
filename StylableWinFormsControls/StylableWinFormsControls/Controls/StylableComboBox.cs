@@ -143,6 +143,15 @@ public class StylableComboBox : ComboBox
         base.WndProc(ref m);
     }
 
+    protected override void OnPaintBackground(PaintEventArgs e)
+    {
+        base.OnPaintBackground(e);
+        if (this.DropDownStyle != ComboBoxStyle.DropDownList)
+        {
+            e.Graphics.DrawRectangle(_borderColorPen, 0, 0, ClientSize.Width - 1, ClientSize.Height - 1);
+        }
+    }
+
     private Rectangle GetDownRectangle()
     {
         return new Rectangle(this.ClientSize.Width - 16, 0, 16, this.ClientSize.Height);
