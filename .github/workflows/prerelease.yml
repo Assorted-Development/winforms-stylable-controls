@@ -4,23 +4,41 @@
 name: .NET Pre-Release
 
 on:
-  push:
-    branches: [ "main" ]
+  workflow_dispatch:
+    inputs:
+      type:
+        description: 'the type of the prerelease'
+        required: true
+        default: 'beta'
+        type: choice
+        options:
+        - alpha
+        - beta
+      number:
+        description: 'the number of the prerelease, e.g. 2 for beta-2'
+        required: true
+        default: 1
+        type: number
 
 jobs:
   build:
     permissions:
       contents: write
     runs-on: windows-latest
-
+    if: github.ref == 'refs/heads/master'
     steps:
-    - uses: actions/checkout@v3
+    - name: checkout project
+      uses: actions/checkout@v3
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: 6.0.x
     - name: Restore dependencies
       run: dotnet restore StylableWinFormsControls/StylableWinFormsControls.sln
+    - name: set prerelease version
+      run: (Get-Content StylableWinFormsControls/StylableWinFormsControls/StylableWinFormsControls.csproj) -replace '<Version>(\d+\.\d+.\d+)</Version>', "<Version>`$1-$Env:SUFFIX</Version>" | Out-File StylableWinFormsControls/StylableWinFormsControls/StylableWinFormsControls.csproj
+      env:
+        SUFFIX: ${{ inputs.type }}.${{ inputs.number }}
     - name: Build
       run: dotnet build StylableWinFormsControls/StylableWinFormsControls.sln --no-restore
 
@@ -35,5 +53,8 @@ jobs:
           StylableWinFormsControls/StylableWinFormsControls/bin/Debug/net6.0-windows/StylableWinFormsControls.dll
           StylableWinFormsControls/StylableWinFormsControls/bin/Debug/*.nupkg
           StylableWinFormsControls/StylableWinFormsControls/bin/Debug/*.snupkg
-      
+    - name: Pack nugets
+      run: dotnet pack StylableWinFormsControls/StylableWinFormsControls.sln -c Release --no-build --output .
+    - name: Push to NuGet
+      run: dotnet nuget push *.nupkg --api-key ${{secrets.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json
       
