@@ -1,5 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 using StylableWinFormsControls.Native;
+using static System.Windows.Forms.ListViewItem;
 
 namespace StylableWinFormsControls;
 
@@ -170,9 +171,23 @@ public class StylableListView : ListView
             g.FillRectangle(_selectedItemBackColorBrush, rect);
 
             // item text
+            var item = Items[itemIndex];
             const int textOffset = 4;
             rect.Offset(textOffset, 1);
-            g.DrawString(Items[itemIndex].Text, Font, _selectedItemForeColorBrush, rect);
+            g.DrawString(item.Text, Font, _selectedItemForeColorBrush, rect);
+            rect.Offset(item.GetBounds(ItemBoundsPortion.Label).Width, 0);
+            rect.Offset(textOffset, 0);
+
+            // subitem text
+            //the parent item is also the first subitem
+            var subList = (from ListViewSubItem subItem in item.SubItems select subItem).Skip(1);
+            foreach (ListViewSubItem subItem in subList)
+            {
+                rect.Width = subItem.Bounds.Width;
+                g.DrawString(subItem.Text, Font, _selectedItemForeColorBrush, rect);
+                rect.Offset(subItem.Bounds.Width, 0);
+                rect.Offset(textOffset, 0);
+            }
         }
 
         return new IntPtr((int)NativeMethods.CDRF.CDRF_SKIPDEFAULTField);
