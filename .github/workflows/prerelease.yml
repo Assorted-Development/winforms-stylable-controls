@@ -50,9 +50,9 @@ jobs:
         title: "Development Build"
         files: |
           LICENSE
-          StylableWinFormsControls/StylableWinFormsControls/bin/Debug/net6.0-windows/StylableWinFormsControls.dll
-          StylableWinFormsControls/StylableWinFormsControls/bin/Debug/*.nupkg
-          StylableWinFormsControls/StylableWinFormsControls/bin/Debug/*.snupkg
+          StylableWinFormsControls/StylableWinFormsControls/bin/Release/net6.0-windows/StylableWinFormsControls.dll
+          StylableWinFormsControls/StylableWinFormsControls/bin/Release/*.nupkg
+          StylableWinFormsControls/StylableWinFormsControls/bin/Release/*.snupkg
     - name: Pack nugets
       run: dotnet pack StylableWinFormsControls/StylableWinFormsControls/StylableWinFormsControls.csproj -c Release --no-build --output .
     - name: Push to NuGet
