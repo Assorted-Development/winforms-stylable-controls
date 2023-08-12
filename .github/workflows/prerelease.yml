@@ -25,7 +25,7 @@ jobs:
     permissions:
       contents: write
     runs-on: windows-latest
-    if: github.ref == 'refs/heads/main'
+    #if: github.ref == 'refs/heads/main'
     steps:
     - name: checkout project
       uses: actions/checkout@v3
