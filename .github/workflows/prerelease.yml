@@ -40,7 +40,7 @@ jobs:
       env:
         SUFFIX: ${{ inputs.type }}.${{ inputs.number }}
     - name: Build
-      run: dotnet build StylableWinFormsControls/StylableWinFormsControls.sln --no-restore
+      run: dotnet build StylableWinFormsControls/StylableWinFormsControls.sln  -c Release --no-restore
 
     - uses: "marvinpinto/action-automatic-releases@latest"
       with:
