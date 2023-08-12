@@ -40,7 +40,7 @@ jobs:
       env:
         SUFFIX: ${{ inputs.type }}.${{ inputs.number }}
     - name: Build
-      run: dotnet build StylableWinFormsControls/StylableWinFormsControls.sln --no-restore
+      run: dotnet build StylableWinFormsControls/StylableWinFormsControls.sln  -c Release --no-restore
 
     - uses: "marvinpinto/action-automatic-releases@latest"
       with:
@@ -54,7 +54,7 @@ jobs:
           StylableWinFormsControls/StylableWinFormsControls/bin/Debug/*.nupkg
           StylableWinFormsControls/StylableWinFormsControls/bin/Debug/*.snupkg
     - name: Pack nugets
-      run: dotnet pack StylableWinFormsControls/StylableWinFormsControls.sln -c Release --no-build --output .
+      run: dotnet pack StylableWinFormsControls/StylableWinFormsControls/StylableWinFormsControls.csproj -c Release --no-build --output .
     - name: Push to NuGet
       run: dotnet nuget push *.nupkg --api-key ${{secrets.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json
       
