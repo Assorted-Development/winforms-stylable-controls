@@ -1,17 +1,33 @@
-﻿using System.Runtime.InteropServices;
+using System.Runtime.InteropServices;
 
 namespace StylableWinFormsControls.Native;
 
+[System.Diagnostics.CodeAnalysis.SuppressMessage(
+    "Security",
+    "CA5392:Use DefaultDllImportSearchPaths attribute for P/Invokes",
+    Justification = "All assemblies are commonly used system assemblies.")]
+[System.Diagnostics.CodeAnalysis.SuppressMessage(
+    "Style",
+    "IDE1006:Naming Styles",
+    Justification = "Naming of structures is defined by the native methods that use them.")]
+[System.Diagnostics.CodeAnalysis.SuppressMessage(
+    "Roslynator",
+    "RCS1135:Declare enum member with zero value (when enum has FlagsAttribute).",
+    Justification = "Naming of structures is defined by the native methods that use them.")]
+[System.Diagnostics.CodeAnalysis.SuppressMessage(
+    "Roslynator",
+    "RCS1181:Convert comment to documentation comment.",
+    Justification = "Most of the comments are not documentation, but internal notes.")]
 internal class NativeMethods
 {
     [DllImport("user32.dll")]
     internal static extern int SendMessage(IntPtr wnd, int msg, bool param, int lparam);
-    
+
     [DllImport("user32.dll", CharSet = CharSet.Auto)]
     internal static extern IntPtr GetWindowDC(IntPtr handle);
 
     [DllImport("user32.dll", CharSet = CharSet.Auto)]
-    internal static extern IntPtr ReleaseDC(IntPtr handle, IntPtr hDC);
+    internal static extern IntPtr ReleaseDC(IntPtr handle, IntPtr hDc);
 
     [DllImport("user32.dll", CharSet = CharSet.Auto)]
     internal static extern int GetClassName(IntPtr hwnd, char[] className, int maxCount);
@@ -33,18 +49,18 @@ internal class NativeMethods
 
     [DllImport("user32.dll", CharSet = CharSet.Auto)]
     internal static extern bool GetWindowRect(IntPtr hWnd, [In, Out] ref Rectangle rect);
-    
-    [DllImport("user32.dll", EntryPoint = "SendMessageW", SetLastError = true)]
-    internal static extern int SendMessage(IntPtr hWnd, int Msg, int wParam, ref IntPtr lParam);
 
     [DllImport("user32.dll", EntryPoint = "SendMessageW", SetLastError = true)]
-    internal static extern int SendMessage(IntPtr hWnd, int Msg, int wParam, ref LVGROUP lParam);
+    internal static extern int SendMessage(IntPtr hWnd, int msg, int wParam, ref IntPtr lParam);
 
     [DllImport("user32.dll", EntryPoint = "SendMessageW", SetLastError = true)]
-    internal static extern int SendMessage(IntPtr hWnd, int Msg, int wParam, ref RECT lParam);
+    internal static extern int SendMessage(IntPtr hWnd, int msg, int wParam, ref LVGROUP lParam);
+
+    [DllImport("user32.dll", EntryPoint = "SendMessageW", SetLastError = true)]
+    internal static extern int SendMessage(IntPtr hWnd, int msg, int wParam, ref RECT lParam);
 
     [DllImport("user32.dll", EntryPoint = "PostMessageW", SetLastError = true)]
-    internal static extern int PostMessage(IntPtr hWnd, int Msg, int wParam, ref IntPtr lParam);
+    internal static extern int PostMessage(IntPtr hWnd, int msg, int wParam, ref IntPtr lParam);
 
     [DllImport("user32.dll")]
     internal static extern IntPtr BeginPaint(IntPtr hwnd, out PAINTSTRUCT lpPaint);
@@ -106,6 +122,7 @@ internal class NativeMethods
     /// Background remains untouched.
     /// </summary>
     internal const int BKM_TRANSPARENT = 1;
+
     /// <summary>
     /// Background is filled with the current background color before the text, hatched brush, or pen is drawn.
     /// </summary>
@@ -176,73 +193,57 @@ internal class NativeMethods
     {
         internal uint cbSize;
         internal uint mask;
-        // <MarshalAs(UnmanagedType.LPTStr)>
-        // internal pszHeader As String
         internal IntPtr pszHeader;
         internal int cchHeader;
-        // <MarshalAs(UnmanagedType.LPTStr)>
-        // internal pszFooter As String
         internal IntPtr pszFooter;
         internal int cchFooter;
         internal int iGroupId;
         internal uint stateMask;
         internal uint state;
         internal uint uAlign;
-
-        // <MarshalAs(UnmanagedType.LPTStr)>
-        // internal pszSubtitle As String
         internal IntPtr pszSubtitle;
         internal uint cchSubtitle;
-        // <MarshalAs(UnmanagedType.LPTStr)>
-        // internal pszTask As String
         internal IntPtr pszTask;
         internal uint cchTask;
-        // <MarshalAs(UnmanagedType.LPTStr)>
-        // internal pszDescriptionTop As String
         internal IntPtr pszDescriptionTop;
         internal uint cchDescriptionTop;
-        // <MarshalAs(UnmanagedType.LPTStr)>
-        // internal pszDescriptionBottom As String
         internal IntPtr pszDescriptionBottom;
         internal uint cchDescriptionBottom;
         internal int iTitleImage;
         internal int iExtendedImage;
         internal int iFirstItem;
         internal uint cItems;
-        // <MarshalAs(UnmanagedType.LPTStr)>
-        // internal pszSubsetTitle As String
         internal IntPtr pszSubsetTitle;
         internal uint cchSubsetTitle;
     }
 
-
     [Flags]
     internal enum CDRF
     {
-        CDRF_DODEFAULTField = 0x0,
-        CDRF_NEWFONTField = 0x2,
-        CDRF_SKIPDEFAULTField = 0x4,
-        CDRF_DOERASEField = 0x8,
-        CDRF_SKIPPOSTPAINTField = 0x100,
-        CDRF_NOTIFYPOSTPAINTField = 0x10,
-        CDRF_NOTIFYITEMDRAWField = 0x20,
-        CDRF_NOTIFYSUBITEMDRAWField = 0x20,
-        CDRF_NOTIFYPOSTERASEField = 0x40
+        DoDefault = 0x0,
+        NewFont = 0x2,
+        SkipDefault = 0x4,
+        DoErase = 0x8,
+        NotifyPostPaint = 0x10,
+        NotifyItemDraw = 0x20,
+        NotifySubItemDraw = NotifyItemDraw,
+        NotifyPostErase = 0x40,
+        SkipPostPaint = 0x100,
     }
 
     [Flags]
     internal enum CDDS
     {
-        CDDS_PREPAINTField = 0x1,
-        CDDS_POSTPAINTField = 0x2,
-        CDDS_PREERASEField = 0x3,
-        CDDS_POSTERASEField = 0x4,
-        CDDS_ITEMField = 0x10000,
-        CDDS_ITEMPREPAINTField = CDDS_ITEMField | CDDS_PREPAINTField,
-        CDDS_ITEMPOSTPAINTField = CDDS_ITEMField | CDDS_POSTPAINTField,
-        CDDS_ITEMPREERASEField = CDDS_ITEMField | CDDS_PREERASEField,
-        CDDS_ITEMPOSTERASEField = CDDS_ITEMField | CDDS_POSTERASEField,
-        CDDS_SUBITEMField = 0x20000
+        PrePaint = 0x1,
+        PostPaint = 0x2,
+        PreErase = 0x3,
+        PostErase = 0x4,
+        Item = 0x10000,
+        ItemPrePaint = Item | PrePaint,
+        ItemPostPaint = Item | PostPaint,
+        ItemPreErase = Item | PreErase,
+        ItemPostErase = Item | PostErase,
+        SubItem = 0x20000
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -253,26 +254,14 @@ internal class NativeMethods
         public RECT rcPaint;
         public bool fRestore;
         public bool fIncUpdate;
+
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 32)]
         public byte[] rgbReserved;
     }
 
-    [StructLayout(LayoutKind.Sequential)]
-    public struct DRAWITEMSTRUCT
-    {
-        public uint CtlType;
-        public uint CtlId;
-        public uint itemId;
-        public uint itemAction;
-        public uint itemState;
-        public IntPtr hwndItem;
-        public IntPtr hdc;
-        public RECT rcItem;
-        public UIntPtr itemData;
-    }
-
     // Listview group specific flags
     internal const int LVGF_NONE = 0x0;
+
     internal const int LVGF_HEADER = 0x1;
     internal const int LVGF_FOOTER = 0x2;
     internal const int LVGF_STATE = 0x4;
@@ -291,6 +280,7 @@ internal class NativeMethods
 
     // Listview group styles
     internal const int LVGS_NORMAL = 0x0;
+
     internal const int LVGS_COLLAPSED = 0x1;
     internal const int LVGS_HIDDEN = 0x2;
     internal const int LVGS_NOHEADER = 0x4;
@@ -315,11 +305,13 @@ internal class NativeMethods
     /// <summary>
     /// constant to define dark mode option
     /// </summary>
-    internal const int DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1 = 19;
+    internal const int DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20_H1 = 19;
+
     /// <summary>
     /// constant to define dark mode option
     /// </summary>
     internal const int DWMWA_USE_IMMERSIVE_DARK_MODE = 20;
+
     /// <summary>
     /// Sent to a window to allow changes in that window to be redrawn, or to prevent changes in that window from being redrawn
     /// </summary>
@@ -332,7 +324,7 @@ internal class NativeMethods
     internal const int WM_ERASEBKGND = 0x14;
 
     /// <summary>
-    /// The WM_PAINT message is sent when the system or another application makes a request to paint a portion of an application's window. 
+    /// The WM_PAINT message is sent when the system or another application makes a request to paint a portion of an application's window.
     /// </summary>
     internal const int WM_PAINT = 0xF;
 
@@ -363,15 +355,16 @@ internal class NativeMethods
     /// Sent when the cursor is in an inactive window and the user presses a mouse button.
     /// </summary>
     internal const uint WM_MOUSEACTIVATE = 0x21;
+
     /// <summary>
     /// Return value from <see cref="WM_MOUSEACTIVATE"/>: Activates the window, and does not discard the mouse message
     /// </summary>
     internal const uint MA_ACTIVATE = 1;
+
     /// <summary>
     /// Return value from <see cref="WM_MOUSEACTIVATE"/>: Activates the window, and discards the mouse message
     /// </summary>
     internal const uint MA_ACTIVATEANDEAT = 2;
-
 
     /*
      * GetWindow() Constants

@@ -5,24 +5,31 @@ using StylableWinFormsControls.Native;
 
 namespace StylableWinFormsControls;
 
-// Source: https://www.codeproject.com/Articles/12185/A-NET-Flat-TabControl-CustomDraw
-// Modified by the MFBot team
-// Note that this has neither multiline support nor left/right alignment support
+/// <summary>
+/// Manages a related set of tab pages.
+/// </summary>
+/// <remarks>
+/// Source: https://www.codeproject.com/Articles/12185/A-NET-Flat-TabControl-CustomDraw
+/// Modified by the MFBot team
+/// Note that this has neither multiline support nor left/right alignment support
+/// </remarks>
 public class StylableTabControl : TabControl
 {
-    private const int _nMargin = 5;
+    private const int N_MARGIN = 5;
 
-    /// <summary> 
+    /// <summary>
     /// Required designer variable.
     /// </summary>
-    private Container components;
+    private Container? _components;
 
-    private NativeSubClass _scUpDown;
+    private NativeSubClass? _scUpDown;
+
     /// <summary>
     /// Gets a value indicating whether an UpDown control is required
     /// </summary>
     private bool _bUpDown;
-    private ImageList _upDownImages;
+
+    private ImageList? _upDownImages;
 
     private Brush _backgroundColorBrush = new SolidBrush(DefaultBackColor);
     private Pen _borderColorPen = new(SystemColors.ControlDark);
@@ -32,6 +39,7 @@ public class StylableTabControl : TabControl
     /// </summary>
     public Color BackgroundColor
     {
+        get => _backgroundColorBrush is SolidBrush solidBrush ? solidBrush.Color : default;
         set
         {
             _backgroundColorBrush?.Dispose();
@@ -54,13 +62,14 @@ public class StylableTabControl : TabControl
     /// </summary>
     public Color BorderColor
     {
+        get => _borderColorPen.Color;
         set
         {
             _borderColorPen?.Dispose();
             _borderColorPen = new Pen(value);
         }
     }
-        
+
     /// <summary>
     /// Gets or sets a value indicating whether tab page controls have a corner radius or not.
     /// </summary>
@@ -81,11 +90,13 @@ public class StylableTabControl : TabControl
             _upDownImages = new ImageList();
 
             foreach (Bitmap upDownImage in value)
-                if (upDownImage != null)
+            {
+                if (upDownImage is not null)
                 {
                     upDownImage.MakeTransparent(Color.White);
                     _upDownImages.Images.AddStrip(upDownImage);
                 }
+            }
         }
     }
 
@@ -98,8 +109,10 @@ public class StylableTabControl : TabControl
         set
         {
             TabAlignment ta = value;
-            if (ta != TabAlignment.Top && ta != TabAlignment.Bottom)
+            if (ta is not TabAlignment.Top and not TabAlignment.Bottom)
+            {
                 ta = TabAlignment.Top;
+            }
 
             base.Alignment = ta;
         }
@@ -112,11 +125,10 @@ public class StylableTabControl : TabControl
         set => base.Multiline = false;
     }
 
-
     public StylableTabControl()
     {
         // This call is required by the Windows.Forms Form Designer.
-        InitializeComponent();
+        initializeComponent();
 
         // double buffering
         SetStyle(ControlStyles.UserPaint, true);
@@ -127,19 +139,19 @@ public class StylableTabControl : TabControl
 
         _bUpDown = false;
 
-        ControlAdded += StylableTabControl_ControlAdded;
-        ControlRemoved += StylableTabControl_ControlRemoved;
-        SelectedIndexChanged += StylableTabControl_SelectedIndexChanged;
+        ControlAdded += stylableTabControl_ControlAdded;
+        ControlRemoved += stylableTabControl_ControlRemoved;
+        SelectedIndexChanged += stylableTabControl_SelectedIndexChanged;
     }
 
-    /// <summary> 
+    /// <summary>
     /// Clean up any resources being used.
     /// </summary>
     protected override void Dispose(bool disposing)
     {
         if (disposing)
         {
-            components?.Dispose();
+            _components?.Dispose();
             _upDownImages?.Dispose();
             _borderColorPen?.Dispose();
             _backgroundColorBrush?.Dispose();
@@ -157,28 +169,34 @@ public class StylableTabControl : TabControl
     internal void DrawControl(Graphics g)
     {
         if (!Visible)
+        {
             return;
+        }
 
-        Rectangle TabControlArea = ClientRectangle;
-        Rectangle TabArea = DisplayRectangle;
+        Rectangle tabControlArea = ClientRectangle;
+        Rectangle tabArea = DisplayRectangle;
 
         #region fill client area
-        g.FillRectangle(_backgroundColorBrush, TabControlArea);
-        #endregion
+
+        g.FillRectangle(_backgroundColorBrush, tabControlArea);
+
+        #endregion fill client area
 
         #region draw border
+
         int nDelta = SystemInformation.Border3DSize.Width;
 
-        TabArea.Inflate(nDelta, nDelta);
-        g.DrawRectangle(_borderColorPen, TabArea);
-        #endregion
+        tabArea.Inflate(nDelta, nDelta);
+        g.DrawRectangle(_borderColorPen, tabArea);
 
+        #endregion draw border
 
         #region clip region for drawing tabs
+
         Region rsaved = g.Clip;
         Rectangle rreg;
 
-        int nWidth = TabArea.Width + _nMargin;
+        int nWidth = tabArea.Width + N_MARGIN;
         if (_bUpDown)
         {
             // exclude updown control for painting
@@ -192,37 +210,41 @@ public class StylableTabControl : TabControl
             }
         }
 
-        rreg = new Rectangle(TabArea.Left, TabControlArea.Top, nWidth - _nMargin, TabControlArea.Height);
+        rreg = new Rectangle(tabArea.Left, tabControlArea.Top, nWidth - N_MARGIN, tabControlArea.Height);
 
         g.SetClip(rreg);
 
         // draw tabs
         for (int i = 0; i < TabCount; i++)
+        {
             DrawTab(g, TabPages[i], i);
+        }
 
         g.Clip = rsaved;
-        #endregion
 
+        #endregion clip region for drawing tabs
 
         #region draw background to cover flat border areas
-        if (SelectedTab != null)
+
+        if (SelectedTab is not null)
         {
             TabPage tabPage = SelectedTab;
             Color color = tabPage.BackColor;
-            Pen border = new Pen(color);
+            Pen border = new(color);
 
-            TabArea.Offset(1, 1);
-            TabArea.Width -= 2;
-            TabArea.Height -= 2;
+            tabArea.Offset(1, 1);
+            tabArea.Width -= 2;
+            tabArea.Height -= 2;
 
-            g.DrawRectangle(border, TabArea);
-            TabArea.Width -= 1;
-            TabArea.Height -= 1;
-            g.DrawRectangle(border, TabArea);
+            g.DrawRectangle(border, tabArea);
+            tabArea.Width--;
+            tabArea.Height--;
+            g.DrawRectangle(border, tabArea);
 
             border.Dispose();
         }
-        #endregion
+
+        #endregion draw background to cover flat border areas
     }
 
     internal void DrawTab(Graphics g, TabPage tabPage, int nIndex)
@@ -236,7 +258,7 @@ public class StylableTabControl : TabControl
 
         // Sets the difference in positioning of top/bottom line for the selected vs unselected tabs.
         int posDifference = bSelected ? 0 : 2;
-        tabTextArea.Y += (int)(posDifference / 2);
+        tabTextArea.Y += posDifference / 2;
         if (Alignment == TabAlignment.Top)
         {
             pt[0] = new Point(recBounds.Left, recBounds.Bottom);
@@ -271,31 +293,28 @@ public class StylableTabControl : TabControl
         // clear bottom lines for selected tab page
         if (bSelected)
         {
-            using (Pen pen = new(activeBackgroundColor))
+            using Pen pen = new(activeBackgroundColor);
+            switch (Alignment)
             {
+                case TabAlignment.Top:
+                    g.DrawLine(pen, recBounds.Left + 1, recBounds.Bottom, recBounds.Right - 1,
+                        recBounds.Bottom);
+                    g.DrawLine(pen, recBounds.Left + 1, recBounds.Bottom + 1, recBounds.Right - 1,
+                        recBounds.Bottom + 1);
+                    break;
 
-                switch (Alignment)
-                {
-                    case TabAlignment.Top:
-                        g.DrawLine(pen, recBounds.Left + 1, recBounds.Bottom, recBounds.Right - 1,
-                            recBounds.Bottom);
-                        g.DrawLine(pen, recBounds.Left + 1, recBounds.Bottom + 1, recBounds.Right - 1,
-                            recBounds.Bottom + 1);
-                        break;
-
-                    case TabAlignment.Bottom:
-                        g.DrawLine(pen, recBounds.Left + 1, recBounds.Top, recBounds.Right - 1, recBounds.Top);
-                        g.DrawLine(pen, recBounds.Left + 1, recBounds.Top - 1, recBounds.Right - 1,
-                            recBounds.Top - 1);
-                        g.DrawLine(pen, recBounds.Left + 1, recBounds.Top - 2, recBounds.Right - 1,
-                            recBounds.Top - 2);
-                        break;
-                }
+                case TabAlignment.Bottom:
+                    g.DrawLine(pen, recBounds.Left + 1, recBounds.Top, recBounds.Right - 1, recBounds.Top);
+                    g.DrawLine(pen, recBounds.Left + 1, recBounds.Top - 1, recBounds.Right - 1,
+                        recBounds.Top - 1);
+                    g.DrawLine(pen, recBounds.Left + 1, recBounds.Top - 2, recBounds.Right - 1,
+                        recBounds.Top - 2);
+                    break;
             }
         }
 
         // draw tab's icon
-        if (tabPage.ImageIndex >= 0 && ImageList != null)
+        if (tabPage.ImageIndex >= 0 && ImageList is not null)
         {
             const int nLeftMargin = 8;
             const int nRightMargin = 2;
@@ -305,7 +324,7 @@ public class StylableTabControl : TabControl
             Rectangle rImage = new(recBounds.X + nLeftMargin, recBounds.Y + 1, img.Width, img.Height);
 
             // adjust rectangles
-            float nAdj = (float)(nLeftMargin + img.Width + nRightMargin);
+            float nAdj = nLeftMargin + img.Width + nRightMargin;
 
             rImage.Y += (recBounds.Height - img.Height) / 2;
             tabTextArea.X += nAdj;
@@ -323,10 +342,8 @@ public class StylableTabControl : TabControl
         };
 
         Color activeForegroundColor = bSelected ? ActiveTabForegroundColor : tabPage.ForeColor;
-        using (Brush foreColorBrush = new SolidBrush(activeForegroundColor))
-        {
-            g.DrawString(tabPage.Text, Font, foreColorBrush, tabTextArea, stringFormat);
-        }
+        using Brush foreColorBrush = new SolidBrush(activeForegroundColor);
+        g.DrawString(tabPage.Text, Font, foreColorBrush, tabTextArea, stringFormat);
     }
 
     /// <summary>
@@ -335,11 +352,14 @@ public class StylableTabControl : TabControl
     /// <remarks>Can be left/right images despite the name.</remarks>
     internal void DrawUpDown(Graphics g)
     {
-        if (_upDownImages == null || _upDownImages.Images.Count != 4)
+        if (_upDownImages is null || _upDownImages.Images.Count != 4)
+        {
             return;
+        }
 
         #region calc icon positions
-        Rectangle TabControlArea = ClientRectangle;
+
+        Rectangle tabControlArea = ClientRectangle;
 
         Rectangle r0 = new();
         NativeMethods.GetClientRect(_scUpDown.Handle, ref r0);
@@ -347,7 +367,6 @@ public class StylableTabControl : TabControl
         using (Brush br = new SolidBrush(SystemColors.Control))
         {
             g.FillRectangle(br, r0);
-            br.Dispose();
         }
 
         Rectangle rBorder = r0;
@@ -360,15 +379,19 @@ public class StylableTabControl : TabControl
 
         Rectangle r1 = new(nLeft, nTop, 16, 16);
         Rectangle r2 = new(nMiddle + nLeft, nTop, 16, 16);
-        #endregion
+
+        #endregion calc icon positions
 
         #region actually draw buttons
+
         Image img = _upDownImages.Images[1];
         if (TabCount > 0)
         {
             Rectangle r3 = GetTabRect(0);
-            if (r3.Left < TabControlArea.Left)
+            if (r3.Left < tabControlArea.Left)
+            {
                 g.DrawImage(img, r1);
+            }
             else
             {
                 img = _upDownImages.Images[3];
@@ -380,43 +403,46 @@ public class StylableTabControl : TabControl
         if (TabCount > 0)
         {
             Rectangle r3 = GetTabRect(TabCount - 1);
-            if (r3.Right > TabControlArea.Width - r0.Width)
+            if (r3.Right > tabControlArea.Width - r0.Width)
+            {
                 g.DrawImage(img, r2);
+            }
             else
             {
                 img = _upDownImages.Images[2];
                 g.DrawImage(img, r2);
             }
         }
-        #endregion
+
+        #endregion actually draw buttons
     }
 
     protected override void OnCreateControl()
     {
         base.OnCreateControl();
 
-        FindUpDown();
+        findUpDown();
     }
 
-    private void StylableTabControl_ControlAdded(object sender, ControlEventArgs e)
+    private void stylableTabControl_ControlAdded(object? sender, ControlEventArgs e)
     {
-        FindUpDown();
-        UpdateUpDown();
+        findUpDown();
+        updateUpDown();
     }
 
-    private void StylableTabControl_ControlRemoved(object sender, ControlEventArgs e)
+    private void stylableTabControl_ControlRemoved(object? sender, ControlEventArgs e)
     {
-        FindUpDown();
-        UpdateUpDown();
+        findUpDown();
+        updateUpDown();
     }
 
-    private void StylableTabControl_SelectedIndexChanged(object sender, EventArgs e)
+    private void stylableTabControl_SelectedIndexChanged(object? sender, EventArgs e)
     {
-        UpdateUpDown();
+        updateUpDown();
         Invalidate();   // we need to update border and background colors
     }
 
-    private void FindUpDown()
+    private void findUpDown()
     {
         bool bFound = false;
 
@@ -452,10 +478,12 @@ public class StylableTabControl : TabControl
         }
 
         if (!bFound && _bUpDown)
+        {
             _bUpDown = false;
+        }
     }
 
-    private void UpdateUpDown()
+    private void updateUpDown()
     {
         if (!_bUpDown || NativeMethods.IsWindowVisible(_scUpDown.Handle))
         {
@@ -473,15 +501,14 @@ public class StylableTabControl : TabControl
         switch (m.Msg)
         {
             case NativeMethods.WM_PAINT:
-            {
                 //------------------------
                 // redraw
-                IntPtr hDC = NativeMethods.GetWindowDC(_scUpDown.Handle);
-                using (Graphics g = Graphics.FromHdc(hDC))
+                IntPtr hDc = NativeMethods.GetWindowDC(_scUpDown.Handle);
+                using (Graphics g = Graphics.FromHdc(hDc))
                 {
                     DrawUpDown(g);
                 }
-                NativeMethods.ReleaseDC(_scUpDown.Handle, hDC);
+                NativeMethods.ReleaseDC(_scUpDown.Handle, hDc);
                 //------------------------
 
                 // return 0 (processed)
@@ -494,7 +521,7 @@ public class StylableTabControl : TabControl
                 NativeMethods.GetClientRect(_scUpDown.Handle, ref rect);
                 NativeMethods.ValidateRect(_scUpDown.Handle, ref rect);
                 //------------------------
-            }
+
                 return 1;
         }
 
@@ -502,14 +529,15 @@ public class StylableTabControl : TabControl
     }
 
     #region Component Designer code
+
     /// <summary>
-    /// Required method for Designer support - do not modify 
+    /// Required method for Designer support - do not modify
     /// the contents of this method with the code editor.
     /// </summary>
-    private void InitializeComponent()
+    private void initializeComponent()
     {
-        components = new System.ComponentModel.Container();
+        _components = new Container();
     }
 
-    #endregion
+    #endregion Component Designer code
 }

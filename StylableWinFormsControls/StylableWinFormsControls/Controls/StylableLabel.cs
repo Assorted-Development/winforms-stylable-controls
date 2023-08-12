@@ -1,14 +1,18 @@
-﻿using StylableWinFormsControls.Extensions;
+using StylableWinFormsControls.Extensions;
 using StylableWinFormsControls.LayoutInternals;
 
 namespace StylableWinFormsControls;
 
-// Based on original Label.cs code
-// Note that this doesn't support AutoEllipsis on disabled labels
-// Note that this doesn't support .NET Framework 1.0/1.1
+/// <summary>
+/// Represents a standard Windows Label
+/// </summary>
+/// <remarks>Based on original Label.cs code
+/// Note that this doesn't support AutoEllipsis on disabled labels
+/// Note that this doesn't support .NET Framework 1.0/1.1
+/// </remarks>
 public class StylableLabel : Label
 {
-    private MeasureTextCache _textMeasurementCache;
+    private MeasureTextCache? _textMeasurementCache;
     private MeasureTextCache MeasureTextCache => _textMeasurementCache ??= new MeasureTextCache();
 
     /// <summary>
@@ -27,7 +31,7 @@ public class StylableLabel : Label
         MeasureTextCache.InvalidateCache();
         base.OnFontChanged(e);
     }
-    
+
     protected override void OnPaint(PaintEventArgs e)
     {
         // if the label isn't disabled, text rendering can be controlled via ForeColor
@@ -37,17 +41,17 @@ public class StylableLabel : Label
             return;
         }
 
-        Rectangle face = DeflateRect(ClientRectangle, Padding);
-        if (Image != null)
+        Rectangle face = deflateRect(ClientRectangle, Padding);
+        if (Image is not null)
         {
             DrawImage(e.Graphics, Image, face, RtlTranslateAlignment(ImageAlign));
         }
 
-        TextFormatFlags flags = CreateTextFormatFlags();
+        TextFormatFlags flags = createTextFormatFlags();
         TextRenderer.DrawText(e.Graphics, Text, Font, face, DisabledForeColor, flags);
     }
 
-    private static Rectangle DeflateRect(Rectangle rect, Padding padding)
+    private static Rectangle deflateRect(Rectangle rect, Padding padding)
     {
         rect.X += padding.Left;
         rect.Y += padding.Top;
@@ -56,15 +60,15 @@ public class StylableLabel : Label
         return rect;
     }
 
-    private TextFormatFlags CreateTextFormatFlags()
+    private TextFormatFlags createTextFormatFlags()
     {
-        return CreateTextFormatFlags(Size - GetBordersAndPadding());
+        return CreateTextFormatFlags(Size - getBordersAndPadding());
     }
 
-    private Size GetBordersAndPadding()
+    private Size getBordersAndPadding()
     {
         Size bordersAndPadding = Padding.Size;
-            
+
         bordersAndPadding += SizeFromClientSize(Size.Empty);
         if (BorderStyle == BorderStyle.Fixed3D)
         {
@@ -72,7 +76,6 @@ public class StylableLabel : Label
         }
 
         return bordersAndPadding;
-
     }
 
     /// <devdoc>
@@ -85,8 +88,8 @@ public class StylableLabel : Label
         // Remove WordBreak if the size is large enough to display all the text.
         if (!MeasureTextCache.TextRequiresWordBreak(Text, Font, constrainingSize, flags))
         {
-            // The effect of the TextBoxControl flag is that in-word line breaking will occur if needed, this happens when AutoSize 
-            // is false and a one-word line still doesn't fit the binding box (width).  The other effect is that partially visible 
+            // The effect of the TextBoxControl flag is that in-word line breaking will occur if needed, this happens when AutoSize
+            // is false and a one-word line still doesn't fit the binding box (width).  The other effect is that partially visible
             // lines are clipped; this is how GDI+ works by default.
             flags &= ~(TextFormatFlags.WordBreak | TextFormatFlags.TextBoxControl);
         }

@@ -9,11 +9,13 @@ namespace StylableWinFormsControls;
 public class StylableComboBox : ComboBox
 {
     private Pen _borderColorPen = new(SystemColors.ControlDark);
+
     /// <summary>
     /// Sets the color of the border around the combobox (not the item list box)
     /// </summary>
     public Color BorderColor
     {
+        get => _borderColorPen.Color;
         set
         {
             _borderColorPen?.Dispose();
@@ -22,11 +24,13 @@ public class StylableComboBox : ComboBox
     }
 
     private Brush _itemHoverColorBrush = new SolidBrush(SystemColors.Highlight);
+
     /// <summary>
     /// Sets the background color of the item in the list that's currently hovered/selected.
     /// </summary>
     public Color ItemHoverColor
     {
+        get => _itemHoverColorBrush is SolidBrush solidBrush ? solidBrush.Color : default;
         set
         {
             _itemHoverColorBrush?.Dispose();
@@ -35,6 +39,7 @@ public class StylableComboBox : ComboBox
     }
 
     private Brush _backColorBrush = new SolidBrush(DefaultBackColor);
+
     public override Color BackColor
     {
         get => base.BackColor;
@@ -47,6 +52,7 @@ public class StylableComboBox : ComboBox
     }
 
     private Brush _foreColorBrush = new SolidBrush(DefaultForeColor);
+
     public override Color ForeColor
     {
         get => base.ForeColor;
@@ -60,22 +66,19 @@ public class StylableComboBox : ComboBox
 
     public StylableComboBox()
     {
-        this.DrawMode = DrawMode.OwnerDrawFixed;
+        DrawMode = DrawMode.OwnerDrawFixed;
         //calling SetStyle before the handle is created will cause erros like wrong fonts
-        this.HandleCreated += (sender, args) =>
-        {
-            SetStyle(ControlStyles.UserPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
-        };
+        HandleCreated += (_, _) => SetStyle(ControlStyles.UserPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
     }
 
     protected override void Dispose(bool disposing)
     {
         if (disposing)
         {
-            _borderColorPen?.Dispose();
-            _itemHoverColorBrush?.Dispose();
-            _backColorBrush?.Dispose();
-            _foreColorBrush?.Dispose();
+            _borderColorPen.Dispose();
+            _itemHoverColorBrush.Dispose();
+            _backColorBrush.Dispose();
+            _foreColorBrush.Dispose();
         }
 
         base.Dispose(disposing);
@@ -88,11 +91,11 @@ public class StylableComboBox : ComboBox
         {
             object val = Items[e.Index];
             Type t = val.GetType();
-            PropertyInfo valProp = t.GetProperty(DisplayMember);
+            PropertyInfo? valProp = t.GetProperty(DisplayMember);
 
-            value = valProp != null
+            value = valProp is not null
                 ? valProp.GetValue(val)?.ToString() ?? string.Empty
-                : Items[e.Index].ToString();
+                : Items[e.Index].ToString() ?? string.Empty;
         }
 
         Brush bgBrush = e.State.HasFlag(DrawItemState.Focus) ? _itemHoverColorBrush : _backColorBrush;
@@ -102,7 +105,7 @@ public class StylableComboBox : ComboBox
 
     protected override void OnPaint(PaintEventArgs e)
     {
-        if (this.DropDownStyle != ComboBoxStyle.Simple)
+        if (DropDownStyle != ComboBoxStyle.Simple)
         {
             drawComboBox(e.Graphics);
             return;
@@ -122,6 +125,7 @@ public class StylableComboBox : ComboBox
                 IntPtr brush = NativeMethods.CreateSolidBrush(ColorTranslator.ToWin32(Color.BlueViolet));
                 m.Result = brush;
                 return;
+
             case 0x133: //coloredit, for the edit area of editable comboboxes
                 NativeMethods.SetBkMode(m.WParam, NativeMethods.BKM_OPAQUE);
                 NativeMethods.SetTextColor(m.WParam, ColorTranslator.ToWin32(ForeColor));
@@ -130,6 +134,7 @@ public class StylableComboBox : ComboBox
                 IntPtr brush0 = NativeMethods.CreateSolidBrush(ColorTranslator.ToWin32(BackColor));
                 m.Result = brush0;
                 return;
+
             case 0x134: //colorlistbox
                 NativeMethods.SetBkMode(m.WParam, NativeMethods.BKM_OPAQUE);
                 NativeMethods.SetTextColor(m.WParam, ColorTranslator.ToWin32(ForeColor));
@@ -143,18 +148,18 @@ public class StylableComboBox : ComboBox
         base.WndProc(ref m);
     }
 
-    protected override void OnPaintBackground(PaintEventArgs e)
+    protected override void OnPaintBackground(PaintEventArgs pevent)
     {
-        base.OnPaintBackground(e);
-        if (this.DropDownStyle != ComboBoxStyle.DropDownList)
+        base.OnPaintBackground(pevent);
+        if (DropDownStyle != ComboBoxStyle.DropDownList)
         {
-            e.Graphics.DrawRectangle(_borderColorPen, 0, 0, ClientSize.Width - 1, ClientSize.Height - 1);
+            pevent.Graphics.DrawRectangle(_borderColorPen, 0, 0, ClientSize.Width - 1, ClientSize.Height - 1);
         }
     }
 
-    private Rectangle GetDownRectangle()
+    private Rectangle getDownRectangle()
     {
-        return new Rectangle(this.ClientSize.Width - 16, 0, 16, this.ClientSize.Height);
+        return new Rectangle(ClientSize.Width - 16, 0, 16, ClientSize.Height);
     }
 
     private void drawComboBox(Graphics graphics)
@@ -178,7 +183,7 @@ public class StylableComboBox : ComboBox
             foreBrush,
             textDrawArea, stringFormat);
 
-        ComboBoxRenderer.DrawDropDownButton(graphics, GetDownRectangle(), System.Windows.Forms.VisualStyles.ComboBoxState.Normal);
+        ComboBoxRenderer.DrawDropDownButton(graphics, getDownRectangle(), System.Windows.Forms.VisualStyles.ComboBoxState.Normal);
 
         Rectangle borderRectangle = drawArea;
         graphics.DrawRectangle(_borderColorPen, borderRectangle);

@@ -2,7 +2,7 @@
 
 public class StylableDataGridView : DataGridView
 {
-    private Form _parentForm;
+    private Form? _parentForm;
 
     public new bool DoubleBuffered
     {
@@ -22,48 +22,51 @@ public class StylableDataGridView : DataGridView
         DoubleBuffered = true;
     }
 
-    protected override void OnCellPainting(DataGridViewCellPaintingEventArgs args)
+    protected override void OnCellPainting(DataGridViewCellPaintingEventArgs e)
     {
-        base.OnCellPainting(args);
+        base.OnCellPainting(e);
 
         if (!EnableFirstColumnGrouping)
         {
             return;
         }
 
-        // Ignore column and row headers, first row, not sorted columns and not-frozen columns 
-        if (args.RowIndex < 1 || args.RowIndex >= Rows.Count - 1 || args.ColumnIndex < 0 || args.ColumnIndex != SortedColumn?.Index || !Columns[args.ColumnIndex].Frozen)
+        // Ignore column and row headers, first row, not sorted columns and not-frozen columns
+        if (e.RowIndex < 1 || e.RowIndex >= Rows.Count - 1 || e.ColumnIndex < 0 || e.ColumnIndex != SortedColumn?.Index || !Columns[e.ColumnIndex].Frozen)
+        {
             return;
+        }
 
-        args.AdvancedBorderStyle.Top =
+        e.AdvancedBorderStyle.Top =
             DataGridViewAdvancedCellBorderStyle.None;
 
-        args.AdvancedBorderStyle.Bottom =
-            IsRepeatedCellValue(args.RowIndex + 1, args.ColumnIndex)
+        e.AdvancedBorderStyle.Bottom =
+            isRepeatedCellValue(e.RowIndex + 1, e.ColumnIndex)
                 ? DataGridViewAdvancedCellBorderStyle.None
                 : AdvancedCellBorderStyle.Bottom;
     }
 
-
-    protected override void OnCellFormatting(DataGridViewCellFormattingEventArgs args)
+    protected override void OnCellFormatting(DataGridViewCellFormattingEventArgs e)
     {
         // Call home to base
-        base.OnCellFormatting(args);
+        base.OnCellFormatting(e);
 
         // First row always gets displayed
-        if (args.RowIndex == 0 || args.ColumnIndex != SortedColumn?.Index || !Columns[args.ColumnIndex].Frozen)
-            return;
-
-        if (IsRepeatedCellValue(args.RowIndex, args.ColumnIndex))
+        if (e.RowIndex == 0 || e.ColumnIndex != SortedColumn?.Index || !Columns[e.ColumnIndex].Frozen)
         {
-            args.Value = string.Empty;
+            return;
+        }
 
-            args.CellStyle.Font = new Font(args.CellStyle.Font, FontStyle.Bold);
-            args.FormattingApplied = true;
+        if (isRepeatedCellValue(e.RowIndex, e.ColumnIndex))
+        {
+            e.Value = string.Empty;
+
+            e.CellStyle.Font = new Font(e.CellStyle.Font, FontStyle.Bold);
+            e.FormattingApplied = true;
         }
     }
 
-    private bool IsRepeatedCellValue(int rowIndex, int colIndex)
+    private bool isRepeatedCellValue(int rowIndex, int colIndex)
     {
         if (!EnableFirstColumnGrouping)
         {
@@ -76,8 +79,8 @@ public class StylableDataGridView : DataGridView
             Rows[rowIndex - 1].Cells[colIndex];
 
         if (currentCell.Value == prevCell.Value ||
-            currentCell.Value != null && prevCell.Value != null &&
-            currentCell.Value.ToString() == prevCell.Value.ToString())
+            (currentCell.Value is not null && prevCell.Value is not null &&
+            currentCell.Value.ToString() == prevCell.Value.ToString()))
         {
             return true;
         }
