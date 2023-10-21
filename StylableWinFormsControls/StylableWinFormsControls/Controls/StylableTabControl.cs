@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Drawing.Design;
 using StylableWinFormsControls.LayoutInternals;
 using StylableWinFormsControls.Native;
@@ -83,11 +83,19 @@ public class StylableTabControl : TabControl
     /// Can be null if the system control is to be used.<br/>
     /// Transparency color is white.
     /// </remarks>
-    public Bitmap[] UpDownImages
+    public IEnumerable<Bitmap> UpDownImages
     {
+        get => _upDownImages is null
+                ? Array.Empty<Bitmap>()
+                : _upDownImages.Images.Cast<Bitmap>().ToArray();
         set
         {
             _upDownImages = new ImageList();
+
+            if (value is null)
+            {
+                return;
+            }
 
             foreach (Bitmap upDownImage in value)
             {
@@ -161,6 +169,7 @@ public class StylableTabControl : TabControl
 
     protected override void OnPaint(PaintEventArgs e)
     {
+        ArgumentNullException.ThrowIfNull(e);
         base.OnPaint(e);
 
         DrawControl(e.Graphics);
@@ -168,7 +177,7 @@ public class StylableTabControl : TabControl
 
     internal void DrawControl(Graphics g)
     {
-        if (!Visible)
+        if (!Visible || _scUpDown is null)
         {
             return;
         }
@@ -335,7 +344,7 @@ public class StylableTabControl : TabControl
         }
 
         // draw string
-        StringFormat stringFormat = new()
+        using StringFormat stringFormat = new()
         {
             Alignment = StringAlignment.Center,
             LineAlignment = StringAlignment.Center
@@ -352,7 +361,7 @@ public class StylableTabControl : TabControl
     /// <remarks>Can be left/right images despite the name.</remarks>
     internal void DrawUpDown(Graphics g)
     {
-        if (_upDownImages is null || _upDownImages.Images.Count != 4)
+        if (_upDownImages is null || _upDownImages.Images.Count != 4 || _scUpDown is null)
         {
             return;
         }
@@ -485,7 +494,7 @@ public class StylableTabControl : TabControl
 
     private void updateUpDown()
     {
-        if (!_bUpDown || NativeMethods.IsWindowVisible(_scUpDown.Handle))
+        if (!_bUpDown || _scUpDown is null || NativeMethods.IsWindowVisible(_scUpDown.Handle))
         {
             return;
         }
@@ -498,6 +507,11 @@ public class StylableTabControl : TabControl
 
     private int scUpDown_SubClassedWndProc(ref Message m)
     {
+        if (_scUpDown is null)
+        {
+            return 0;
+        }
+
         switch (m.Msg)
         {
             case NativeMethods.WM_PAINT:

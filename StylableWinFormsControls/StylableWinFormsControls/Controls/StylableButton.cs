@@ -1,4 +1,4 @@
-﻿using StylableWinFormsControls.Extensions;
+using StylableWinFormsControls.Extensions;
 
 namespace StylableWinFormsControls;
 
@@ -16,6 +16,8 @@ public class StylableButton : Button
 
     protected override void OnPaint(PaintEventArgs pevent)
     {
+        ArgumentNullException.ThrowIfNull(pevent);
+
         if (!Enabled)
         {
             using SolidBrush brush = new(DisabledBackColor);
@@ -24,7 +26,7 @@ public class StylableButton : Button
                 DisabledBackColor);
 
             // border
-            Pen borderPen = new(BorderColor, 1);
+            using Pen borderPen = new(BorderColor, 1);
             pevent.Graphics.DrawRectangle(borderPen, ClientRectangle.X, ClientRectangle.Y,
                 ClientRectangle.Width - 1, ClientRectangle.Height - 1);
         }

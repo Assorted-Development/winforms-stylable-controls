@@ -5,7 +5,6 @@ namespace StylableWinFormsControls.Extensions;
 
 internal class ControlPaintExtensions
 {
-    //use these value to signify ANY of the right, top, left, center, or bottom alignments with the ContentAlignment enum.
     internal const ContentAlignment ANY_RIGHT_ALIGN = ContentAlignment.TopRight | ContentAlignment.MiddleRight | ContentAlignment.BottomRight;
     internal const ContentAlignment ANY_LEFT_ALIGN = ContentAlignment.TopLeft | ContentAlignment.MiddleLeft | ContentAlignment.BottomLeft;
     internal const ContentAlignment ANY_TOP_ALIGN = ContentAlignment.TopLeft | ContentAlignment.TopCenter | ContentAlignment.TopRight;

@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 
 namespace StylableWinFormsControls;
 
@@ -24,7 +24,7 @@ public class StylableTextBox : TextBox
     {
         add
         {
-            if (_hintActiveChanged is null || !_hintActiveChanged.GetInvocationList().Contains(value))
+            if (_hintActiveChanged?.GetInvocationList().Contains(value) != true)
             {
                 _hintActiveChanged += value;
             }

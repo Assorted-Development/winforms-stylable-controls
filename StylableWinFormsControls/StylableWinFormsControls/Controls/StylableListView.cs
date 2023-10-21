@@ -102,14 +102,28 @@ public class StylableListView : ListView
             return;
         }
 
-        NativeMethods.NMHDR pnmhdr = (NativeMethods.NMHDR)m.GetLParam(typeof(NativeMethods.NMHDR));
+        object? nmhdrParam = m.GetLParam(typeof(NativeMethods.NMHDR));
+        if (nmhdrParam is null)
+        {
+            base.WndProc(ref m);
+            return;
+        }
+
+        NativeMethods.NMHDR pnmhdr = (NativeMethods.NMHDR)nmhdrParam;
         if (pnmhdr.code != NativeMethods.NM_CUSTOMDRAW)
         {
             base.WndProc(ref m);
             return;
         }
 
-        NativeMethods.NMLVCUSTOMDRAW pnmlv = (NativeMethods.NMLVCUSTOMDRAW)m.GetLParam(typeof(NativeMethods.NMLVCUSTOMDRAW));
+        object? customDrawParam = m.GetLParam(typeof(NativeMethods.NMLVCUSTOMDRAW));
+        if (customDrawParam is null)
+        {
+            base.WndProc(ref m);
+            return;
+        }
+
+        NativeMethods.NMLVCUSTOMDRAW pnmlv = (NativeMethods.NMLVCUSTOMDRAW)customDrawParam;
         switch (pnmlv.nmcd.dwDrawStage)
         {
             case (int)NativeMethods.CDDS.PrePaint:
@@ -217,9 +231,13 @@ public class StylableListView : ListView
             listviewGroup.cbSize = (uint)Marshal.SizeOf(listviewGroup);
             listviewGroup.mask = NativeMethods.LVGF_GROUPID | NativeMethods.LVGF_HEADER;
 
-            NativeMethods.SendMessage(mHWnd, NativeMethods.LVM_GETGROUPINFO, groupIndex,
+            NativeMethods.SendMessage(
+                mHWnd,
+                NativeMethods.LVM_GETGROUPINFO,
+                groupIndex,
                 ref listviewGroup);
-            string groupHeaderText = Marshal.PtrToStringUni(listviewGroup.pszHeader);
+
+            string groupHeaderText = Marshal.PtrToStringUni(listviewGroup.pszHeader) ?? string.Empty;
 
             const int textOffset = 10;
             rect.Offset(textOffset, 2);

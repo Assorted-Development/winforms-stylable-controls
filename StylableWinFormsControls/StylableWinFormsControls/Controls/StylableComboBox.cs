@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using StylableWinFormsControls.Native;
 
 namespace StylableWinFormsControls;
@@ -86,6 +86,8 @@ public class StylableComboBox : ComboBox
 
     protected override void OnDrawItem(DrawItemEventArgs e)
     {
+        ArgumentNullException.ThrowIfNull(e);
+
         string value = string.Empty;
         if (e.Index >= 0)
         {
@@ -105,6 +107,8 @@ public class StylableComboBox : ComboBox
 
     protected override void OnPaint(PaintEventArgs e)
     {
+        ArgumentNullException.ThrowIfNull(e);
+
         if (DropDownStyle != ComboBoxStyle.Simple)
         {
             drawComboBox(e.Graphics);
@@ -150,7 +154,9 @@ public class StylableComboBox : ComboBox
 
     protected override void OnPaintBackground(PaintEventArgs pevent)
     {
+        ArgumentNullException.ThrowIfNull(pevent);
         base.OnPaintBackground(pevent);
+
         if (DropDownStyle != ComboBoxStyle.DropDownList)
         {
             pevent.Graphics.DrawRectangle(_borderColorPen, 0, 0, ClientSize.Width - 1, ClientSize.Height - 1);
@@ -168,7 +174,7 @@ public class StylableComboBox : ComboBox
         using SolidBrush backBrush = new(BackColor);
         using SolidBrush foreBrush = new(ForeColor);
 
-        StringFormat stringFormat = new()
+        using StringFormat stringFormat = new()
         {
             LineAlignment = StringAlignment.Center
         };
@@ -181,7 +187,8 @@ public class StylableComboBox : ComboBox
             Text,
             Font,
             foreBrush,
-            textDrawArea, stringFormat);
+            textDrawArea,
+            stringFormat);
 
         ComboBoxRenderer.DrawDropDownButton(graphics, getDownRectangle(), System.Windows.Forms.VisualStyles.ComboBoxState.Normal);
 

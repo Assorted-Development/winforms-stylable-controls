@@ -1,4 +1,4 @@
-﻿namespace StylableWinFormsControls;
+namespace StylableWinFormsControls;
 
 public class StylableDataGridView : DataGridView
 {
@@ -10,7 +10,10 @@ public class StylableDataGridView : DataGridView
         set => base.DoubleBuffered = value;
     }
 
-    // Override default scrollbar to make styling it possible.
+    /// <summary>
+    /// Specifies which ScrollBars are visible on the DGV.
+    /// </summary>
+    /// <remarks> Overrides default scrollbar to make styling it possible.</remarks>
     public new ScrollBars ScrollBars { get; set; }
 
     public bool EnableFirstColumnGrouping { get; set; } = true;
@@ -24,6 +27,7 @@ public class StylableDataGridView : DataGridView
 
     protected override void OnCellPainting(DataGridViewCellPaintingEventArgs e)
     {
+        ArgumentNullException.ThrowIfNull(e);
         base.OnCellPainting(e);
 
         if (!EnableFirstColumnGrouping)
@@ -48,6 +52,8 @@ public class StylableDataGridView : DataGridView
 
     protected override void OnCellFormatting(DataGridViewCellFormattingEventArgs e)
     {
+        ArgumentNullException.ThrowIfNull(e);
+
         // Call home to base
         base.OnCellFormatting(e);
 

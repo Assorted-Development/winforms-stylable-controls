@@ -1,4 +1,4 @@
-﻿using System.Windows.Forms.VisualStyles;
+using System.Windows.Forms.VisualStyles;
 using StylableWinFormsControls.Native;
 
 namespace StylableWinFormsControls;
@@ -48,6 +48,8 @@ public class StylableCheckBox : CheckBox
 
     protected override void OnPaint(PaintEventArgs pevent)
     {
+        ArgumentNullException.ThrowIfNull(pevent);
+
         drawCheckBox(pevent.Graphics);
     }
 

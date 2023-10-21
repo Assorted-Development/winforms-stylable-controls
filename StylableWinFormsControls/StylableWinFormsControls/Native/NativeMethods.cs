@@ -232,6 +232,10 @@ internal class NativeMethods
     }
 
     [Flags]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage(
+        "Roslynator",
+        "RCS1191:Declare enum value as combination of names.",
+        Justification = "Wouldn't be semantically accurate.")]
     internal enum CDDS
     {
         PrePaint = 0x1,

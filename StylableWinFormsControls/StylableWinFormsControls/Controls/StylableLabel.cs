@@ -34,6 +34,8 @@ public class StylableLabel : Label
 
     protected override void OnPaint(PaintEventArgs e)
     {
+        ArgumentNullException.ThrowIfNull(e);
+
         // if the label isn't disabled, text rendering can be controlled via ForeColor
         if (Enabled)
         {
