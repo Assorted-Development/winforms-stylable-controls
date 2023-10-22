@@ -371,7 +371,10 @@ public class StylableTabControl : TabControl
         Rectangle tabControlArea = ClientRectangle;
 
         Rectangle r0 = new();
-        NativeMethods.GetClientRect(_scUpDown.Handle, ref r0);
+        if (!NativeMethods.GetClientRectInternal(_scUpDown.Handle, ref r0))
+        {
+            return;
+        }
 
         using (Brush br = new SolidBrush(SystemColors.Control))
         {
@@ -501,8 +504,10 @@ public class StylableTabControl : TabControl
 
         Rectangle rect = new();
 
-        NativeMethods.GetClientRect(_scUpDown.Handle, ref rect);
-        NativeMethods.InvalidateRect(_scUpDown.Handle, ref rect, true);
+        if (NativeMethods.GetClientRectInternal(_scUpDown.Handle, ref rect))
+        {
+            NativeMethods.InvalidateRect(_scUpDown.Handle, ref rect, true);
+        }
     }
 
     private int scUpDown_SubClassedWndProc(ref Message m)
@@ -532,8 +537,10 @@ public class StylableTabControl : TabControl
                 // validate current rect
                 Rectangle rect = new();
 
-                NativeMethods.GetClientRect(_scUpDown.Handle, ref rect);
-                NativeMethods.ValidateRect(_scUpDown.Handle, ref rect);
+                if (NativeMethods.GetClientRectInternal(_scUpDown.Handle, ref rect))
+                {
+                    NativeMethods.ValidateRect(_scUpDown.Handle, ref rect);
+                }
                 //------------------------
 
                 return 1;

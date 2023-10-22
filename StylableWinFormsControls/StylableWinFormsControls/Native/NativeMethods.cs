@@ -1,3 +1,4 @@
+using System.Drawing;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
@@ -43,7 +44,11 @@ internal class NativeMethods
     internal static extern bool IsWindowVisible(IntPtr hwnd);
 
     [DllImport("user32.dll", CharSet = CharSet.Auto)]
-    internal static extern int GetClientRect(IntPtr hwnd, [In, Out] ref Rectangle rect);
+    private static extern int GetClientRect(IntPtr hwnd, [In, Out] ref Rectangle rect);
+    internal static bool GetClientRectInternal(IntPtr hwnd, ref Rectangle rect)
+    {
+        return GetClientRect(hwnd, ref rect) == TRUE_VALUE;
+    }
 
     [DllImport("user32.dll", CharSet = CharSet.Auto)]
     internal static extern bool InvalidateRect(IntPtr hwnd, ref Rectangle rect, bool bErase);
