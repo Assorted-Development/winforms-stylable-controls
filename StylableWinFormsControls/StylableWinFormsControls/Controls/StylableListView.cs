@@ -9,7 +9,7 @@ public class StylableListView : ListView
     /// <summary>
     /// the settings to use
     /// </summary>
-    private StylableWinFormsControlsSettings _settings;
+    private readonly WndProcErrorProcessor _errorProcessor;
     private Brush _groupHeaderBackColorBrush = new SolidBrush(Color.LightGray);
 
     /// <summary>
@@ -69,7 +69,7 @@ public class StylableListView : ListView
     /// <param name="settings">the settings object to use</param>
     public StylableListView(StylableWinFormsControlsSettings settings)
     {
-        _settings = settings;
+        _errorProcessor = new WndProcErrorProcessor(settings, wndProcInternal, base.WndProc);
         //Activate double buffering
         SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
 
@@ -102,6 +102,10 @@ public class StylableListView : ListView
     }
 
     protected override void WndProc(ref Message m)
+    {
+        _errorProcessor.WndProc(ref m);
+    }
+    private void wndProcInternal(ref Message m)
     {
         if (m.Msg != NativeMethods.WM_REFLECT + NativeMethods.WM_NOFITY)
         {
@@ -136,62 +140,50 @@ public class StylableListView : ListView
             return;
         }
 
-        try
+        NativeMethods.NMLVCUSTOMDRAW pnmlv = (NativeMethods.NMLVCUSTOMDRAW)customDrawParam;
+        switch (pnmlv.nmcd.dwDrawStage)
         {
-
-            NativeMethods.NMLVCUSTOMDRAW pnmlv = (NativeMethods.NMLVCUSTOMDRAW)customDrawParam;
-            switch (pnmlv.nmcd.dwDrawStage)
+            case (int)NativeMethods.CDDS.PrePaint:
             {
-                case (int)NativeMethods.CDDS.PrePaint:
+                m.Result = pnmlv.dwItemType switch
                 {
-                    m.Result = pnmlv.dwItemType switch
-                    {
-                        NativeMethods.LVCDI_GROUP => drawGroupHeader(m.HWnd, pnmlv),
-                        _ => new IntPtr((int)NativeMethods.CDRF.NotifyItemDraw)
-                    };
+                    NativeMethods.LVCDI_GROUP => drawGroupHeader(m.HWnd, pnmlv),
+                    _ => new IntPtr((int)NativeMethods.CDRF.NotifyItemDraw)
+                };
 
-                    break;
-                }
-                case (int)NativeMethods.CDDS.ItemPrePaint:
+                break;
+            }
+            case (int)NativeMethods.CDDS.ItemPrePaint:
+            {
+                switch (pnmlv.dwItemType)
                 {
-                    switch (pnmlv.dwItemType)
-                    {
-                        case NativeMethods.LVCDI_ITEM:
-                            int itemIndex = (int)pnmlv.nmcd.dwItemSpec;
+                    case NativeMethods.LVCDI_ITEM:
+                        int itemIndex = (int)pnmlv.nmcd.dwItemSpec;
 
-                            // skip items that are not selected as they are already drawn correctly
-                            ListViewItem listViewItem = Items[itemIndex];
-                            if (!listViewItem.Selected)
-                            {
-                                m.Result = new IntPtr((int)(NativeMethods.CDRF.NotifySubItemDraw |
-                                                            NativeMethods.CDRF.NotifyPostPaint));
-                                break;
-                            }
-
-                            m.Result = drawItem(m.HWnd, itemIndex, pnmlv);
-                            break;
-
-                        default:
+                        // skip items that are not selected as they are already drawn correctly
+                        ListViewItem listViewItem = Items[itemIndex];
+                        if (!listViewItem.Selected)
+                        {
                             m.Result = new IntPtr((int)(NativeMethods.CDRF.NotifySubItemDraw |
                                                         NativeMethods.CDRF.NotifyPostPaint));
                             break;
-                    }
+                        }
 
-                    break;
+                        m.Result = drawItem(m.HWnd, itemIndex, pnmlv);
+                        break;
+
+                    default:
+                        m.Result = new IntPtr((int)(NativeMethods.CDRF.NotifySubItemDraw |
+                                                    NativeMethods.CDRF.NotifyPostPaint));
+                        break;
                 }
-                case (int)NativeMethods.CDDS.ItemPostPaint:
-                {
-                    break;
-                }
+
+                break;
             }
-        }
-        catch (NativeException ex)
-        {
-            if (_settings.IsErrorHandlingFail())
+            case (int)NativeMethods.CDDS.ItemPostPaint:
             {
-                throw ex;
+                break;
             }
-            base.WndProc(ref m);
         }
     }
 

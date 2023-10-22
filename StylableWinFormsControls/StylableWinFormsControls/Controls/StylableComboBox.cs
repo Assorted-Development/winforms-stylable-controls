@@ -8,6 +8,10 @@ namespace StylableWinFormsControls;
 /// </summary>
 public class StylableComboBox : ComboBox
 {
+    /// <summary>
+    /// the settings to use
+    /// </summary>
+    private readonly WndProcErrorProcessor _errorProcessor;
     private Pen _borderColorPen = new(SystemColors.ControlDark);
 
     /// <summary>
@@ -64,8 +68,18 @@ public class StylableComboBox : ComboBox
         }
     }
 
-    public StylableComboBox()
+    /// <summary>
+    /// constructor
+    /// </summary>
+    public StylableComboBox() : this(StylableWinFormsControlsSettings.DEFAULT) { }
+    /// <summary>
+    /// this constructor can be used to override the default settings object in case some controls need separate settings
+    /// or you use diffent libs all having a dependency on this control library.
+    /// </summary>
+    /// <param name="settings">the settings object to use</param>
+    public StylableComboBox(StylableWinFormsControlsSettings settings)
     {
+        _errorProcessor = new WndProcErrorProcessor(settings, wndProcInternal, base.WndProc);
         DrawMode = DrawMode.OwnerDrawFixed;
         //calling SetStyle before the handle is created will cause erros like wrong fonts
         HandleCreated += (_, _) => SetStyle(ControlStyles.UserPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
@@ -120,29 +134,33 @@ public class StylableComboBox : ComboBox
 
     protected override void WndProc(ref Message m)
     {
+        _errorProcessor.WndProc(ref m);
+    }
+    private void wndProcInternal(ref Message m)
+    {
         switch (m.Msg)
         {
             //disabled box
             case NativeMethods.WM_CTLCOLORSTATIC:
-                NativeMethods.SetBkColor(m.WParam, ColorTranslator.ToWin32(Color.Orange));
+                NativeMethods.SetBkColorInternal(m.WParam, ColorTranslator.ToWin32(Color.Orange));
 
                 IntPtr brush = NativeMethods.CreateSolidBrush(ColorTranslator.ToWin32(Color.BlueViolet));
                 m.Result = brush;
                 return;
 
             case 0x133: //coloredit, for the edit area of editable comboboxes
-                NativeMethods.SetBkMode(m.WParam, NativeMethods.BKM_OPAQUE);
-                NativeMethods.SetTextColor(m.WParam, ColorTranslator.ToWin32(ForeColor));
-                NativeMethods.SetBkColor(m.WParam, ColorTranslator.ToWin32(BackColor));
+                NativeMethods.SetBkModeInternal(m.WParam, NativeMethods.BKM_OPAQUE);
+                NativeMethods.SetTextColorInternal(m.WParam, ColorTranslator.ToWin32(ForeColor));
+                NativeMethods.SetBkColorInternal(m.WParam, ColorTranslator.ToWin32(BackColor));
 
                 IntPtr brush0 = NativeMethods.CreateSolidBrush(ColorTranslator.ToWin32(BackColor));
                 m.Result = brush0;
                 return;
 
             case 0x134: //colorlistbox
-                NativeMethods.SetBkMode(m.WParam, NativeMethods.BKM_OPAQUE);
-                NativeMethods.SetTextColor(m.WParam, ColorTranslator.ToWin32(ForeColor));
-                NativeMethods.SetBkColor(m.WParam, ColorTranslator.ToWin32(BackColor));
+                NativeMethods.SetBkModeInternal(m.WParam, NativeMethods.BKM_OPAQUE);
+                NativeMethods.SetTextColorInternal(m.WParam, ColorTranslator.ToWin32(ForeColor));
+                NativeMethods.SetBkColorInternal(m.WParam, ColorTranslator.ToWin32(BackColor));
 
                 IntPtr brush2 = NativeMethods.CreateSolidBrush(ColorTranslator.ToWin32(BackColor));
                 m.Result = brush2;

@@ -23,6 +23,7 @@ internal class NativeMethods
 {
     public const int TRUE_VALUE = 1;
     public const int FALSE_VALUE = 0;
+    public const uint CLR_INVALID = 0xFFFFFFFF;
     [DllImport("user32.dll")]
     private static extern int SendMessage(IntPtr wnd, int msg, bool param, int lparam);
 
@@ -108,7 +109,15 @@ internal class NativeMethods
     /// The background color is also used when converting bitmaps from color to monochrome and vice versa.
     /// </remarks>
     [DllImport("gdi32.dll")]
-    internal static extern int SetBkColor(IntPtr hdc, int color);
+    private static extern uint SetBkColor(IntPtr hdc, int color);
+    internal static void SetBkColorInternal(IntPtr hdc, int color)
+    {
+        bool success = SetBkColor(hdc, color) != CLR_INVALID;
+        if (!success)
+        {
+            throw new NativeException($"failed to do native call 'SetBkColor' (color = {color})", Marshal.GetLastWin32Error());
+        }
+    }
 
     /// <summary>
     /// The SetBkMode function sets the background mix mode of the specified device context.
@@ -119,7 +128,16 @@ internal class NativeMethods
     /// If the function fails, the return value is zero.
     /// </returns>
     [DllImport("gdi32.dll")]
-    internal static extern int SetBkMode(IntPtr hdc, int bkMode);
+    private static extern int SetBkMode(IntPtr hdc, int bkMode);
+    internal static void SetBkModeInternal(IntPtr hdc, int bkMode)
+    {
+        int oldValue = SetBkMode(hdc, bkMode);
+        bool success = oldValue is BKM_OPAQUE or BKM_TRANSPARENT;
+        if (!success)
+        {
+            throw new NativeException($"failed to do native call 'SetBkMode' (bkMode = {bkMode})", Marshal.GetLastWin32Error());
+        }
+    }
 
     /// <summary>
     /// The SetTextColor function sets the text color for the specified device context to the specified color.
@@ -135,7 +153,15 @@ internal class NativeMethods
     /// The text color is also used in converting bitmaps from color to monochrome and vice versa.
     /// </remarks>
     [DllImport("gdi32.dll")]
-    internal static extern uint SetTextColor(IntPtr hdc, int color);
+    private static extern uint SetTextColor(IntPtr hdc, int color);
+    internal static void SetTextColorInternal(IntPtr hdc, int color)
+    {
+        bool success = SetTextColor(hdc, color) != CLR_INVALID;
+        if (!success)
+        {
+            throw new NativeException($"failed to do native call 'SetTextColor' (color = {color})", Marshal.GetLastWin32Error());
+        }
+    }
 
     /// <summary>
     /// Background remains untouched.
