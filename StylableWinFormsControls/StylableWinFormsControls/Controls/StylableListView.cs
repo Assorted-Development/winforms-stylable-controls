@@ -6,6 +6,10 @@ namespace StylableWinFormsControls;
 
 public class StylableListView : ListView
 {
+    /// <summary>
+    /// the settings to use
+    /// </summary>
+    private StylableWinFormsControlsSettings _settings;
     private Brush _groupHeaderBackColorBrush = new SolidBrush(Color.LightGray);
 
     /// <summary>
@@ -54,9 +58,18 @@ public class StylableListView : ListView
         get => _selectedItemBackColorBrush is SolidBrush solidBrush ? solidBrush.Color : default;
         set => _selectedItemBackColorBrush = new SolidBrush(value);
     }
-
-    public StylableListView()
+    /// <summary>
+    /// constructor
+    /// </summary>
+    public StylableListView() : this(StylableWinFormsControlsSettings.DEFAULT) { }
+    /// <summary>
+    /// this constructor can be used to override the default settings object in case some controls need separate settings
+    /// or you use diffent libs all having a dependency on this control library.
+    /// </summary>
+    /// <param name="settings">the settings object to use</param>
+    public StylableListView(StylableWinFormsControlsSettings settings)
     {
+        _settings = settings;
         //Activate double buffering
         SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
 
@@ -123,50 +136,62 @@ public class StylableListView : ListView
             return;
         }
 
-        NativeMethods.NMLVCUSTOMDRAW pnmlv = (NativeMethods.NMLVCUSTOMDRAW)customDrawParam;
-        switch (pnmlv.nmcd.dwDrawStage)
+        try
         {
-            case (int)NativeMethods.CDDS.PrePaint:
-            {
-                m.Result = pnmlv.dwItemType switch
-                {
-                    NativeMethods.LVCDI_GROUP => drawGroupHeader(m.HWnd, pnmlv),
-                    _ => new IntPtr((int)NativeMethods.CDRF.NotifyItemDraw)
-                };
 
-                break;
-            }
-            case (int)NativeMethods.CDDS.ItemPrePaint:
+            NativeMethods.NMLVCUSTOMDRAW pnmlv = (NativeMethods.NMLVCUSTOMDRAW)customDrawParam;
+            switch (pnmlv.nmcd.dwDrawStage)
             {
-                switch (pnmlv.dwItemType)
+                case (int)NativeMethods.CDDS.PrePaint:
                 {
-                    case NativeMethods.LVCDI_ITEM:
-                        int itemIndex = (int)pnmlv.nmcd.dwItemSpec;
+                    m.Result = pnmlv.dwItemType switch
+                    {
+                        NativeMethods.LVCDI_GROUP => drawGroupHeader(m.HWnd, pnmlv),
+                        _ => new IntPtr((int)NativeMethods.CDRF.NotifyItemDraw)
+                    };
 
-                        // skip items that are not selected as they are already drawn correctly
-                        ListViewItem listViewItem = Items[itemIndex];
-                        if (!listViewItem.Selected)
-                        {
+                    break;
+                }
+                case (int)NativeMethods.CDDS.ItemPrePaint:
+                {
+                    switch (pnmlv.dwItemType)
+                    {
+                        case NativeMethods.LVCDI_ITEM:
+                            int itemIndex = (int)pnmlv.nmcd.dwItemSpec;
+
+                            // skip items that are not selected as they are already drawn correctly
+                            ListViewItem listViewItem = Items[itemIndex];
+                            if (!listViewItem.Selected)
+                            {
+                                m.Result = new IntPtr((int)(NativeMethods.CDRF.NotifySubItemDraw |
+                                                            NativeMethods.CDRF.NotifyPostPaint));
+                                break;
+                            }
+
+                            m.Result = drawItem(m.HWnd, itemIndex, pnmlv);
+                            break;
+
+                        default:
                             m.Result = new IntPtr((int)(NativeMethods.CDRF.NotifySubItemDraw |
                                                         NativeMethods.CDRF.NotifyPostPaint));
                             break;
-                        }
+                    }
 
-                        m.Result = drawItem(m.HWnd, itemIndex, pnmlv);
-                        break;
-
-                    default:
-                        m.Result = new IntPtr((int)(NativeMethods.CDRF.NotifySubItemDraw |
-                                                    NativeMethods.CDRF.NotifyPostPaint));
-                        break;
+                    break;
                 }
-
-                break;
+                case (int)NativeMethods.CDDS.ItemPostPaint:
+                {
+                    break;
+                }
             }
-            case (int)NativeMethods.CDDS.ItemPostPaint:
+        }
+        catch (NativeException ex)
+        {
+            if (_settings.IsErrorHandlingFail())
             {
-                break;
+                throw ex;
             }
+            base.WndProc(ref m);
         }
     }
 
@@ -177,7 +202,7 @@ public class StylableListView : ListView
             left = (int)ItemBoundsPortion.Entire
         };
 
-        NativeMethods.SendMessage(mHWnd, NativeMethods.LVM_GETITEMRECT, itemIndex, ref rectHeader);
+        NativeMethods.SendMessageInternal(mHWnd, NativeMethods.LVM_GETITEMRECT, itemIndex, ref rectHeader);
         using (Graphics g = Graphics.FromHdc(pnmlv.nmcd.hdc))
         {
             // background color
@@ -217,7 +242,7 @@ public class StylableListView : ListView
 
         int groupIndex = (int)pnmlv.nmcd.dwItemSpec;
 
-        NativeMethods.SendMessage(mHWnd, NativeMethods.LVM_GETGROUPRECT, groupIndex,
+        NativeMethods.SendMessageInternal(mHWnd, NativeMethods.LVM_GETGROUPRECT, groupIndex,
             ref rectHeader);
         using (Graphics g = Graphics.FromHdc(pnmlv.nmcd.hdc))
         {
@@ -231,7 +256,7 @@ public class StylableListView : ListView
             listviewGroup.cbSize = (uint)Marshal.SizeOf(listviewGroup);
             listviewGroup.mask = NativeMethods.LVGF_GROUPID | NativeMethods.LVGF_HEADER;
 
-            NativeMethods.SendMessage(
+            NativeMethods.SendMessageInternal(
                 mHWnd,
                 NativeMethods.LVM_GETGROUPINFO,
                 groupIndex,

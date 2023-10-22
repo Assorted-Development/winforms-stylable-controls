@@ -1,3 +1,4 @@
+using System.Reflection;
 using System.Runtime.InteropServices;
 
 namespace StylableWinFormsControls.Native;
@@ -20,8 +21,10 @@ namespace StylableWinFormsControls.Native;
     Justification = "Most of the comments are not documentation, but internal notes.")]
 internal class NativeMethods
 {
+    public const int TRUE_VALUE = 1;
+    public const int FALSE_VALUE = 0;
     [DllImport("user32.dll")]
-    internal static extern int SendMessage(IntPtr wnd, int msg, bool param, int lparam);
+    private static extern int SendMessage(IntPtr wnd, int msg, bool param, int lparam);
 
     [DllImport("user32.dll", CharSet = CharSet.Auto)]
     internal static extern IntPtr GetWindowDC(IntPtr handle);
@@ -51,13 +54,29 @@ internal class NativeMethods
     internal static extern bool GetWindowRect(IntPtr hWnd, [In, Out] ref Rectangle rect);
 
     [DllImport("user32.dll", EntryPoint = "SendMessageW", SetLastError = true)]
-    internal static extern int SendMessage(IntPtr hWnd, int msg, int wParam, ref IntPtr lParam);
+    private static extern int SendMessage(IntPtr hWnd, int msg, int wParam, ref IntPtr lParam);
 
     [DllImport("user32.dll", EntryPoint = "SendMessageW", SetLastError = true)]
-    internal static extern int SendMessage(IntPtr hWnd, int msg, int wParam, ref LVGROUP lParam);
+    private static extern int SendMessage(IntPtr hWnd, int msg, int wParam, ref LVGROUP lParam);
+    internal static void SendMessageInternal(IntPtr hWnd, int msg, int wParam, ref LVGROUP lParam)
+    {
+        bool success = SendMessage(hWnd, msg, wParam, ref lParam) == TRUE_VALUE;
+        if (!success)
+        {
+            throw new NativeException($"failed to do native call 'SendMessage' (msg = {MessageNameFromValue(msg)}, wParam = {wParam})", Marshal.GetLastWin32Error());
+        }
+    }
 
     [DllImport("user32.dll", EntryPoint = "SendMessageW", SetLastError = true)]
-    internal static extern int SendMessage(IntPtr hWnd, int msg, int wParam, ref RECT lParam);
+    private static extern int SendMessage(IntPtr hWnd, int msg, int wParam, ref RECT lParam);
+    internal static void SendMessageInternal(IntPtr hWnd, int msg, int wParam, ref RECT lParam)
+    {
+        bool success = SendMessage(hWnd, msg, wParam, ref lParam) == TRUE_VALUE;
+        if (!success)
+        {
+            throw new NativeException($"failed to do native call 'SendMessage' (msg = {MessageNameFromValue(msg)}, wParam = {wParam})", Marshal.GetLastWin32Error());
+        }
+    }
 
     [DllImport("user32.dll", EntryPoint = "PostMessageW", SetLastError = true)]
     internal static extern int PostMessage(IntPtr hWnd, int msg, int wParam, ref IntPtr lParam);
@@ -379,4 +398,39 @@ internal class NativeMethods
     internal const int GW_HWNDPREV = 3;
     internal const int GW_OWNER = 4;
     internal const int GW_CHILD = 5;
+
+    #region reverse msg value logic
+    private static readonly Dictionary<int, string> messageNameDict = new();
+    private static void InitMessageNameFromValue()
+    {
+        //get all constants
+        FieldInfo[] fieldInfos = typeof(NativeMethods).GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+        List<FieldInfo> constants = (from f in fieldInfos where f.IsLiteral && !f.IsInitOnly && f.FieldType.IsAssignableFrom(typeof(int)) select f).ToList();
+
+        //add all constants to the messageNameDict
+        constants.ForEach(f =>
+        {
+            object? value = f.GetValue(null);
+            if (value is not null && f.Name != nameof(TRUE_VALUE) && f.Name != nameof(FALSE_VALUE)
+            //TODO: separate Message values to a separate constant class
+            && !messageNameDict.ContainsKey((int)value))
+            {
+                messageNameDict.Add((int)value, f.Name);
+            }
+        }
+        );
+    }
+    public static string MessageNameFromValue(int value)
+    {
+        if (messageNameDict.Count == 0)
+        {
+            InitMessageNameFromValue();
+        }
+        if (messageNameDict.ContainsKey(value))
+        {
+            return messageNameDict[value];
+        }
+        return $"Unknown Value({value})";
+    }
+    #endregion
 }
