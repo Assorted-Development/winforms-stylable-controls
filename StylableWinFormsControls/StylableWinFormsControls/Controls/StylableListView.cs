@@ -6,6 +6,10 @@ namespace StylableWinFormsControls;
 
 public class StylableListView : ListView
 {
+    /// <summary>
+    /// the settings to use
+    /// </summary>
+    private readonly WndProcErrorProcessor _errorProcessor;
     private Brush _groupHeaderBackColorBrush = new SolidBrush(Color.LightGray);
 
     /// <summary>
@@ -54,9 +58,18 @@ public class StylableListView : ListView
         get => _selectedItemBackColorBrush is SolidBrush solidBrush ? solidBrush.Color : default;
         set => _selectedItemBackColorBrush = new SolidBrush(value);
     }
-
-    public StylableListView()
+    /// <summary>
+    /// constructor
+    /// </summary>
+    public StylableListView() : this(StylableWinFormsControlsSettings.DEFAULT) { }
+    /// <summary>
+    /// this constructor can be used to override the default settings object in case some controls need separate settings
+    /// or you use diffent libs all having a dependency on this control library.
+    /// </summary>
+    /// <param name="settings">the settings object to use</param>
+    public StylableListView(StylableWinFormsControlsSettings settings)
     {
+        _errorProcessor = new WndProcErrorProcessor(settings, wndProcInternal, base.WndProc);
         //Activate double buffering
         SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
 
@@ -89,6 +102,10 @@ public class StylableListView : ListView
     }
 
     protected override void WndProc(ref Message m)
+    {
+        _errorProcessor.WndProc(ref m);
+    }
+    private void wndProcInternal(ref Message m)
     {
         if (m.Msg != NativeMethods.WM_REFLECT + NativeMethods.WM_NOFITY)
         {
@@ -177,7 +194,7 @@ public class StylableListView : ListView
             left = (int)ItemBoundsPortion.Entire
         };
 
-        NativeMethods.SendMessage(mHWnd, NativeMethods.LVM_GETITEMRECT, itemIndex, ref rectHeader);
+        NativeMethods.SendMessageInternal(mHWnd, NativeMethods.LVM_GETITEMRECT, itemIndex, ref rectHeader);
         using (Graphics g = Graphics.FromHdc(pnmlv.nmcd.hdc))
         {
             // background color
@@ -217,7 +234,7 @@ public class StylableListView : ListView
 
         int groupIndex = (int)pnmlv.nmcd.dwItemSpec;
 
-        NativeMethods.SendMessage(mHWnd, NativeMethods.LVM_GETGROUPRECT, groupIndex,
+        NativeMethods.SendMessageInternal(mHWnd, NativeMethods.LVM_GETGROUPRECT, groupIndex,
             ref rectHeader);
         using (Graphics g = Graphics.FromHdc(pnmlv.nmcd.hdc))
         {
@@ -231,7 +248,7 @@ public class StylableListView : ListView
             listviewGroup.cbSize = (uint)Marshal.SizeOf(listviewGroup);
             listviewGroup.mask = NativeMethods.LVGF_GROUPID | NativeMethods.LVGF_HEADER;
 
-            NativeMethods.SendMessage(
+            NativeMethods.SendMessageInternal(
                 mHWnd,
                 NativeMethods.LVM_GETGROUPINFO,
                 groupIndex,

@@ -1,3 +1,5 @@
+using System.Drawing;
+using System.Reflection;
 using System.Runtime.InteropServices;
 
 namespace StylableWinFormsControls.Native;
@@ -20,8 +22,11 @@ namespace StylableWinFormsControls.Native;
     Justification = "Most of the comments are not documentation, but internal notes.")]
 internal class NativeMethods
 {
+    public const int TRUE_VALUE = 1;
+    public const int FALSE_VALUE = 0;
+    public const uint CLR_INVALID = 0xFFFFFFFF;
     [DllImport("user32.dll")]
-    internal static extern int SendMessage(IntPtr wnd, int msg, bool param, int lparam);
+    private static extern int SendMessage(IntPtr wnd, int msg, bool param, int lparam);
 
     [DllImport("user32.dll", CharSet = CharSet.Auto)]
     internal static extern IntPtr GetWindowDC(IntPtr handle);
@@ -39,7 +44,11 @@ internal class NativeMethods
     internal static extern bool IsWindowVisible(IntPtr hwnd);
 
     [DllImport("user32.dll", CharSet = CharSet.Auto)]
-    internal static extern int GetClientRect(IntPtr hwnd, [In, Out] ref Rectangle rect);
+    private static extern int GetClientRect(IntPtr hwnd, [In, Out] ref Rectangle rect);
+    internal static bool GetClientRectInternal(IntPtr hwnd, ref Rectangle rect)
+    {
+        return GetClientRect(hwnd, ref rect) == TRUE_VALUE;
+    }
 
     [DllImport("user32.dll", CharSet = CharSet.Auto)]
     internal static extern bool InvalidateRect(IntPtr hwnd, ref Rectangle rect, bool bErase);
@@ -51,13 +60,29 @@ internal class NativeMethods
     internal static extern bool GetWindowRect(IntPtr hWnd, [In, Out] ref Rectangle rect);
 
     [DllImport("user32.dll", EntryPoint = "SendMessageW", SetLastError = true)]
-    internal static extern int SendMessage(IntPtr hWnd, int msg, int wParam, ref IntPtr lParam);
+    private static extern int SendMessage(IntPtr hWnd, int msg, int wParam, ref IntPtr lParam);
 
     [DllImport("user32.dll", EntryPoint = "SendMessageW", SetLastError = true)]
-    internal static extern int SendMessage(IntPtr hWnd, int msg, int wParam, ref LVGROUP lParam);
+    private static extern int SendMessage(IntPtr hWnd, int msg, int wParam, ref LVGROUP lParam);
+    internal static void SendMessageInternal(IntPtr hWnd, int msg, int wParam, ref LVGROUP lParam)
+    {
+        bool success = SendMessage(hWnd, msg, wParam, ref lParam) == TRUE_VALUE;
+        if (!success)
+        {
+            throw new NativeException($"failed to do native call 'SendMessage' (msg = {MessageNameFromValue(msg)}, wParam = {wParam})", Marshal.GetLastWin32Error());
+        }
+    }
 
     [DllImport("user32.dll", EntryPoint = "SendMessageW", SetLastError = true)]
-    internal static extern int SendMessage(IntPtr hWnd, int msg, int wParam, ref RECT lParam);
+    private static extern int SendMessage(IntPtr hWnd, int msg, int wParam, ref RECT lParam);
+    internal static void SendMessageInternal(IntPtr hWnd, int msg, int wParam, ref RECT lParam)
+    {
+        bool success = SendMessage(hWnd, msg, wParam, ref lParam) == TRUE_VALUE;
+        if (!success)
+        {
+            throw new NativeException($"failed to do native call 'SendMessage' (msg = {MessageNameFromValue(msg)}, wParam = {wParam})", Marshal.GetLastWin32Error());
+        }
+    }
 
     [DllImport("user32.dll", EntryPoint = "PostMessageW", SetLastError = true)]
     internal static extern int PostMessage(IntPtr hWnd, int msg, int wParam, ref IntPtr lParam);
@@ -89,7 +114,15 @@ internal class NativeMethods
     /// The background color is also used when converting bitmaps from color to monochrome and vice versa.
     /// </remarks>
     [DllImport("gdi32.dll")]
-    internal static extern int SetBkColor(IntPtr hdc, int color);
+    private static extern uint SetBkColor(IntPtr hdc, int color);
+    internal static void SetBkColorInternal(IntPtr hdc, int color)
+    {
+        bool success = SetBkColor(hdc, color) != CLR_INVALID;
+        if (!success)
+        {
+            throw new NativeException($"failed to do native call 'SetBkColor' (color = {color})", Marshal.GetLastWin32Error());
+        }
+    }
 
     /// <summary>
     /// The SetBkMode function sets the background mix mode of the specified device context.
@@ -100,7 +133,16 @@ internal class NativeMethods
     /// If the function fails, the return value is zero.
     /// </returns>
     [DllImport("gdi32.dll")]
-    internal static extern int SetBkMode(IntPtr hdc, int bkMode);
+    private static extern int SetBkMode(IntPtr hdc, int bkMode);
+    internal static void SetBkModeInternal(IntPtr hdc, int bkMode)
+    {
+        int oldValue = SetBkMode(hdc, bkMode);
+        bool success = oldValue is BKM_OPAQUE or BKM_TRANSPARENT;
+        if (!success)
+        {
+            throw new NativeException($"failed to do native call 'SetBkMode' (bkMode = {bkMode})", Marshal.GetLastWin32Error());
+        }
+    }
 
     /// <summary>
     /// The SetTextColor function sets the text color for the specified device context to the specified color.
@@ -116,7 +158,15 @@ internal class NativeMethods
     /// The text color is also used in converting bitmaps from color to monochrome and vice versa.
     /// </remarks>
     [DllImport("gdi32.dll")]
-    internal static extern uint SetTextColor(IntPtr hdc, int color);
+    private static extern uint SetTextColor(IntPtr hdc, int color);
+    internal static void SetTextColorInternal(IntPtr hdc, int color)
+    {
+        bool success = SetTextColor(hdc, color) != CLR_INVALID;
+        if (!success)
+        {
+            throw new NativeException($"failed to do native call 'SetTextColor' (color = {color})", Marshal.GetLastWin32Error());
+        }
+    }
 
     /// <summary>
     /// Background remains untouched.
@@ -379,4 +429,39 @@ internal class NativeMethods
     internal const int GW_HWNDPREV = 3;
     internal const int GW_OWNER = 4;
     internal const int GW_CHILD = 5;
+
+    #region reverse msg value logic
+    private static readonly Dictionary<int, string> messageNameDict = new();
+    private static void InitMessageNameFromValue()
+    {
+        //get all constants
+        FieldInfo[] fieldInfos = typeof(NativeMethods).GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+        List<FieldInfo> constants = (from f in fieldInfos where f.IsLiteral && !f.IsInitOnly && f.FieldType.IsAssignableFrom(typeof(int)) select f).ToList();
+
+        //add all constants to the messageNameDict
+        constants.ForEach(f =>
+        {
+            object? value = f.GetValue(null);
+            if (value is not null && f.Name != nameof(TRUE_VALUE) && f.Name != nameof(FALSE_VALUE)
+            //TODO: separate Message values to a separate constant class
+            && !messageNameDict.ContainsKey((int)value))
+            {
+                messageNameDict.Add((int)value, f.Name);
+            }
+        }
+        );
+    }
+    public static string MessageNameFromValue(int value)
+    {
+        if (messageNameDict.Count == 0)
+        {
+            InitMessageNameFromValue();
+        }
+        if (messageNameDict.ContainsKey(value))
+        {
+            return messageNameDict[value];
+        }
+        return $"Unknown Value({value})";
+    }
+    #endregion
 }
