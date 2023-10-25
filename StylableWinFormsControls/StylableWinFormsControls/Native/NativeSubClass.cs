@@ -7,29 +7,30 @@
 internal class NativeSubClass : NativeWindow
 {
     public delegate int SubClassWndProcEventHandler(ref Message m);
-    public event SubClassWndProcEventHandler SubClassedWndProc;
 
-    public NativeSubClass(IntPtr Handle, bool _subClass)
+    public event SubClassWndProcEventHandler? SubClassedWndProc;
+
+    public NativeSubClass(IntPtr handle, bool subClass)
     {
-        AssignHandle(Handle);
-        SubClassed = _subClass;
+        AssignHandle(handle);
+        SubClassed = subClass;
     }
 
     public bool SubClassed { get; set; }
 
     protected override void WndProc(ref Message m)
     {
-        if (SubClassed)
+        if (SubClassed && onSubClassedWndProc(ref m) != 0)
         {
-            if (OnSubClassedWndProc(ref m) != 0)
-                return;
+            return;
         }
+
         base.WndProc(ref m);
     }
 
-    private int OnSubClassedWndProc(ref Message m)
+    private int onSubClassedWndProc(ref Message m)
     {
-        if (SubClassedWndProc != null)
+        if (SubClassedWndProc is not null)
         {
             return SubClassedWndProc(ref m);
         }

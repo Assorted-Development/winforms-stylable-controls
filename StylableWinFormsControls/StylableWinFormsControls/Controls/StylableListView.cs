@@ -1,4 +1,4 @@
-﻿using System.Runtime.InteropServices;
+using System.Runtime.InteropServices;
 using StylableWinFormsControls.Native;
 using static System.Windows.Forms.ListViewItem;
 
@@ -6,6 +6,10 @@ namespace StylableWinFormsControls;
 
 public class StylableListView : ListView
 {
+    /// <summary>
+    /// the settings to use
+    /// </summary>
+    private readonly WndProcErrorProcessor _errorProcessor;
     private Brush _groupHeaderBackColorBrush = new SolidBrush(Color.LightGray);
 
     /// <summary>
@@ -13,6 +17,7 @@ public class StylableListView : ListView
     /// </summary>
     public Color GroupHeaderBackColor
     {
+        get => _groupHeaderBackColorBrush is SolidBrush solidBrush ? solidBrush.Color : default;
         set => _groupHeaderBackColorBrush = new SolidBrush(value);
     }
 
@@ -24,6 +29,7 @@ public class StylableListView : ListView
     /// </summary>
     public Color GroupHeaderForeColor
     {
+        get => _groupHeaderForeColorPen.Color;
         set
         {
             _groupHeaderForeColorBrush = new SolidBrush(value);
@@ -38,6 +44,7 @@ public class StylableListView : ListView
     /// </summary>
     public Color SelectedItemForeColor
     {
+        get => _selectedItemForeColorBrush is SolidBrush solidBrush ? solidBrush.Color : default;
         set => _selectedItemForeColorBrush = new SolidBrush(value);
     }
 
@@ -48,17 +55,27 @@ public class StylableListView : ListView
     /// </summary>
     public Color SelectedItemBackColor
     {
+        get => _selectedItemBackColorBrush is SolidBrush solidBrush ? solidBrush.Color : default;
         set => _selectedItemBackColorBrush = new SolidBrush(value);
     }
-
-    public StylableListView()
+    /// <summary>
+    /// constructor
+    /// </summary>
+    public StylableListView() : this(StylableWinFormsControlsSettings.DEFAULT) { }
+    /// <summary>
+    /// this constructor can be used to override the default settings object in case some controls need separate settings
+    /// or you use diffent libs all having a dependency on this control library.
+    /// </summary>
+    /// <param name="settings">the settings object to use</param>
+    public StylableListView(StylableWinFormsControlsSettings settings)
     {
+        _errorProcessor = new WndProcErrorProcessor(settings, wndProcInternal, base.WndProc);
         //Activate double buffering
-        this.SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
+        SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
 
-        //Enable the OnNotifyMessage event so we get a chance to filter out 
+        //Enable the OnNotifyMessage event so we get a chance to filter out
         // Windows messages before they get to the form's WndProc
-        this.SetStyle(ControlStyles.EnableNotifyMessage, true);
+        SetStyle(ControlStyles.EnableNotifyMessage, true);
     }
 
     protected override void Dispose(bool disposing)
@@ -86,6 +103,10 @@ public class StylableListView : ListView
 
     protected override void WndProc(ref Message m)
     {
+        _errorProcessor.WndProc(ref m);
+    }
+    private void wndProcInternal(ref Message m)
+    {
         if (m.Msg != NativeMethods.WM_REFLECT + NativeMethods.WM_NOFITY)
         {
             if (m.Msg == NativeMethods.WM_LBUTTONUP)
@@ -98,31 +119,41 @@ public class StylableListView : ListView
             return;
         }
 
-        NativeMethods.NMHDR pnmhdr = (NativeMethods.NMHDR)m.GetLParam(typeof(NativeMethods.NMHDR));
+        object? nmhdrParam = m.GetLParam(typeof(NativeMethods.NMHDR));
+        if (nmhdrParam is null)
+        {
+            base.WndProc(ref m);
+            return;
+        }
+
+        NativeMethods.NMHDR pnmhdr = (NativeMethods.NMHDR)nmhdrParam;
         if (pnmhdr.code != NativeMethods.NM_CUSTOMDRAW)
         {
             base.WndProc(ref m);
             return;
         }
 
-        NativeMethods.NMLVCUSTOMDRAW pnmlv = (NativeMethods.NMLVCUSTOMDRAW)m.GetLParam(typeof(NativeMethods.NMLVCUSTOMDRAW));
+        object? customDrawParam = m.GetLParam(typeof(NativeMethods.NMLVCUSTOMDRAW));
+        if (customDrawParam is null)
+        {
+            base.WndProc(ref m);
+            return;
+        }
+
+        NativeMethods.NMLVCUSTOMDRAW pnmlv = (NativeMethods.NMLVCUSTOMDRAW)customDrawParam;
         switch (pnmlv.nmcd.dwDrawStage)
         {
-            case (int)NativeMethods.CDDS.CDDS_PREPAINTField:
+            case (int)NativeMethods.CDDS.PrePaint:
             {
-                switch (pnmlv.dwItemType)
+                m.Result = pnmlv.dwItemType switch
                 {
-                    case NativeMethods.LVCDI_GROUP:
-                        m.Result = drawGroupHeader(m.HWnd, pnmlv);
-                        break;
-                    default:
-                        m.Result = new IntPtr((int)NativeMethods.CDRF.CDRF_NOTIFYITEMDRAWField);
-                        break;
-                }
+                    NativeMethods.LVCDI_GROUP => drawGroupHeader(m.HWnd, pnmlv),
+                    _ => new IntPtr((int)NativeMethods.CDRF.NotifyItemDraw)
+                };
 
                 break;
             }
-            case (int)NativeMethods.CDDS.CDDS_ITEMPREPAINTField:
+            case (int)NativeMethods.CDDS.ItemPrePaint:
             {
                 switch (pnmlv.dwItemType)
                 {
@@ -133,22 +164,23 @@ public class StylableListView : ListView
                         ListViewItem listViewItem = Items[itemIndex];
                         if (!listViewItem.Selected)
                         {
-                            m.Result = new IntPtr((int)(NativeMethods.CDRF.CDRF_NOTIFYSUBITEMDRAWField |
-                                                        NativeMethods.CDRF.CDRF_NOTIFYPOSTPAINTField));
+                            m.Result = new IntPtr((int)(NativeMethods.CDRF.NotifySubItemDraw |
+                                                        NativeMethods.CDRF.NotifyPostPaint));
                             break;
                         }
 
                         m.Result = drawItem(m.HWnd, itemIndex, pnmlv);
                         break;
+
                     default:
-                        m.Result = new IntPtr((int)(NativeMethods.CDRF.CDRF_NOTIFYSUBITEMDRAWField |
-                                                    NativeMethods.CDRF.CDRF_NOTIFYPOSTPAINTField));
+                        m.Result = new IntPtr((int)(NativeMethods.CDRF.NotifySubItemDraw |
+                                                    NativeMethods.CDRF.NotifyPostPaint));
                         break;
                 }
 
                 break;
             }
-            case (int)NativeMethods.CDDS.CDDS_ITEMPOSTPAINTField:
+            case (int)NativeMethods.CDDS.ItemPostPaint:
             {
                 break;
             }
@@ -162,7 +194,7 @@ public class StylableListView : ListView
             left = (int)ItemBoundsPortion.Entire
         };
 
-        NativeMethods.SendMessage(mHWnd, NativeMethods.LVM_GETITEMRECT, itemIndex, ref rectHeader);
+        NativeMethods.SendMessageInternal(mHWnd, NativeMethods.LVM_GETITEMRECT, itemIndex, ref rectHeader);
         using (Graphics g = Graphics.FromHdc(pnmlv.nmcd.hdc))
         {
             // background color
@@ -171,7 +203,7 @@ public class StylableListView : ListView
             g.FillRectangle(_selectedItemBackColorBrush, rect);
 
             // item text
-            var item = Items[itemIndex];
+            ListViewItem item = Items[itemIndex];
             const int textOffset = 4;
             rect.Offset(textOffset, 1);
             g.DrawString(item.Text, Font, _selectedItemForeColorBrush, rect);
@@ -180,7 +212,7 @@ public class StylableListView : ListView
 
             // subitem text
             //the parent item is also the first subitem
-            var subList = (from ListViewSubItem subItem in item.SubItems select subItem).Skip(1);
+            IEnumerable<ListViewSubItem> subList = (from ListViewSubItem subItem in item.SubItems select subItem).Skip(1);
             foreach (ListViewSubItem subItem in subList)
             {
                 rect.Width = subItem.Bounds.Width;
@@ -190,8 +222,9 @@ public class StylableListView : ListView
             }
         }
 
-        return new IntPtr((int)NativeMethods.CDRF.CDRF_SKIPDEFAULTField);
+        return new IntPtr((int)NativeMethods.CDRF.SkipDefault);
     }
+
     private IntPtr drawGroupHeader(IntPtr mHWnd, NativeMethods.NMLVCUSTOMDRAW pnmlv)
     {
         NativeMethods.RECT rectHeader = new()
@@ -201,7 +234,7 @@ public class StylableListView : ListView
 
         int groupIndex = (int)pnmlv.nmcd.dwItemSpec;
 
-        NativeMethods.SendMessage(mHWnd, NativeMethods.LVM_GETGROUPRECT, groupIndex,
+        NativeMethods.SendMessageInternal(mHWnd, NativeMethods.LVM_GETGROUPRECT, groupIndex,
             ref rectHeader);
         using (Graphics g = Graphics.FromHdc(pnmlv.nmcd.hdc))
         {
@@ -215,9 +248,13 @@ public class StylableListView : ListView
             listviewGroup.cbSize = (uint)Marshal.SizeOf(listviewGroup);
             listviewGroup.mask = NativeMethods.LVGF_GROUPID | NativeMethods.LVGF_HEADER;
 
-            NativeMethods.SendMessage(mHWnd, NativeMethods.LVM_GETGROUPINFO, groupIndex,
+            NativeMethods.SendMessageInternal(
+                mHWnd,
+                NativeMethods.LVM_GETGROUPINFO,
+                groupIndex,
                 ref listviewGroup);
-            string groupHeaderText = Marshal.PtrToStringUni(listviewGroup.pszHeader);
+
+            string groupHeaderText = Marshal.PtrToStringUni(listviewGroup.pszHeader) ?? string.Empty;
 
             const int textOffset = 10;
             rect.Offset(textOffset, 2);
@@ -233,6 +270,6 @@ public class StylableListView : ListView
                 rectHeader.right - 10, headerCenterY);
         }
 
-        return new IntPtr((int)NativeMethods.CDRF.CDRF_SKIPDEFAULTField);
+        return new IntPtr((int)NativeMethods.CDRF.SkipDefault);
     }
 }
