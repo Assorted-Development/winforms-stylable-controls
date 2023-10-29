@@ -1,4 +1,4 @@
-﻿namespace StylableWinFormsControls.Example
+namespace StylableWinFormsControls.Example
 {
     partial class FrmDefault
     {
@@ -87,6 +87,7 @@
             stylableButton1.TabIndex = 0;
             stylableButton1.Text = "This is content";
             stylableButton1.UseVisualStyleBackColor = true;
+            stylableButton1.Click += stylableButton1_Click;
             // 
             // stylableCheckBox1
             // 
@@ -100,8 +101,10 @@
             // 
             // stylableComboBox1
             // 
+            stylableComboBox1.BorderColor = SystemColors.ControlDark;
             stylableComboBox1.DrawMode = DrawMode.OwnerDrawFixed;
             stylableComboBox1.FormattingEnabled = true;
+            stylableComboBox1.ItemHoverColor = SystemColors.Highlight;
             stylableComboBox1.Items.AddRange(new object[] { "This is content 1", "This is content 2", "This is content 3", "This is content with slightly more length" });
             stylableComboBox1.Location = new Point(6, 22);
             stylableComboBox1.Name = "stylableComboBox1";
@@ -171,9 +174,13 @@
             // stylableListView1
             // 
             stylableListView1.Columns.AddRange(new ColumnHeader[] { columnHeader1, columnHeader2 });
+            stylableListView1.GroupHeaderBackColor = Color.LightGray;
+            stylableListView1.GroupHeaderForeColor = Color.Black;
             stylableListView1.Items.AddRange(new ListViewItem[] { listViewItem1, listViewItem2, listViewItem3, listViewItem4, listViewItem5 });
             stylableListView1.Location = new Point(6, 18);
             stylableListView1.Name = "stylableListView1";
+            stylableListView1.SelectedItemBackColor = Color.LightGray;
+            stylableListView1.SelectedItemForeColor = Color.Black;
             stylableListView1.Size = new Size(242, 178);
             stylableListView1.TabIndex = 6;
             stylableListView1.UseCompatibleStateImageBehavior = false;
@@ -191,6 +198,8 @@
             // 
             stylableTabControl1.ActiveTabBackgroundColor = SystemColors.Control;
             stylableTabControl1.ActiveTabForegroundColor = SystemColors.ControlText;
+            stylableTabControl1.BackgroundColor = SystemColors.Control;
+            stylableTabControl1.BorderColor = SystemColors.ControlDark;
             stylableTabControl1.Controls.Add(tabPage1);
             stylableTabControl1.Controls.Add(tabPage2);
             stylableTabControl1.Location = new Point(6, 22);
@@ -225,7 +234,7 @@
             stylableTextBox1.BorderColor = Color.Blue;
             stylableTextBox1.BorderStyle = BorderStyle.None;
             stylableTextBox1.DelayedTextChangedTimeout = 900;
-            stylableTextBox1.ForeColor = Color.Black;
+            stylableTextBox1.HintForeColor = Color.Gray;
             stylableTextBox1.Hint = "Hello, my name is ...";
             stylableTextBox1.HintForeColor = Color.Gray;
             stylableTextBox1.IsDelayActive = true;
@@ -233,6 +242,7 @@
             stylableTextBox1.Name = "stylableTextBox1";
             stylableTextBox1.Size = new Size(207, 16);
             stylableTextBox1.TabIndex = 8;
+            stylableTextBox1.Text = "Hello, my name is ...";
             stylableTextBox1.TextForeColor = Color.Black;
             // 
             // lbl_description
