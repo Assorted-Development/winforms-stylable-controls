@@ -13,28 +13,52 @@ namespace StylableWinFormsControls.Controls
         /// Gets or sets the color of the border that surrounds the groupbox content.
         /// </summary>
         [DefaultValue(typeof(Color), nameof(Color.Gainsboro))]
+        [Category("Appearance")]
         public Color BorderColor
         {
             get => _borderColor;
             set { _borderColor = value; Invalidate(); }
         }
 
-        private Color _textColor = SystemColors.ControlText;
+        private Color _enabledBorderForeColor = SystemColors.ControlText;
         /// <summary>
-        /// Gets or sets the color of the text/title painted inside the border.
+        /// Gets or sets the foreground color of the text/title painted inside the border when the groupbox is enabled.
         /// </summary>
         [DefaultValue(typeof(SystemColors), nameof(SystemColors.ControlText))]
-        public Color TextColor
+        [Category("Appearance")]
+        public Color EnabledForeColor
         {
-            get => _textColor;
-            set { _textColor = value; Invalidate(); }
+            get => _enabledBorderForeColor;
+            set { _enabledBorderForeColor = value; Invalidate(); }
         }
+
+        private Color _disabledBorderForeColor = SystemColors.GrayText;
+        /// <summary>
+        /// Gets or sets the foreground color of the text/title painted inside the border when the groupbox is disabled.
+        /// </summary>
+        [DefaultValue(typeof(SystemColors), nameof(SystemColors.GrayText))]
+        [Category("Appearance")]
+        public Color DisabledForeColor
+        {
+            get => _disabledBorderForeColor;
+            set { _disabledBorderForeColor = value; Invalidate(); }
+        }
+
+        /// <summary>
+        /// Gets or sets the foreground color of the control
+        /// </summary>
+        /// <remarks>This always represents <see cref="EnabledForeColor"/> in <see cref="StylableGroupBox"/>.</remarks>
+        [Browsable(false)]
+        public new Color ForeColor => EnabledForeColor;
+
         protected override void OnPaint(PaintEventArgs e)
         {
             TextFormatFlags flags = TextFormatFlags.PreserveGraphicsTranslateTransform |
                 TextFormatFlags.PreserveGraphicsClipping | TextFormatFlags.TextBoxControl |
                 TextFormatFlags.WordBreak;
-            Color titleColor = TextColor;
+
+            Color titleColor = Enabled ? EnabledForeColor : DisabledForeColor;
+
             if (!ShowKeyboardCues)
             {
                 flags |= TextFormatFlags.HidePrefix;
@@ -43,11 +67,6 @@ namespace StylableWinFormsControls.Controls
             if (RightToLeft == RightToLeft.Yes)
             {
                 flags |= TextFormatFlags.RightToLeft | TextFormatFlags.Right;
-            }
-
-            if (!Enabled)
-            {
-                titleColor = SystemColors.GrayText;
             }
 
             drawUnthemedGroupBoxWithText(e.Graphics, new Rectangle(0, 0, Width,
