@@ -1,19 +1,19 @@
-﻿using System.Drawing.Drawing2D;
+using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 
 namespace StylableWinFormsControls.Extensions;
 
 internal class ControlPaintExtensions
 {
-    //use these value to signify ANY of the right, top, left, center, or bottom alignments with the ContentAlignment enum.
-    public static readonly ContentAlignment AnyRightAlign = ContentAlignment.TopRight | ContentAlignment.MiddleRight | ContentAlignment.BottomRight;
-    public static readonly ContentAlignment AnyLeftAlign = ContentAlignment.TopLeft | ContentAlignment.MiddleLeft | ContentAlignment.BottomLeft;
-    public static readonly ContentAlignment AnyTopAlign = ContentAlignment.TopLeft | ContentAlignment.TopCenter | ContentAlignment.TopRight;
-    public static readonly ContentAlignment AnyBottomAlign = ContentAlignment.BottomLeft | ContentAlignment.BottomCenter | ContentAlignment.BottomRight;
-    public static readonly ContentAlignment AnyMiddleAlign = ContentAlignment.MiddleLeft | ContentAlignment.MiddleCenter | ContentAlignment.MiddleRight;
-    public static readonly ContentAlignment AnyCenterAlign = ContentAlignment.TopCenter | ContentAlignment.MiddleCenter | ContentAlignment.BottomCenter;
-        
-    // Taken from ControlPaint.DrawBackgroundImage, slightly modified to pass backColor as Brush
+    internal const ContentAlignment ANY_RIGHT_ALIGN = ContentAlignment.TopRight | ContentAlignment.MiddleRight | ContentAlignment.BottomRight;
+    internal const ContentAlignment ANY_LEFT_ALIGN = ContentAlignment.TopLeft | ContentAlignment.MiddleLeft | ContentAlignment.BottomLeft;
+    internal const ContentAlignment ANY_TOP_ALIGN = ContentAlignment.TopLeft | ContentAlignment.TopCenter | ContentAlignment.TopRight;
+    internal const ContentAlignment ANY_BOTTOM_ALIGN = ContentAlignment.BottomLeft | ContentAlignment.BottomCenter | ContentAlignment.BottomRight;
+    internal const ContentAlignment ANY_MIDDLE_ALIGN = ContentAlignment.MiddleLeft | ContentAlignment.MiddleCenter | ContentAlignment.MiddleRight;
+    internal const ContentAlignment ANY_CENTER_ALIGN = ContentAlignment.TopCenter | ContentAlignment.MiddleCenter | ContentAlignment.BottomCenter;
+
+    /// <remarks>Taken from ControlPaint.DrawBackgroundImage, slightly modified to pass backColor as Brush</remarks>
+    /// <exception cref="ArgumentNullException"></exception>
     internal static void DrawBackgroundImage(
         Graphics g,
         Image backgroundImage,
@@ -25,7 +25,9 @@ internal class ControlPaintExtensions
         RightToLeft rightToLeft = RightToLeft.No)
     {
         if (g is null)
+        {
             throw new ArgumentNullException(nameof(g));
+        }
 
         if (backgroundImageLayout == ImageLayout.Tile)
         {
@@ -64,7 +66,7 @@ internal class ControlPaintExtensions
 
             if (!clipRect.Contains(imageRectangle))
             {
-                if (backgroundImageLayout == ImageLayout.Stretch || backgroundImageLayout == ImageLayout.Zoom)
+                if (backgroundImageLayout is ImageLayout.Stretch or ImageLayout.Zoom)
                 {
                     imageRectangle.Intersect(clipRect);
                     g.DrawImage(backgroundImage, imageRectangle);
@@ -192,13 +194,14 @@ internal class ControlPaintExtensions
 
         return result;
     }
+
     internal static TextFormatFlags CreateTextFormatFlags(Control ctl, ContentAlignment textAlign, bool showEllipsis, bool useMnemonic)
     {
         textAlign = RtlTranslateContent(ctl, textAlign);
-        TextFormatFlags flags = TextFormatFlagsForAlignmentGDI(textAlign);
+        TextFormatFlags flags = TextFormatFlagsForAlignmentGdi(textAlign);
 
-        // The effect of the TextBoxControl flag is that in-word line breaking will occur if needed, this happens when AutoSize 
-        // is false and a one-word line still doesn't fit the binding box (width).  The other effect is that partially visible 
+        // The effect of the TextBoxControl flag is that in-word line breaking will occur if needed, this happens when AutoSize
+        // is false and a one-word line still doesn't fit the binding box (width).  The other effect is that partially visible
         // lines are clipped; this is how GDI+ works by default.
         flags |= TextFormatFlags.WordBreak | TextFormatFlags.TextBoxControl;
 
@@ -227,67 +230,79 @@ internal class ControlPaintExtensions
 
         return flags;
     }
-    internal static TextFormatFlags TextFormatFlagsForAlignmentGDI(ContentAlignment align)
+
+    internal static TextFormatFlags TextFormatFlagsForAlignmentGdi(ContentAlignment align)
     {
         TextFormatFlags output = new();
-        output |= TranslateAlignmentForGDI(align);
-        output |= TranslateLineAlignmentForGDI(align);
+        output |= TranslateAlignmentForGdi(align);
+        output |= TranslateLineAlignmentForGdi(align);
         return output;
     }
-    internal static TextFormatFlags TranslateAlignmentForGDI(ContentAlignment align)
+
+    internal static TextFormatFlags TranslateAlignmentForGdi(ContentAlignment align)
     {
-        TextFormatFlags result;
-        if ((align & AnyBottomAlign) != 0)
-            result = TextFormatFlags.Bottom;
-        else if ((align & AnyMiddleAlign) != 0)
-            result = TextFormatFlags.VerticalCenter;
-        else
-            result = TextFormatFlags.Top;
-        return result;
+        if ((align & ANY_BOTTOM_ALIGN) != 0)
+        {
+            return TextFormatFlags.Bottom;
+        }
+
+        if ((align & ANY_MIDDLE_ALIGN) != 0)
+        {
+            return TextFormatFlags.VerticalCenter;
+        }
+
+        return TextFormatFlags.Top;
     }
-    internal static TextFormatFlags TranslateLineAlignmentForGDI(ContentAlignment align)
+
+    internal static TextFormatFlags TranslateLineAlignmentForGdi(ContentAlignment align)
     {
-        TextFormatFlags result;
-        if ((align & AnyRightAlign) != 0)
-            result = TextFormatFlags.Right;
-        else if ((align & AnyCenterAlign) != 0)
-            result = TextFormatFlags.HorizontalCenter;
-        else
-            result = TextFormatFlags.Left;
-        return result;
+        if ((align & ANY_RIGHT_ALIGN) != 0)
+        {
+            return TextFormatFlags.Right;
+        }
+
+        if ((align & ANY_CENTER_ALIGN) != 0)
+        {
+            return TextFormatFlags.HorizontalCenter;
+        }
+        return TextFormatFlags.Left;
     }
+
     internal static ContentAlignment RtlTranslateContent(Control ctl, ContentAlignment align)
     {
         if (RightToLeft.Yes == ctl.RightToLeft)
         {
-            if ((align & AnyTopAlign) != 0)
+            if ((align & ANY_TOP_ALIGN) != 0)
             {
                 switch (align)
                 {
                     case ContentAlignment.TopLeft:
                         return ContentAlignment.TopRight;
+
                     case ContentAlignment.TopRight:
                         return ContentAlignment.TopLeft;
                 }
             }
 
-            if ((align & AnyMiddleAlign) != 0)
+            if ((align & ANY_MIDDLE_ALIGN) != 0)
             {
                 switch (align)
                 {
                     case ContentAlignment.MiddleLeft:
                         return ContentAlignment.MiddleRight;
+
                     case ContentAlignment.MiddleRight:
                         return ContentAlignment.MiddleLeft;
                 }
             }
 
-            if ((align & AnyBottomAlign) != 0)
+            if ((align & ANY_BOTTOM_ALIGN) != 0)
             {
                 switch (align)
                 {
                     case ContentAlignment.BottomLeft:
                         return ContentAlignment.BottomRight;
+
                     case ContentAlignment.BottomRight:
                         return ContentAlignment.BottomLeft;
                 }

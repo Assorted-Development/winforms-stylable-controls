@@ -1,4 +1,4 @@
-﻿using StylableWinFormsControls.Extensions;
+using StylableWinFormsControls.Extensions;
 
 namespace StylableWinFormsControls;
 
@@ -14,43 +14,43 @@ public class StylableButton : Button
     public Color DisabledForeColor { get; set; } = Color.Black;
     public Color BorderColor { get; set; } = Color.Black;
 
-    protected override void OnPaint(PaintEventArgs e)
+    protected override void OnPaint(PaintEventArgs pevent)
     {
-        if (!this.Enabled)
-        {
-            using (SolidBrush brush = new(DisabledBackColor))
-            {
-                e.Graphics.FillRectangle(brush, this.ClientRectangle);
-                TextRenderer.DrawText(e.Graphics, this.Text, this.Font, this.ClientRectangle, DisabledForeColor,
-                    DisabledBackColor);
+        ArgumentNullException.ThrowIfNull(pevent);
 
-                // border
-                Pen borderPen = new Pen(BorderColor, 1);
-                e.Graphics.DrawRectangle(borderPen, this.ClientRectangle.X, ClientRectangle.Y,
-                    ClientRectangle.Width - 1, ClientRectangle.Height - 1);
-            }
+        if (!Enabled)
+        {
+            using SolidBrush brush = new(DisabledBackColor);
+            pevent.Graphics.FillRectangle(brush, ClientRectangle);
+            TextRenderer.DrawText(pevent.Graphics, Text, Font, ClientRectangle, DisabledForeColor,
+                DisabledBackColor);
+
+            // border
+            using Pen borderPen = new(BorderColor, 1);
+            pevent.Graphics.DrawRectangle(borderPen, ClientRectangle.X, ClientRectangle.Y,
+                ClientRectangle.Width - 1, ClientRectangle.Height - 1);
         }
         else
         {
             // background
             SolidBrush backBrush;
-            bool MouseInControl = e.ClipRectangle.Contains(PointToClient(Cursor.Position));
-            if (MouseInControl)
+            bool mouseInControl = pevent.ClipRectangle.Contains(PointToClient(Cursor.Position));
+            if (mouseInControl)
             {
                 backBrush = new SolidBrush(EnabledHoverColor);
-                e.Graphics.FillRectangle(backBrush, this.ClientRectangle);
+                pevent.Graphics.FillRectangle(backBrush, ClientRectangle);
             }
             else
             {
                 backBrush = new SolidBrush(EnabledBackColor);
-                e.Graphics.FillRectangle(backBrush, this.ClientRectangle);
+                pevent.Graphics.FillRectangle(backBrush, ClientRectangle);
             }
 
-            if (BackgroundImage != null)
+            if (BackgroundImage is not null)
             {
                 // draw image, but leave a bit of margin to all sides
                 ControlPaintExtensions.DrawBackgroundImage(
-                    e.Graphics,
+                    pevent.Graphics,
                     BackgroundImage,
                     backBrush,
                     BackgroundImageLayout,
@@ -61,13 +61,13 @@ public class StylableButton : Button
             }
             else
             {
-                TextRenderer.DrawText(e.Graphics, this.Text, this.Font, this.ClientRectangle, EnabledForeColor,
+                TextRenderer.DrawText(pevent.Graphics, Text, Font, ClientRectangle, EnabledForeColor,
                     backBrush.Color);
             }
             backBrush.Dispose();
-                
+
             // border
-            ControlPaint.DrawBorder(e.Graphics,
+            ControlPaint.DrawBorder(pevent.Graphics,
                 new Rectangle(ClientRectangle.X, ClientRectangle.Y, ClientRectangle.Width, ClientRectangle.Height),
                 BorderColor,
                 ButtonBorderStyle.Solid);
