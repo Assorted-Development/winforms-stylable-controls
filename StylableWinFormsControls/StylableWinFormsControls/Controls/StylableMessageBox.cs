@@ -29,9 +29,9 @@ namespace StylableWinFormsControls
         /// <summary>
         /// the builder to configure the <see cref="StylableMessageBox"/>
         /// </summary>
-#pragma warning disable CA1001 // Typen mit eigenen verwerfbaren Feldern müssen verwerfbar sein
+#pragma warning disable CA1001 // Types that own disposable fields should be disposable - this is the form in creation which must not be deleted by the builder
         public class StylableMessageBoxBuilder
-#pragma warning restore CA1001 // Typen mit eigenen verwerfbaren Feldern müssen verwerfbar sein
+#pragma warning restore CA1001 // Types that own disposable fields should be disposable
         {
             /// <summary>
             /// the <see cref="StylableMessageBox"/> object currently in creation
