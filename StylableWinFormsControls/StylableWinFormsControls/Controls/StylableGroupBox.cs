@@ -53,6 +53,8 @@ namespace StylableWinFormsControls.Controls
 
         protected override void OnPaint(PaintEventArgs e)
         {
+            ArgumentNullException.ThrowIfNull(e);
+
             TextFormatFlags flags = TextFormatFlags.PreserveGraphicsTranslateTransform |
                 TextFormatFlags.PreserveGraphicsClipping | TextFormatFlags.TextBoxControl |
                 TextFormatFlags.WordBreak;
@@ -69,19 +71,16 @@ namespace StylableWinFormsControls.Controls
                 flags |= TextFormatFlags.RightToLeft | TextFormatFlags.Right;
             }
 
-            drawUnthemedGroupBoxWithText(e.Graphics, new Rectangle(0, 0, Width,
-                Height), Text, Font, titleColor, flags);
+            drawUnthemedGroupBoxWithText(e.Graphics, new Rectangle(0, 0, Width, Height), Text, Font, titleColor, flags);
             RaisePaintEvent(this, e);
         }
 
-        private void drawUnthemedGroupBoxWithText(Graphics g, Rectangle bounds,
-            string groupBoxText, Font font, Color titleColor,
-            TextFormatFlags flags)
+        private void drawUnthemedGroupBoxWithText(
+            Graphics g, Rectangle bounds, string groupBoxText, Font font, Color titleColor, TextFormatFlags flags)
         {
             Rectangle rectangle = bounds;
             rectangle.Width -= 8;
-            Size size = TextRenderer.MeasureText(g, groupBoxText, font,
-                new Size(rectangle.Width, rectangle.Height), flags);
+            Size size = TextRenderer.MeasureText(g, groupBoxText, font, new Size(rectangle.Width, rectangle.Height), flags);
             rectangle.Width = size.Width;
             rectangle.Height = size.Height;
             if ((flags & TextFormatFlags.Right) == TextFormatFlags.Right)
@@ -100,15 +99,12 @@ namespace StylableWinFormsControls.Controls
             }
 
             using Pen pen = new(BorderColor);
-            int num = bounds.Top + font.Height / 2;
+            int num = bounds.Top + (font.Height / 2);
             g.DrawLine(pen, bounds.Left, num - 1, bounds.Left, bounds.Height - 2);
-            g.DrawLine(pen, bounds.Left, bounds.Height - 2, bounds.Width - 1,
-                bounds.Height - 2);
+            g.DrawLine(pen, bounds.Left, bounds.Height - 2, bounds.Width - 1, bounds.Height - 2);
             g.DrawLine(pen, bounds.Left, num - 1, rectangle.X - 3, num - 1);
-            g.DrawLine(pen, rectangle.X + rectangle.Width + 2, num - 1,
-                bounds.Width - 2, num - 1);
-            g.DrawLine(pen, bounds.Width - 2, num - 1, bounds.Width - 2,
-               bounds.Height - 2);
+            g.DrawLine(pen, rectangle.X + rectangle.Width + 2, num - 1, bounds.Width - 2, num - 1);
+            g.DrawLine(pen, bounds.Width - 2, num - 1, bounds.Width - 2, bounds.Height - 2);
         }
     }
 }
