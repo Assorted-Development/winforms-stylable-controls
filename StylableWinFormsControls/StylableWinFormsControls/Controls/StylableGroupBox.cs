@@ -1,5 +1,4 @@
 using System.ComponentModel;
-using System.Windows.Forms.VisualStyles;
 
 namespace StylableWinFormsControls.Controls
 {
@@ -8,27 +7,23 @@ namespace StylableWinFormsControls.Controls
     /// </summary>
     public class StylableGroupBox : GroupBox
     {
+        private Color _borderColor = Color.Gainsboro;
+
         /// <summary>
-        /// the border color
+        /// Gets or sets the color of the border that surrounds the groupbox content.
         /// </summary>
-        private Color _borderColor = Color.Black;
-        /// <summary>
-        /// the border color
-        /// </summary>
-        [DefaultValue(typeof(Color), "Black")]
+        [DefaultValue(typeof(Color), nameof(Color.Gainsboro))]
         public Color BorderColor
         {
             get => _borderColor;
             set { _borderColor = value; Invalidate(); }
         }
+
+        private Color _textColor = SystemColors.ControlText;
         /// <summary>
-        /// the text color
+        /// Gets or sets the color of the text/title painted inside the border.
         /// </summary>
-        private Color _textColor = Color.Black;
-        /// <summary>
-        /// the text color
-        /// </summary>
-        [DefaultValue(typeof(Color), "Black")]
+        [DefaultValue(typeof(SystemColors), nameof(SystemColors.ControlText))]
         public Color TextColor
         {
             get => _textColor;
@@ -59,6 +54,7 @@ namespace StylableWinFormsControls.Controls
                 Height), Text, Font, titleColor, flags);
             RaisePaintEvent(this, e);
         }
+
         private void drawUnthemedGroupBoxWithText(Graphics g, Rectangle bounds,
             string groupBoxText, Font font, Color titleColor,
             TextFormatFlags flags)
