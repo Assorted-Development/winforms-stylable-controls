@@ -1,4 +1,6 @@
-﻿namespace StylableWinFormsControls.Example
+using StylableWinFormsControls.Controls;
+
+namespace StylableWinFormsControls.Example
 {
     partial class FrmDefault
     {
@@ -51,15 +53,15 @@
             tabPage2 = new TabPage();
             stylableTextBox1 = new StylableTextBox();
             lbl_description = new StylableLabel();
-            gb_stylabletabcontrol = new GroupBox();
-            gb_stylablelistview = new GroupBox();
-            gb_stylablebutton = new GroupBox();
-            gb_stylablecheckbox = new GroupBox();
-            gb_stylableComboBox = new GroupBox();
-            gb_stylableDateTimePicker = new GroupBox();
-            gb_stylableDataGridView = new GroupBox();
-            gb_stylableLabel = new GroupBox();
-            gb_stylableTextBox = new GroupBox();
+            gb_stylabletabcontrol = new StylableGroupBox();
+            gb_stylablelistview = new StylableGroupBox();
+            gb_stylablebutton = new StylableGroupBox();
+            gb_stylablecheckbox = new StylableGroupBox();
+            gb_stylableComboBox = new StylableGroupBox();
+            gb_stylableDateTimePicker = new StylableGroupBox();
+            gb_stylableDataGridView = new StylableGroupBox();
+            gb_stylableLabel = new StylableGroupBox();
+            gb_stylableTextBox = new StylableGroupBox();
             ((System.ComponentModel.ISupportInitialize)stylableDataGridView1).BeginInit();
             stylableTabControl1.SuspendLayout();
             gb_stylabletabcontrol.SuspendLayout();
@@ -386,15 +388,15 @@
         private StylableTextBox stylableTextBox1;
         private StylableLabel lbl_description;
         private TextBox textBox1;
-        private GroupBox gb_stylabletabcontrol;
-        private GroupBox gb_stylablelistview;
-        private GroupBox gb_stylablebutton;
-        private GroupBox gb_stylablecheckbox;
-        private GroupBox gb_stylableComboBox;
-        private GroupBox gb_stylableDateTimePicker;
-        private GroupBox gb_stylableDataGridView;
-        private GroupBox gb_stylableLabel;
-        private GroupBox gb_stylableTextBox;
+        private StylableGroupBox gb_stylabletabcontrol;
+        private StylableGroupBox gb_stylablelistview;
+        private StylableGroupBox gb_stylablebutton;
+        private StylableGroupBox gb_stylablecheckbox;
+        private StylableGroupBox gb_stylableComboBox;
+        private StylableGroupBox gb_stylableDateTimePicker;
+        private StylableGroupBox gb_stylableDataGridView;
+        private StylableGroupBox gb_stylableLabel;
+        private StylableGroupBox gb_stylableTextBox;
         private DataGridViewTextBoxColumn Column1;
         private DataGridViewTextBoxColumn Column2;
         private DataGridViewTextBoxColumn Column3;
