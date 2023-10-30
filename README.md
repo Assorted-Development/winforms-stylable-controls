@@ -60,6 +60,15 @@ Has the following additional characteristics:
 * The control behavior via keyboard is currently unreliable (see #24)
 * The `BackColor` property is additionally accessable via Designer
 
+### GroupBox => StylableGroupBox
+Exposes the following additional properties:
+* `Color BorderColor`: Gets/sets the color of the border that surrounds the groupbox content.
+* `Color EnabledForeColor`: Gets/sets the foreground color of the text/title painted inside the border when the groupbox is enabled.
+* `Color DisabledForeColor`: Gets/sets the foreground color of the text/title painted inside the border when the groupbox is disabled.
+
+Has the following additional characteristics:
+* The `ForeColor` property is not accessable via Designer (to encourage use of the more specific color properties)
+
 ### Label => StylableLabel
 Exposes the following additional properties:
 * `Color DisabledForeColor`: Gets/Sets the foreground color of a disabled Label.
