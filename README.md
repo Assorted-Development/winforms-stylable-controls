@@ -105,6 +105,20 @@ Has the following additional characteristics:
 * Supports providing hints to be shown when the control does not have focus and the value is empty.
 * Supports delaying `TextChanged` events
 
+### MessageBox => StylableMessageBox
+With the `StylableMessageBox`, you can create forms similar to `MessageBox` but the handling is a bit different as we allow you to style the form
+before showing.
+
+Let's create a message box first:  
+```csharp
+StylableMessageBox mBox = StylableMessageBox.BUILDER
+                .WithTitle("This is a text", MessageBoxIcon.Information)
+                .WithText("This is an example of a stylable MessageBox")
+                .Build();
+```
+This will create a message box with a title and a message and - as we did not provide other information - an OK-button.
+Now, let's style the form as we want to: `mBox.StylableControls.Text.ForeColor = Color.Red;`
+At last, you can show the dialog using `mBox.ShowDialog()`
 
 ## Contributions
 
