@@ -84,7 +84,7 @@ namespace StylableWinFormsControls
             /// </summary>
             /// <param name="timeout"></param>
             /// <param name="timeoutDefaultResult"></param>
-            public StylableMessageBoxBuilder WithTimeOut(TimeSpan timeout, DialogResult timeoutDefaultResult = DialogResult.Cancel)
+            public StylableMessageBoxBuilder WithTimeout(TimeSpan timeout, DialogResult timeoutDefaultResult = DialogResult.Cancel)
             {
                 return this;
             }
