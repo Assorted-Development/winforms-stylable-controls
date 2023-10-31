@@ -3,6 +3,8 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Resources;
 
+using StylableWinFormsControls.Extensions;
+
 namespace StylableWinFormsControls
 {
     /// <summary>
@@ -61,28 +63,36 @@ namespace StylableWinFormsControls
                 Buttons = handleButtons(buttons, defaultButton)
             };
             handleTimeouts(timeout, timeoutResult);
-            resize();
+            UpdateSize();
         }
-        /// <summary>
-        /// defines the point where the next control should be stored
-        /// </summary>
-        private Point _currentContentPos = new(9, 20);
         /// <summary>
         /// resize the form to fit the content
         /// </summary>
-        private void resize()
+        /// <param name="updateControlSize">if true, the sizes and positions of all controls will be recalculated. otherwise, only the form will be updated</param>
+        public void UpdateSize(bool updateControlSize = true)
         {
-            foreach (Control c in Controls)
+            if (updateControlSize)
             {
-                if (Width < c.Left + c.Width + BORDER_WIDTH)
+                Point currentContentPos = new(9, 20);
+                StylableControls.Text.Left = currentContentPos.X;
+                StylableControls.Text.Top = currentContentPos.Y;
+                currentContentPos.Y = currentContentPos.Y + StylableControls.Text.Height + 10;
+                if (StylableControls.CheckBox is not null)
                 {
-                    Width = c.Left + c.Width + BORDER_WIDTH;
+                    StylableControls.CheckBox.Left = currentContentPos.X;
+                    StylableControls.CheckBox.Top = currentContentPos.Y;
+                    currentContentPos.Y = currentContentPos.Y + StylableControls.CheckBox.Height + 10;
                 }
-                if (Height < c.Top + c.Height + BORDER_HEIGHT)
+
+                foreach (StylableButton sb in StylableControls.Buttons)
                 {
-                    Height = c.Top + c.Height + BORDER_HEIGHT;
+                    sb.Left = currentContentPos.X;
+                    sb.Top = currentContentPos.Y;
+                    currentContentPos.X = currentContentPos.X + sb.Width + 10;
                 }
             }
+            Width = (from c in Controls.Cast<Control>() select c.Left + c.Width + BORDER_WIDTH).Max();
+            Height = (from c in Controls.Cast<Control>() select c.Top + c.Height + BORDER_HEIGHT).Max();
         }
         /// <summary>
         /// creates the message box content
@@ -93,13 +103,9 @@ namespace StylableWinFormsControls
             StylableLabel label = new()
             {
                 Text = text,
-                AutoSize = true,
-                Left = _currentContentPos.X,
-                Top = _currentContentPos.Y
+                AutoSize = true
             };
-
             Controls.Add(label);
-            _currentContentPos.Y = _currentContentPos.Y + label.Height + 10;
             return label;
         }
         /// <summary>
@@ -116,13 +122,10 @@ namespace StylableWinFormsControls
             {
                 Text = checkboxText,
                 AutoSize = true,
-                Left = _currentContentPos.X,
-                Top = _currentContentPos.Y
             };
             checkbox.CheckStateChanged += (sender, e) => CheckState = checkbox.CheckState;
 
             Controls.Add(checkbox);
-            _currentContentPos.Y = _currentContentPos.Y + checkbox.Height + 10;
             return checkbox;
         }
         /// <summary>
@@ -135,12 +138,9 @@ namespace StylableWinFormsControls
             {
                 Text = _resources.GetString(result.ToString(), CultureInfo.CurrentCulture),
                 DialogResult = result,
-                AutoSize = true,
-                Left = _currentContentPos.X,
-                Top = _currentContentPos.Y
+                AutoSize = true
             };
             Controls.Add(b);
-            _currentContentPos.X = _currentContentPos.X + b.Width + 10;
             return b;
         }
         /// <summary>
@@ -151,41 +151,9 @@ namespace StylableWinFormsControls
         private ReadOnlyCollection<StylableButton> handleButtons(MessageBoxButtons buttons, MessageBoxDefaultButton defaultButton)
         {
             List<StylableButton> result = new();
-            switch (buttons)
+            foreach (DialogResult dr in buttons.ToDialogResult())
             {
-                case MessageBoxButtons.OK:
-                    result.Add(createButton(DialogResult.OK));
-                    break;
-                case MessageBoxButtons.OKCancel:
-                    result.Add(createButton(DialogResult.OK));
-                    result.Add(createButton(DialogResult.Cancel));
-                    break;
-                case MessageBoxButtons.AbortRetryIgnore:
-                    result.Add(createButton(DialogResult.Abort));
-                    result.Add(createButton(DialogResult.Retry));
-                    result.Add(createButton(DialogResult.Ignore));
-                    break;
-                case MessageBoxButtons.YesNoCancel:
-                    result.Add(createButton(DialogResult.Yes));
-                    result.Add(createButton(DialogResult.No));
-                    result.Add(createButton(DialogResult.Cancel));
-                    break;
-                case MessageBoxButtons.YesNo:
-                    result.Add(createButton(DialogResult.Yes));
-                    result.Add(createButton(DialogResult.No));
-                    break;
-                case MessageBoxButtons.RetryCancel:
-                    result.Add(createButton(DialogResult.Retry));
-                    result.Add(createButton(DialogResult.Cancel));
-                    break;
-                case MessageBoxButtons.CancelTryContinue:
-                    result.Add(createButton(DialogResult.Cancel));
-                    result.Add(createButton(DialogResult.Retry));
-                    result.Add(createButton(DialogResult.Continue));
-                    break;
-                default:
-                    result.Add(createButton(DialogResult.OK));
-                    break;
+                result.Add(createButton(dr));
             }
 
             AcceptButton = defaultButton switch
@@ -196,8 +164,6 @@ namespace StylableWinFormsControls
                 MessageBoxDefaultButton.Button4 => result.Count > 3 ? result[3] : result.Last(),
                 _ => result[0],
             };
-            _currentContentPos.X = 9;
-            _currentContentPos.Y = _currentContentPos.Y + result[0].Height + 10;
 
             return result.AsReadOnly();
         }
@@ -226,9 +192,8 @@ namespace StylableWinFormsControls
                 {
                     Interval = 1000
                 };
-                Button? defaultButton = StylableControls.Buttons.FirstOrDefault(b => b.DialogResult == timeoutResult);
-                //defaultButton may be null here when the timeoutResult can not be selected by the user
-                defaultButton ??= StylableControls.Buttons.FirstOrDefault(b => b == AcceptButton);
+                //the timeoutResult may not be necessarily in the list of available buttons
+                Button defaultButton = StylableControls.Buttons.FirstOrDefault(b => b.DialogResult == timeoutResult) ?? StylableControls.Buttons.First(b => b == AcceptButton);
                 string basicText = defaultButton.Text;
                 _uiUpdate.Tick += (sender, e) => { _timeLeft--; defaultButton!.Text = $"{basicText} ({_timeLeft}s)"; };
 

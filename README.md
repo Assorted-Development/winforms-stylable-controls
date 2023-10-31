@@ -129,6 +129,8 @@ This will create a message box with a title and a message and - as we did not pr
 Now, let's style the form as we want to: `mBox.StylableControls.Text.ForeColor = Color.Red;`
 At last, you can show the dialog using `mBox.ShowDialog()`
 
+**Note:** If you change the size on the controls (e.g. increase the font size), please call `UpdateSize()` to update the UI to the new settings. Otherwise, the Ui may look weird.
+
 ## Contributions
 
 Please view the [contributing guide](/CONTRIBUTING.md) for more information.
