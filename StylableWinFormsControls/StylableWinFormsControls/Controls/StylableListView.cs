@@ -95,7 +95,7 @@ public class StylableListView : ListView
     protected override void OnNotifyMessage(Message m)
     {
         //Filter out the WM_ERASEBKGND message
-        if (m.Msg != NativeMethods.WM_ERASEBKGND)
+        if (m.Msg != NativeConstants.Messages.WM_ERASEBKGND)
         {
             base.OnNotifyMessage(m);
         }
@@ -107,9 +107,9 @@ public class StylableListView : ListView
     }
     private void wndProcInternal(ref Message m)
     {
-        if (m.Msg != NativeMethods.WM_REFLECT + NativeMethods.WM_NOFITY)
+        if (m.Msg != NativeConstants.Messages.WM_REFLECT + NativeConstants.Messages.WM_NOFITY)
         {
-            if (m.Msg == NativeMethods.WM_LBUTTONUP)
+            if (m.Msg == NativeConstants.Messages.WM_LBUTTONUP)
             {
                 base.DefWndProc(ref m);
                 return;
@@ -127,7 +127,7 @@ public class StylableListView : ListView
         }
 
         NativeMethods.NMHDR pnmhdr = (NativeMethods.NMHDR)nmhdrParam;
-        if (pnmhdr.code != NativeMethods.NM_CUSTOMDRAW)
+        if (pnmhdr.code != NativeConstants.NM_CUSTOMDRAW)
         {
             base.WndProc(ref m);
             return;
@@ -147,7 +147,7 @@ public class StylableListView : ListView
             {
                 m.Result = pnmlv.dwItemType switch
                 {
-                    NativeMethods.LVCDI_GROUP => drawGroupHeader(m.HWnd, pnmlv),
+                    NativeConstants.LVCDI_GROUP => drawGroupHeader(m.HWnd, pnmlv),
                     _ => new IntPtr((int)NativeMethods.CDRF.NotifyItemDraw)
                 };
 
@@ -157,7 +157,7 @@ public class StylableListView : ListView
             {
                 switch (pnmlv.dwItemType)
                 {
-                    case NativeMethods.LVCDI_ITEM:
+                    case NativeConstants.LVCDI_ITEM:
                         int itemIndex = (int)pnmlv.nmcd.dwItemSpec;
 
                         // skip items that are not selected as they are already drawn correctly
@@ -194,7 +194,7 @@ public class StylableListView : ListView
             left = (int)ItemBoundsPortion.Entire
         };
 
-        NativeMethods.SendMessageInternal(mHWnd, NativeMethods.LVM_GETITEMRECT, itemIndex, ref rectHeader);
+        NativeMethods.SendMessageInternal(mHWnd, NativeConstants.Messages.LVM_GETITEMRECT, itemIndex, ref rectHeader);
         using (Graphics g = Graphics.FromHdc(pnmlv.nmcd.hdc))
         {
             // background color
@@ -229,12 +229,12 @@ public class StylableListView : ListView
     {
         NativeMethods.RECT rectHeader = new()
         {
-            top = NativeMethods.LVGGR_HEADER
+            top = NativeConstants.LVGGR_HEADER
         };
 
         int groupIndex = (int)pnmlv.nmcd.dwItemSpec;
 
-        NativeMethods.SendMessageInternal(mHWnd, NativeMethods.LVM_GETGROUPRECT, groupIndex,
+        NativeMethods.SendMessageInternal(mHWnd, NativeConstants.Messages.LVM_GETGROUPRECT, groupIndex,
             ref rectHeader);
         using (Graphics g = Graphics.FromHdc(pnmlv.nmcd.hdc))
         {
@@ -246,11 +246,11 @@ public class StylableListView : ListView
             // Group header text
             NativeMethods.LVGROUP listviewGroup = new();
             listviewGroup.cbSize = (uint)Marshal.SizeOf(listviewGroup);
-            listviewGroup.mask = NativeMethods.LVGF_GROUPID | NativeMethods.LVGF_HEADER;
+            listviewGroup.mask = NativeConstants.LVGF_GROUPID | NativeConstants.LVGF_HEADER;
 
             NativeMethods.SendMessageInternal(
                 mHWnd,
-                NativeMethods.LVM_GETGROUPINFO,
+                NativeConstants.Messages.LVM_GETGROUPINFO,
                 groupIndex,
                 ref listviewGroup);
 
