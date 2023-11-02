@@ -141,7 +141,7 @@ public class StylableComboBox : ComboBox
         switch (m.Msg)
         {
             //disabled box
-            case NativeMethods.WM_CTLCOLORSTATIC:
+            case NativeConstants.Messages.WM_CTLCOLORSTATIC:
                 NativeMethods.SetBkColorInternal(m.WParam, ColorTranslator.ToWin32(Color.Orange));
 
                 IntPtr brush = NativeMethods.CreateSolidBrush(ColorTranslator.ToWin32(Color.BlueViolet));
@@ -149,7 +149,7 @@ public class StylableComboBox : ComboBox
                 return;
 
             case 0x133: //coloredit, for the edit area of editable comboboxes
-                NativeMethods.SetBkModeInternal(m.WParam, NativeMethods.BKM_OPAQUE);
+                NativeMethods.SetBkModeInternal(m.WParam, NativeConstants.BKM_OPAQUE);
                 NativeMethods.SetTextColorInternal(m.WParam, ColorTranslator.ToWin32(ForeColor));
                 NativeMethods.SetBkColorInternal(m.WParam, ColorTranslator.ToWin32(BackColor));
 
@@ -158,7 +158,7 @@ public class StylableComboBox : ComboBox
                 return;
 
             case 0x134: //colorlistbox
-                NativeMethods.SetBkModeInternal(m.WParam, NativeMethods.BKM_OPAQUE);
+                NativeMethods.SetBkModeInternal(m.WParam, NativeConstants.BKM_OPAQUE);
                 NativeMethods.SetTextColorInternal(m.WParam, ColorTranslator.ToWin32(ForeColor));
                 NativeMethods.SetBkColorInternal(m.WParam, ColorTranslator.ToWin32(BackColor));
 

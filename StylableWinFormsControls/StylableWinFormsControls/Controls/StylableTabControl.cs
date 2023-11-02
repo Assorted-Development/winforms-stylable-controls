@@ -459,7 +459,7 @@ public class StylableTabControl : TabControl
         bool bFound = false;
 
         // find the UpDown control
-        IntPtr pWnd = NativeMethods.GetWindow(Handle, NativeMethods.GW_CHILD);
+        IntPtr pWnd = NativeMethods.GetWindow(Handle, NativeConstants.GW_CHILD);
 
         while (pWnd != IntPtr.Zero)
         {
@@ -486,7 +486,7 @@ public class StylableTabControl : TabControl
                 break;
             }
 
-            pWnd = NativeMethods.GetWindow(pWnd, NativeMethods.GW_HWNDNEXT);
+            pWnd = NativeMethods.GetWindow(pWnd, NativeConstants.GW_HWNDNEXT);
         }
 
         if (!bFound && _bUpDown)
@@ -519,7 +519,7 @@ public class StylableTabControl : TabControl
 
         switch (m.Msg)
         {
-            case NativeMethods.WM_PAINT:
+            case NativeConstants.Messages.WM_PAINT:
                 //------------------------
                 // redraw
                 IntPtr hDc = NativeMethods.GetWindowDC(_scUpDown.Handle);

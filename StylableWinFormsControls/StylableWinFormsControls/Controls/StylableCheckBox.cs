@@ -56,7 +56,7 @@ public class StylableCheckBox : CheckBox
     protected override void WndProc(ref Message m)
     {
         // Filter out the WM_ERASEBKGND message since we do that on our own with foreground painting
-        if (m.Msg == NativeMethods.WM_ERASEBKGND)
+        if (m.Msg == NativeConstants.Messages.WM_ERASEBKGND)
         {
             // return 0 (no erasing)
             m.Result = (IntPtr)1;
