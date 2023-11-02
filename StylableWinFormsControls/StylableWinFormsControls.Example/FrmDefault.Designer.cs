@@ -30,11 +30,11 @@ namespace StylableWinFormsControls.Example
         /// </summary>
         private void InitializeComponent()
         {
-            ListViewItem listViewItem1 = new ListViewItem("Content");
-            ListViewItem listViewItem2 = new ListViewItem("Content");
-            ListViewItem listViewItem3 = new ListViewItem(new string[] { "Content", "Content" }, -1);
-            ListViewItem listViewItem4 = new ListViewItem("Content");
-            ListViewItem listViewItem5 = new ListViewItem("Content");
+            ListViewItem listViewItem6 = new ListViewItem("Content");
+            ListViewItem listViewItem7 = new ListViewItem("Content");
+            ListViewItem listViewItem8 = new ListViewItem(new string[] { "Content", "Content" }, -1);
+            ListViewItem listViewItem9 = new ListViewItem("Content");
+            ListViewItem listViewItem10 = new ListViewItem("Content");
             stylableButton1 = new StylableButton();
             stylableCheckBox1 = new StylableCheckBox();
             stylableComboBox1 = new StylableComboBox();
@@ -173,7 +173,7 @@ namespace StylableWinFormsControls.Example
             // stylableListView1
             // 
             stylableListView1.Columns.AddRange(new ColumnHeader[] { columnHeader1, columnHeader2 });
-            stylableListView1.Items.AddRange(new ListViewItem[] { listViewItem1, listViewItem2, listViewItem3, listViewItem4, listViewItem5 });
+            stylableListView1.Items.AddRange(new ListViewItem[] { listViewItem6, listViewItem7, listViewItem8, listViewItem9, listViewItem10 });
             stylableListView1.Location = new Point(6, 18);
             stylableListView1.Name = "stylableListView1";
             stylableListView1.Size = new Size(242, 178);
@@ -227,7 +227,7 @@ namespace StylableWinFormsControls.Example
             stylableTextBox1.BorderColor = Color.Blue;
             stylableTextBox1.BorderStyle = BorderStyle.None;
             stylableTextBox1.DelayedTextChangedTimeout = 900;
-            stylableTextBox1.ForeColor = Color.Black;
+            stylableTextBox1.ForeColor = Color.Gray;
             stylableTextBox1.Hint = "Hello, my name is ...";
             stylableTextBox1.HintForeColor = Color.Gray;
             stylableTextBox1.IsDelayActive = true;
@@ -235,6 +235,7 @@ namespace StylableWinFormsControls.Example
             stylableTextBox1.Name = "stylableTextBox1";
             stylableTextBox1.Size = new Size(207, 16);
             stylableTextBox1.TabIndex = 8;
+            stylableTextBox1.Text = "Hello, my name is ...";
             stylableTextBox1.TextForeColor = Color.Black;
             // 
             // lbl_description
