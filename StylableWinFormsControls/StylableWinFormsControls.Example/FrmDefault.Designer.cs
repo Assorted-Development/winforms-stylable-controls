@@ -87,8 +87,9 @@ namespace StylableWinFormsControls.Example
             stylableButton1.Name = "stylableButton1";
             stylableButton1.Size = new Size(123, 23);
             stylableButton1.TabIndex = 0;
-            stylableButton1.Text = "This is content";
+            stylableButton1.Text = "Show MDI Form";
             stylableButton1.UseVisualStyleBackColor = true;
+            stylableButton1.Click += stylableButton1_Click;
             // 
             // stylableCheckBox1
             // 
