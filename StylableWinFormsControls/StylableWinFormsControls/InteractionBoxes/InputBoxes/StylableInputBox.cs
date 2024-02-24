@@ -54,6 +54,7 @@ namespace StylableWinFormsControls
         {
             StylableControls.InputControl = handleInput(inputControl);
             UpdateSize();
+            stretchInputControlWidth(inputControl);
         }
 
         protected override Point OnUpdateControlSizeMid(int marginLeft, int marginTop, Point currentContentPos)
@@ -70,6 +71,17 @@ namespace StylableWinFormsControls
 
             currentContentPos.Y += 16;
             return currentContentPos;
+        }
+
+        /// <summary>
+        /// Sets width of the input control to full length of the containing window (with margin).
+        /// </summary>
+        /// <param name="inputControl">Input Control to stretch</param>
+        private void stretchInputControlWidth(Control inputControl)
+        {
+            // Set width to complete width, but leave as much space to the right of the control as to the left.
+            inputControl.Width = ClientRectangle.Width - inputControl.Left - inputControl.Margin.Left - inputControl.Margin.Right;
+            UpdateSize();
         }
 
         /// <summary>
