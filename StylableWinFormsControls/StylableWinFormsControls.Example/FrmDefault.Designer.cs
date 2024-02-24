@@ -30,11 +30,11 @@ namespace StylableWinFormsControls.Example
         /// </summary>
         private void InitializeComponent()
         {
-            ListViewItem listViewItem1 = new ListViewItem("Content");
-            ListViewItem listViewItem2 = new ListViewItem("Content");
-            ListViewItem listViewItem3 = new ListViewItem(new string[] { "Content", "Content" }, -1);
-            ListViewItem listViewItem4 = new ListViewItem("Content");
-            ListViewItem listViewItem5 = new ListViewItem("Content");
+            ListViewItem listViewItem6 = new ListViewItem("Content");
+            ListViewItem listViewItem7 = new ListViewItem("Content");
+            ListViewItem listViewItem8 = new ListViewItem(new string[] { "Content", "Content" }, -1);
+            ListViewItem listViewItem9 = new ListViewItem("Content");
+            ListViewItem listViewItem10 = new ListViewItem("Content");
             stylableButton1 = new StylableButton();
             stylableCheckBox1 = new StylableCheckBox();
             stylableComboBox1 = new StylableComboBox();
@@ -62,6 +62,7 @@ namespace StylableWinFormsControls.Example
             gb_stylableDataGridView = new StylableGroupBox();
             gb_stylableLabel = new StylableGroupBox();
             gb_stylableTextBox = new StylableGroupBox();
+            stylableButton2 = new StylableButton();
             ((System.ComponentModel.ISupportInitialize)stylableDataGridView1).BeginInit();
             stylableTabControl1.SuspendLayout();
             gb_stylabletabcontrol.SuspendLayout();
@@ -85,7 +86,7 @@ namespace StylableWinFormsControls.Example
             stylableButton1.EnabledHoverColor = Color.LightGray;
             stylableButton1.Location = new Point(6, 22);
             stylableButton1.Name = "stylableButton1";
-            stylableButton1.Size = new Size(123, 23);
+            stylableButton1.Size = new Size(85, 23);
             stylableButton1.TabIndex = 0;
             stylableButton1.Text = "This is content";
             stylableButton1.UseVisualStyleBackColor = true;
@@ -102,8 +103,10 @@ namespace StylableWinFormsControls.Example
             // 
             // stylableComboBox1
             // 
+            stylableComboBox1.BorderColor = SystemColors.ControlDark;
             stylableComboBox1.DrawMode = DrawMode.OwnerDrawFixed;
             stylableComboBox1.FormattingEnabled = true;
+            stylableComboBox1.ItemHoverColor = SystemColors.Highlight;
             stylableComboBox1.Items.AddRange(new object[] { "This is content 1", "This is content 2", "This is content 3", "This is content with slightly more length" });
             stylableComboBox1.Location = new Point(6, 22);
             stylableComboBox1.Name = "stylableComboBox1";
@@ -173,9 +176,13 @@ namespace StylableWinFormsControls.Example
             // stylableListView1
             // 
             stylableListView1.Columns.AddRange(new ColumnHeader[] { columnHeader1, columnHeader2 });
-            stylableListView1.Items.AddRange(new ListViewItem[] { listViewItem1, listViewItem2, listViewItem3, listViewItem4, listViewItem5 });
+            stylableListView1.GroupHeaderBackColor = Color.LightGray;
+            stylableListView1.GroupHeaderForeColor = Color.Black;
+            stylableListView1.Items.AddRange(new ListViewItem[] { listViewItem6, listViewItem7, listViewItem8, listViewItem9, listViewItem10 });
             stylableListView1.Location = new Point(6, 18);
             stylableListView1.Name = "stylableListView1";
+            stylableListView1.SelectedItemBackColor = Color.LightGray;
+            stylableListView1.SelectedItemForeColor = Color.Black;
             stylableListView1.Size = new Size(242, 178);
             stylableListView1.TabIndex = 6;
             stylableListView1.UseCompatibleStateImageBehavior = false;
@@ -193,6 +200,8 @@ namespace StylableWinFormsControls.Example
             // 
             stylableTabControl1.ActiveTabBackgroundColor = SystemColors.Control;
             stylableTabControl1.ActiveTabForegroundColor = SystemColors.ControlText;
+            stylableTabControl1.BackgroundColor = SystemColors.Control;
+            stylableTabControl1.BorderColor = SystemColors.ControlDark;
             stylableTabControl1.Controls.Add(tabPage1);
             stylableTabControl1.Controls.Add(tabPage2);
             stylableTabControl1.Location = new Point(6, 22);
@@ -227,7 +236,7 @@ namespace StylableWinFormsControls.Example
             stylableTextBox1.BorderColor = Color.Blue;
             stylableTextBox1.BorderStyle = BorderStyle.None;
             stylableTextBox1.DelayedTextChangedTimeout = 900;
-            stylableTextBox1.ForeColor = Color.Black;
+            stylableTextBox1.ForeColor = Color.Gray;
             stylableTextBox1.Hint = "Hello, my name is ...";
             stylableTextBox1.HintForeColor = Color.Gray;
             stylableTextBox1.IsDelayActive = true;
@@ -235,6 +244,7 @@ namespace StylableWinFormsControls.Example
             stylableTextBox1.Name = "stylableTextBox1";
             stylableTextBox1.Size = new Size(207, 16);
             stylableTextBox1.TabIndex = 8;
+            stylableTextBox1.Text = "Hello, my name is ...";
             stylableTextBox1.TextForeColor = Color.Black;
             // 
             // lbl_description
@@ -250,6 +260,8 @@ namespace StylableWinFormsControls.Example
             // gb_stylabletabcontrol
             // 
             gb_stylabletabcontrol.Controls.Add(stylableTabControl1);
+            gb_stylabletabcontrol.DisabledForeColor = SystemColors.GrayText;
+            gb_stylabletabcontrol.EnabledForeColor = SystemColors.ControlText;
             gb_stylabletabcontrol.Location = new Point(237, 230);
             gb_stylabletabcontrol.Name = "gb_stylabletabcontrol";
             gb_stylabletabcontrol.Size = new Size(286, 218);
@@ -260,6 +272,8 @@ namespace StylableWinFormsControls.Example
             // gb_stylablelistview
             // 
             gb_stylablelistview.Controls.Add(stylableListView1);
+            gb_stylablelistview.DisabledForeColor = SystemColors.GrayText;
+            gb_stylablelistview.EnabledForeColor = SystemColors.ControlText;
             gb_stylablelistview.Location = new Point(529, 234);
             gb_stylablelistview.Name = "gb_stylablelistview";
             gb_stylablelistview.Size = new Size(262, 214);
@@ -269,7 +283,10 @@ namespace StylableWinFormsControls.Example
             // 
             // gb_stylablebutton
             // 
+            gb_stylablebutton.Controls.Add(stylableButton2);
             gb_stylablebutton.Controls.Add(stylableButton1);
+            gb_stylablebutton.DisabledForeColor = SystemColors.GrayText;
+            gb_stylablebutton.EnabledForeColor = SystemColors.ControlText;
             gb_stylablebutton.Location = new Point(12, 349);
             gb_stylablebutton.Name = "gb_stylablebutton";
             gb_stylablebutton.Size = new Size(217, 59);
@@ -280,6 +297,8 @@ namespace StylableWinFormsControls.Example
             // gb_stylablecheckbox
             // 
             gb_stylablecheckbox.Controls.Add(stylableCheckBox1);
+            gb_stylablecheckbox.DisabledForeColor = SystemColors.GrayText;
+            gb_stylablecheckbox.EnabledForeColor = SystemColors.ControlText;
             gb_stylablecheckbox.Location = new Point(610, 456);
             gb_stylablecheckbox.Name = "gb_stylablecheckbox";
             gb_stylablecheckbox.Size = new Size(181, 44);
@@ -290,6 +309,8 @@ namespace StylableWinFormsControls.Example
             // gb_stylableComboBox
             // 
             gb_stylableComboBox.Controls.Add(stylableComboBox1);
+            gb_stylableComboBox.DisabledForeColor = SystemColors.GrayText;
+            gb_stylableComboBox.EnabledForeColor = SystemColors.ControlText;
             gb_stylableComboBox.Location = new Point(12, 287);
             gb_stylableComboBox.Name = "gb_stylableComboBox";
             gb_stylableComboBox.Size = new Size(217, 56);
@@ -300,6 +321,8 @@ namespace StylableWinFormsControls.Example
             // gb_stylableDateTimePicker
             // 
             gb_stylableDateTimePicker.Controls.Add(stylableDateTimePicker1);
+            gb_stylableDateTimePicker.DisabledForeColor = SystemColors.GrayText;
+            gb_stylableDateTimePicker.EnabledForeColor = SystemColors.ControlText;
             gb_stylableDateTimePicker.Location = new Point(12, 230);
             gb_stylableDateTimePicker.Name = "gb_stylableDateTimePicker";
             gb_stylableDateTimePicker.Size = new Size(217, 51);
@@ -310,6 +333,8 @@ namespace StylableWinFormsControls.Example
             // gb_stylableDataGridView
             // 
             gb_stylableDataGridView.Controls.Add(stylableDataGridView1);
+            gb_stylableDataGridView.DisabledForeColor = SystemColors.GrayText;
+            gb_stylableDataGridView.EnabledForeColor = SystemColors.ControlText;
             gb_stylableDataGridView.Location = new Point(12, 36);
             gb_stylableDataGridView.Name = "gb_stylableDataGridView";
             gb_stylableDataGridView.Size = new Size(779, 178);
@@ -320,6 +345,8 @@ namespace StylableWinFormsControls.Example
             // gb_stylableLabel
             // 
             gb_stylableLabel.Controls.Add(stylableLabel1);
+            gb_stylableLabel.DisabledForeColor = SystemColors.GrayText;
+            gb_stylableLabel.EnabledForeColor = SystemColors.ControlText;
             gb_stylableLabel.Location = new Point(462, 454);
             gb_stylableLabel.Name = "gb_stylableLabel";
             gb_stylableLabel.Size = new Size(142, 46);
@@ -330,12 +357,30 @@ namespace StylableWinFormsControls.Example
             // gb_stylableTextBox
             // 
             gb_stylableTextBox.Controls.Add(stylableTextBox1);
+            gb_stylableTextBox.DisabledForeColor = SystemColors.GrayText;
+            gb_stylableTextBox.EnabledForeColor = SystemColors.ControlText;
             gb_stylableTextBox.Location = new Point(237, 454);
             gb_stylableTextBox.Name = "gb_stylableTextBox";
             gb_stylableTextBox.Size = new Size(219, 46);
             gb_stylableTextBox.TabIndex = 19;
             gb_stylableTextBox.TabStop = false;
             gb_stylableTextBox.Text = "StylableTextBox";
+            // 
+            // stylableButton2
+            // 
+            stylableButton2.BorderColor = Color.Black;
+            stylableButton2.DisabledBackColor = Color.Gray;
+            stylableButton2.DisabledForeColor = Color.Black;
+            stylableButton2.EnabledBackColor = Color.White;
+            stylableButton2.EnabledForeColor = Color.Black;
+            stylableButton2.EnabledHoverColor = Color.LightGray;
+            stylableButton2.Location = new Point(111, 22);
+            stylableButton2.Name = "stylableButton2";
+            stylableButton2.Size = new Size(85, 23);
+            stylableButton2.TabIndex = 1;
+            stylableButton2.Text = "InputBox";
+            stylableButton2.UseVisualStyleBackColor = true;
+            stylableButton2.Click += stylableButton2_Click;
             // 
             // FrmDefault
             // 
@@ -401,5 +446,6 @@ namespace StylableWinFormsControls.Example
         private DataGridViewTextBoxColumn Column2;
         private DataGridViewTextBoxColumn Column3;
         private DataGridViewTextBoxColumn Column4;
+        private StylableButton stylableButton2;
     }
 }
