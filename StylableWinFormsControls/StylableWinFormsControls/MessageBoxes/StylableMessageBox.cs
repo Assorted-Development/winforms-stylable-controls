@@ -74,13 +74,13 @@ namespace StylableWinFormsControls
             if (updateControlSize)
             {
                 Point currentContentPos = new(9, 20);
-                StylableControls.Text.Left = currentContentPos.X;
-                StylableControls.Text.Top = currentContentPos.Y;
+                StylableControls.Text.Left = currentContentPos.X - StylableControls.Text.Margin.Left;
+                StylableControls.Text.Top = currentContentPos.Y - StylableControls.Text.Margin.Top;
                 currentContentPos.Y = currentContentPos.Y + StylableControls.Text.Height + 10;
                 if (StylableControls.CheckBox is not null)
                 {
-                    StylableControls.CheckBox.Left = currentContentPos.X;
-                    StylableControls.CheckBox.Top = currentContentPos.Y;
+                    StylableControls.CheckBox.Left = currentContentPos.X - StylableControls.CheckBox.Margin.Left;
+                    StylableControls.CheckBox.Top = currentContentPos.Y - StylableControls.CheckBox.Margin.Top;
                     currentContentPos.Y = currentContentPos.Y + StylableControls.CheckBox.Height + 10;
                 }
 
@@ -91,8 +91,8 @@ namespace StylableWinFormsControls
                     currentContentPos.X = currentContentPos.X + sb.Width + 10;
                 }
             }
-            Width = (from c in Controls.Cast<Control>() select c.Left + c.Width + BORDER_WIDTH).Max();
-            Height = (from c in Controls.Cast<Control>() select c.Top + c.Height + BORDER_HEIGHT).Max();
+            Width = (from c in Controls.Cast<Control>() select c.Left + c.Width + c.Margin.Left + BORDER_WIDTH).Max();
+            Height = (from c in Controls.Cast<Control>() select c.Top + c.Height + c.Margin.Top + + BORDER_HEIGHT).Max();
         }
         /// <summary>
         /// creates the message box content
