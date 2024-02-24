@@ -1,0 +1,63 @@
+namespace StylableWinFormsControls
+{
+    public sealed class StylableInputBox<T> : StylableInteractionBox where T : Control
+    {
+        /// <summary>
+        /// returns a builder object to configure the <see cref="StylableInputBox"/>
+        /// </summary>
+        public static StylableInputBoxBuilder BUILDER => new();
+
+        /// <summary>
+        /// constructor. not available to others as they should use the <see cref="StylableMessageBoxBuilder"/>
+        /// </summary>
+        /// <param name="caption">the caption</param>
+        /// <param name="icon">the icon in the title bar</param>
+        /// <param name="text">the prompt text</param>
+        /// <param name="defaultButton">defines which button should be selected by default</param>
+        /// <param name="helpUri">the url to open when the user clicks on the help button</param>
+        /// <param name="timeout">defines the intervall after which the messagebox is closed automatically</param>
+        /// <param name="timeoutResult">defines the <see cref="DialogResult"/> to return when the timeout hits</param>
+        /// <param name="inputControl">the control to input the value</param>
+        internal StylableInputBox(
+            string caption,
+            MessageBoxIcon icon,
+            string text,
+            MessageBoxButtons buttons,
+            MessageBoxDefaultButton defaultButton,
+            Uri? helpUri,
+            TimeSpan? timeout,
+            DialogResult timeoutResult,
+            T inputControl
+        ) : base(caption, icon, text, buttons, defaultButton, helpUri, timeout, timeoutResult)
+        {
+            StylableControls.InputControl = handleInput(inputControl);
+            UpdateSize();
+        }
+
+        protected override Point OnUpdateControlSizeMid(int marginLeft, int marginTop, Point currentContentPos)
+        {
+            currentContentPos.Y += StylableControls.Text is null ? 0 : StylableControls.Text.Height + 6;
+
+            if (StylableControls.InputControl is not null)
+            {
+                // Margins on CheckBoxes seem to not work directly
+                StylableControls.InputControl.Left = currentContentPos.X + marginLeft;
+                StylableControls.InputControl.Top = currentContentPos.Y + marginTop;
+                currentContentPos.Y += StylableControls.InputControl.Height + 6;
+            }
+
+            currentContentPos.Y += 16;
+            return currentContentPos;
+        }
+
+        /// <summary>
+        /// adds the input control
+        /// </summary>
+        /// <param name="input">the input control</param>
+        private T handleInput(T input)
+        {
+            Controls.Add(input);
+            return input;
+        }
+    }
+}

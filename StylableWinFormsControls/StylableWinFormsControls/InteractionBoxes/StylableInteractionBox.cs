@@ -1,60 +1,72 @@
-using System.Data;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Globalization;
-using StylableWinFormsControls.InputBoxes;
 using System.Resources;
+using StylableWinFormsControls.Extensions;
 
 namespace StylableWinFormsControls
 {
-    public class StylableInputBox<T> : Form where T : Control
+    /// <summary>
+    /// A stylable base version of informational boxes with interaction possibilities
+    /// </summary>
+    /// <seealso cref="StylableMessageBox"/>
+    public class StylableInteractionBox : Form
     {
         /// <summary>
         /// additional form width
         /// </summary>
         public const int BORDER_WIDTH = 20;
+
         /// <summary>
         /// additional form height
         /// </summary>
         public const int BORDER_HEIGHT = 10;
+
         /// <summary>
-        /// returns a builder object to configure the <see cref="StylableInputBox"/>
+        /// resource manager used to access localized texts
         /// </summary>
-        public static StylableInputBoxBuilder BUILDER => new();
-        /// <summary>
-        /// resource manager used to access localized texts (does not use constructor with type as this fails with generic types)
-        /// </summary>
-        private static ResourceManager _resources = new("StylableWinFormsControls.StylableInputBox", typeof(StylableInputBox).Assembly);
+        private static ResourceManager _resources = new(typeof(StylableInteractionBox));
+
         /// <summary>
         /// contains the stylable controls for easier access than iterating over Controls
         /// </summary>
-        public InputBoxControls<T> StylableControls { get; }
+        public InteractionBoxControls StylableControls { get; }
+
         /// <summary>
         /// constructor. not available to others as they should use the <see cref="StylableMessageBoxBuilder"/>
         /// </summary>
         /// <param name="caption">the caption</param>
         /// <param name="icon">the icon in the title bar</param>
-        /// <param name="text">the prompt text</param>
+        /// <param name="text">the messagebox text</param>
+        /// <param name="buttons">describes which buttons should be shown to the user</param>
         /// <param name="defaultButton">defines which button should be selected by default</param>
         /// <param name="helpUri">the url to open when the user clicks on the help button</param>
         /// <param name="timeout">defines the intervall after which the messagebox is closed automatically</param>
         /// <param name="timeoutResult">defines the <see cref="DialogResult"/> to return when the timeout hits</param>
-        /// <param name="inputControl">the control to input the value</param>
-        internal StylableInputBox(string caption, MessageBoxIcon icon, string text, MessageBoxDefaultButton defaultButton, Uri? helpUri, TimeSpan? timeout, DialogResult timeoutResult, T inputControl)
+        internal StylableInteractionBox(
+            string caption,
+            MessageBoxIcon icon,
+            string text,
+            MessageBoxButtons buttons,
+            MessageBoxDefaultButton defaultButton,
+            Uri? helpUri,
+            TimeSpan? timeout,
+            DialogResult timeoutResult)
         {
             StartPosition = FormStartPosition.CenterScreen;
             FormBorderStyle = FormBorderStyle.FixedDialog;
             MinimizeBox = false;
             MaximizeBox = false;
             handleTitle(caption, icon, helpUri);
-            StylableControls = new InputBoxControls<T>(
-                handleText(text),
-                createButton(DialogResult.OK),
-                createButton(DialogResult.Cancel),
-                handleInput(inputControl)
-            );
+            StylableControls = new InteractionBoxControls()
+            {
+                Text = handleText(text),
+                Buttons = handleButtons(buttons, defaultButton)
+            };
+            OnAfterSetStylableControls();
             handleTimeouts(timeout, timeoutResult);
-            UpdateSize();
         }
+
         /// <summary>
         /// resize the form to fit the content
         /// </summary>
@@ -68,7 +80,7 @@ namespace StylableWinFormsControls
                 int marginLeft = (from c in Controls.Cast<Control>() select c.Margin.Left).Min();
                 int marginTop = (from c in Controls.Cast<Control>() select c.Margin.Top).Min();
 
-                Point currentContentPos = new(6 + marginLeft, 20 + marginTop);
+                Point currentContentPos = new(6 + marginLeft, 14 + marginTop);
 
                 if (StylableControls.Text is not null)
                 {
@@ -78,14 +90,7 @@ namespace StylableWinFormsControls
                     StylableControls.Text.Top = currentContentPos.Y;
                 }
 
-                currentContentPos.Y += StylableControls.Text is null ? 0 : StylableControls.Text.Height + 6;
-
-                // Margins on CheckBoxes seem to not work directly
-                StylableControls.InputControl.Left = currentContentPos.X + marginLeft;
-                StylableControls.InputControl.Top = currentContentPos.Y + marginTop;
-                currentContentPos.Y += StylableControls.InputControl.Height + 6;
-
-                currentContentPos.Y += 16;
+                currentContentPos = OnUpdateControlSizeMid(marginLeft, marginTop, currentContentPos);
 
                 foreach (StylableButton sb in StylableControls.Buttons)
                 {
@@ -100,10 +105,32 @@ namespace StylableWinFormsControls
             Width = (from c in Controls.Cast<Control>() select c.Left + c.Width + c.Margin.Left + c.Margin.Right + BORDER_WIDTH).Max();
             Height = (from c in Controls.Cast<Control>() select c.Top + c.Height + c.Margin.Top + c.Margin.Bottom + BORDER_HEIGHT + titleBarHeight).Max();
         }
+
         /// <summary>
-        /// creates the prompt text
+        /// Gets called within <see cref="UpdateSize(bool)"/> between the text area and the bottom area.<br/>
+        /// Can be used to add own elements to the control.
         /// </summary>
-        /// <param name="text">the prompt text</param>
+        /// <param name="marginLeft">Currently calculated highest Margin.Left value of all controls</param>
+        /// <param name="marginTop">Currently calculated highest Margin.Top value of all controls</param>
+        /// <param name="currentContentPos">Position at which the calculation of elements currently is.</param>
+        /// <returns>Returns the position the calculation of further elements should continue</returns>
+        protected virtual Point OnUpdateControlSizeMid(int marginLeft, int marginTop, Point currentContentPos)
+        {
+            return currentContentPos;
+        }
+
+        /// <summary>
+        /// Gets called after the <see cref="StylableControls"/> object has been initialized.
+        /// </summary>
+        protected virtual void OnAfterSetStylableControls()
+        {
+
+        }
+
+        /// <summary>
+        /// creates the message box content
+        /// </summary>
+        /// <param name="text">the messagebox text</param>
         private StylableLabel handleText(string text)
         {
             StylableLabel label = new()
@@ -113,15 +140,6 @@ namespace StylableWinFormsControls
             };
             Controls.Add(label);
             return label;
-        }
-        /// <summary>
-        /// adds the input control
-        /// </summary>
-        /// <param name="input">the input control</param>
-        private T handleInput(T input)
-        {
-            Controls.Add(input);
-            return input;
         }
         /// <summary>
         /// Create a button for the given DialogResult
@@ -139,6 +157,30 @@ namespace StylableWinFormsControls
             return b;
         }
         /// <summary>
+        /// creates the required dialogResult buttons
+        /// </summary>
+        /// <param name="buttons">describes which buttons should be shown to the user</param>
+        /// <param name="defaultButton">defines which button should be selected by default</param>
+        private ReadOnlyCollection<StylableButton> handleButtons(MessageBoxButtons buttons, MessageBoxDefaultButton defaultButton)
+        {
+            List<StylableButton> result = new();
+            foreach (DialogResult dr in buttons.ToDialogResult())
+            {
+                result.Add(createButton(dr));
+            }
+
+            AcceptButton = defaultButton switch
+            {
+                MessageBoxDefaultButton.Button1 => result[0],
+                MessageBoxDefaultButton.Button2 => result.Count > 1 ? result[1] : result.Last(),
+                MessageBoxDefaultButton.Button3 => result.Count > 2 ? result[2] : result.Last(),
+                MessageBoxDefaultButton.Button4 => result.Count > 3 ? result[3] : result.Last(),
+                _ => result[0],
+            };
+
+            return result.AsReadOnly();
+        }
+        /// <summary>
         /// the time left before the messageBox closes automatically
         /// </summary>
         private int _timeLeft;
@@ -147,13 +189,13 @@ namespace StylableWinFormsControls
         /// </summary>
         private System.Windows.Forms.Timer? _uiUpdate;
         /// <summary>
-        /// the timer to close the inputbox
+        /// the timer to close the messageBox
         /// </summary>
         private System.Windows.Forms.Timer? _timeout;
         /// <summary>
         /// configures timeout and timers if needed
         /// </summary>
-        /// <param name="timeout">defines the intervall after which the inputbox is closed automatically</param>
+        /// <param name="timeout">defines the intervall after which the messagebox is closed automatically</param>
         /// <param name="timeoutResult">defines the <see cref="DialogResult"/> to return when the timeout hits</param>
         private void handleTimeouts(TimeSpan? timeout, DialogResult timeoutResult)
         {
@@ -163,16 +205,30 @@ namespace StylableWinFormsControls
                 {
                     Interval = 1000
                 };
-                //the timeoutResult may not be necessarily in the list of available buttons
-                Button defaultButton = StylableControls.Buttons.FirstOrDefault(b => b.DialogResult == timeoutResult) ?? StylableControls.Buttons.First(b => b == AcceptButton);
+
+                // the timeoutResult may not be necessarily in the list of available buttons
+                Button defaultButton =
+                    StylableControls.Buttons.FirstOrDefault(b => b.DialogResult == timeoutResult)
+                        ?? StylableControls.Buttons.First(b => b == AcceptButton);
+
                 string basicText = defaultButton.Text;
-                _uiUpdate.Tick += (sender, e) => { _timeLeft--; defaultButton!.Text = $"{basicText} ({_timeLeft}s)"; };
+
+                _uiUpdate.Tick += (sender, e) =>
+                {
+                    _timeLeft--;
+                    defaultButton!.Text = $"{basicText} ({_timeLeft}s)";
+                    UpdateSize(false);
+                };
 
                 _timeout = new System.Windows.Forms.Timer()
                 {
                     Interval = (int)timeout.Value.TotalMilliseconds
                 };
-                _timeout.Tick += (sender, e) => { DialogResult = timeoutResult; Close(); };
+                _timeout.Tick += (sender, e) =>
+                {
+                    DialogResult = timeoutResult;
+                    Close();
+                };
 
                 VisibleChanged += (sender, e) =>
                 {
@@ -213,6 +269,7 @@ namespace StylableWinFormsControls
                 HelpButtonClicked += (sender, e) => Process.Start(new ProcessStartInfo(helpUri.ToString()) { UseShellExecute = true });
             }
         }
+
         private int getWindowTitleBarHeight()
         {
             Rectangle screenRectangle = RectangleToScreen(ClientRectangle);
@@ -228,6 +285,7 @@ namespace StylableWinFormsControls
 
             c.Margin = new Padding(marginLeft, marginTop, c.Margin.Right, c.Margin.Top);
         }
+
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);
