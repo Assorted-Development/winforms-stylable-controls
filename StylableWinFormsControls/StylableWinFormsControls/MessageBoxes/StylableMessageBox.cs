@@ -78,7 +78,7 @@ namespace StylableWinFormsControls
                 int marginLeft = (from c in Controls.Cast<Control>() select c.Margin.Left).Min();
                 int marginTop = (from c in Controls.Cast<Control>() select c.Margin.Top).Min();
 
-                Point currentContentPos = new(6 + marginLeft, 20 + marginTop);
+                Point currentContentPos = new(6 + marginLeft, 14 + marginTop);
 
                 if (StylableControls.Text is not null)
                 {
@@ -211,16 +211,30 @@ namespace StylableWinFormsControls
                 {
                     Interval = 1000
                 };
-                //the timeoutResult may not be necessarily in the list of available buttons
-                Button defaultButton = StylableControls.Buttons.FirstOrDefault(b => b.DialogResult == timeoutResult) ?? StylableControls.Buttons.First(b => b == AcceptButton);
+
+                // the timeoutResult may not be necessarily in the list of available buttons
+                Button defaultButton =
+                    StylableControls.Buttons.FirstOrDefault(b => b.DialogResult == timeoutResult)
+                        ?? StylableControls.Buttons.First(b => b == AcceptButton);
+
                 string basicText = defaultButton.Text;
-                _uiUpdate.Tick += (sender, e) => { _timeLeft--; defaultButton!.Text = $"{basicText} ({_timeLeft}s)"; };
+
+                _uiUpdate.Tick += (sender, e) =>
+                {
+                    _timeLeft--;
+                    defaultButton!.Text = $"{basicText} ({_timeLeft}s)";
+                    UpdateSize(false);
+                };
 
                 _timeout = new System.Windows.Forms.Timer()
                 {
                     Interval = (int)timeout.Value.TotalMilliseconds
                 };
-                _timeout.Tick += (sender, e) => { DialogResult = timeoutResult; Close(); };
+                _timeout.Tick += (sender, e) =>
+                {
+                    DialogResult = timeoutResult;
+                    Close();
+                };
 
                 VisibleChanged += (sender, e) =>
                 {
