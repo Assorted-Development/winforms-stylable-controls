@@ -15,11 +15,11 @@ namespace StylableWinFormsControls
         /// <summary>
         /// additional form width
         /// </summary>
-        public const int BORDER_WIDTH = 40;
+        public const int BORDER_WIDTH = 20;
         /// <summary>
         /// additional form height
         /// </summary>
-        public const int BORDER_HEIGHT = 70;
+        public const int BORDER_HEIGHT = 10;
         /// <summary>
         /// returns a builder object to configure the <see cref="StylableMessageBox"/>
         /// </summary>
@@ -71,29 +71,48 @@ namespace StylableWinFormsControls
         /// <param name="updateControlSize">if true, the sizes and positions of all controls will be recalculated. otherwise, only the form will be updated</param>
         public void UpdateSize(bool updateControlSize = true)
         {
+            int titleBarHeight = getWindowTitleBarHeight();
+
             if (updateControlSize)
             {
-                Point currentContentPos = new(9, 20);
-                StylableControls.Text.Left = currentContentPos.X - StylableControls.Text.Margin.Left;
-                StylableControls.Text.Top = currentContentPos.Y - StylableControls.Text.Margin.Top;
-                currentContentPos.Y = currentContentPos.Y + StylableControls.Text.Height + 10;
+                int marginLeft = (from c in Controls.Cast<Control>() select c.Margin.Left).Min();
+                int marginTop = (from c in Controls.Cast<Control>() select c.Margin.Top).Min();
+
+                Point currentContentPos = new(6 + marginLeft, 20 + marginTop);
+
+                if (StylableControls.Text is not null)
+                {
+                    setMargin(StylableControls.Text, marginLeft, marginTop);
+
+                    StylableControls.Text.Left = currentContentPos.X;
+                    StylableControls.Text.Top = currentContentPos.Y;
+                }
+
+                currentContentPos.Y += StylableControls.Text is null ? 0 : StylableControls.Text.Height + 6;
                 if (StylableControls.CheckBox is not null)
                 {
-                    StylableControls.CheckBox.Left = currentContentPos.X - StylableControls.CheckBox.Margin.Left;
-                    StylableControls.CheckBox.Top = currentContentPos.Y - StylableControls.CheckBox.Margin.Top;
-                    currentContentPos.Y = currentContentPos.Y + StylableControls.CheckBox.Height + 10;
+                    // Margins on CheckBoxes seem to not work directly
+                    StylableControls.CheckBox.Left = currentContentPos.X + marginLeft;
+                    StylableControls.CheckBox.Top = currentContentPos.Y + marginTop;
+                    currentContentPos.Y += StylableControls.CheckBox.Height + 6;
                 }
+
+                currentContentPos.Y += 16;
 
                 foreach (StylableButton sb in StylableControls.Buttons)
                 {
+                    setMargin(sb, marginLeft, marginTop);
                     sb.Left = currentContentPos.X;
                     sb.Top = currentContentPos.Y;
+
                     currentContentPos.X = currentContentPos.X + sb.Width + 10;
                 }
             }
-            Width = (from c in Controls.Cast<Control>() select c.Left + c.Width + c.Margin.Left + BORDER_WIDTH).Max();
-            Height = (from c in Controls.Cast<Control>() select c.Top + c.Height + c.Margin.Top + + BORDER_HEIGHT).Max();
+
+            Width = (from c in Controls.Cast<Control>() select c.Left + c.Width + c.Margin.Left + c.Margin.Right + BORDER_WIDTH).Max();
+            Height = (from c in Controls.Cast<Control>() select c.Top + c.Height + c.Margin.Top + c.Margin.Bottom + BORDER_HEIGHT + titleBarHeight).Max();
         }
+
         /// <summary>
         /// creates the message box content
         /// </summary>
@@ -242,6 +261,23 @@ namespace StylableWinFormsControls
                 HelpButtonClicked += (sender, e) => Process.Start(new ProcessStartInfo(helpUri.ToString()) { UseShellExecute = true });
             }
         }
+
+        private int getWindowTitleBarHeight()
+        {
+            Rectangle screenRectangle = RectangleToScreen(ClientRectangle);
+            return screenRectangle.Top - Top;
+        }
+
+        private static void setMargin(Control? c, int marginLeft, int marginTop)
+        {
+            if (c is null)
+            {
+                return;
+            }
+
+            c.Margin = new Padding(marginLeft, marginTop, c.Margin.Right, c.Margin.Top);
+        }
+
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);
