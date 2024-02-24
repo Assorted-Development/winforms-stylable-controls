@@ -9,7 +9,7 @@ namespace StylableWinFormsControls.Extensions
         /// <summary>
         /// returns all required DialogResults for the given Buttons in a message box
         /// </summary>
-        /// <param name="buttons"></param>
+        /// <param name="buttons">Buttons that are represented by the resulting <see cref="DialogResult"/>s.</param>
         public static List<DialogResult> ToDialogResult(this MessageBoxButtons buttons)
         {
             List<DialogResult> result = new();
