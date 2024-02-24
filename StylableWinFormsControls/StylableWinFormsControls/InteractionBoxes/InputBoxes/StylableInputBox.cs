@@ -3,9 +3,31 @@ namespace StylableWinFormsControls
     public sealed class StylableInputBox<T> : StylableInteractionBox where T : Control
     {
         /// <summary>
-        /// returns a builder object to configure the <see cref="StylableInputBox"/>
+        /// Returns a builder object to configure the <see cref="StylableInputBox"/>
         /// </summary>
         public static StylableInputBoxBuilder BUILDER => new();
+
+        /// <summary>
+        /// Returns the value of the input control used with this instance. <br/>
+        /// Return type: <see cref="decimal"/> for <see cref="NumericUpDown"/> | <see cref="string"/>
+        /// for <see cref="TextBox"/>.
+        /// </summary>
+        /// <remarks>May be null if no input control has been specified (yet).</remarks>
+        /// <exception cref="NotSupportedException">
+        /// Throws if <typeparamref name="T"/> hasn't been implemented for this property.
+        /// </exception>
+        public object Value
+        {
+            get
+            {
+                return StylableControls.InputControl switch
+                {
+                    NumericUpDown numUpDown => numUpDown.Value,
+                    TextBox textBox => textBox.Text,
+                    _ => throw new NotSupportedException("The type of this input field has not been prepared for fetching values yet.")
+                };
+            }
+        }
 
         /// <summary>
         /// constructor. not available to others as they should use the <see cref="StylableMessageBoxBuilder"/>

@@ -9,7 +9,7 @@ namespace StylableWinFormsControls.Example
 
         private void stylableButton1_Click(object sender, EventArgs e)
         {
-            StylableMessageBox mBox = StylableMessageBox.BUILDER
+            StylableMessageBox messageBox = StylableMessageBox.BUILDER
                 .WithTitle("This is a text", MessageBoxIcon.Information)
                 .WithText("This is an example of a stylable MessageBox")
                 .WithButtons(MessageBoxButtons.YesNoCancel)
@@ -17,18 +17,28 @@ namespace StylableWinFormsControls.Example
                 .WithHelpButton(new Uri("https://github.com/Assorted-Development/winforms-stylable-controls"))
                 .WithTimeout(TimeSpan.FromSeconds(30), DialogResult.Cancel)
                 .Build();
-            mBox.ShowDialog();
+            messageBox.ShowDialog();
         }
 
         private void stylableButton2_Click(object sender, EventArgs e)
         {
-            StylableInputBox<NumericUpDown> iBox = StylableInputBox<NumericUpDown>.BUILDER
-                .WithTitle("Numeric Test", MessageBoxIcon.Information)
+            StylableInputBox<NumericUpDown> inputBox = StylableInputBox<NumericUpDown>.BUILDER
+                .WithTitle("Numeric Test", MessageBoxIcon.Question)
                 .WithText("Please enter a random number between -100 and 100")
+                .WithButtons(MessageBoxButtons.OKCancel)
                 .WithHelpButton(new Uri("https://github.com/Assorted-Development/winforms-stylable-controls"))
                 .WithTimeout(TimeSpan.FromSeconds(30), DialogResult.Cancel)
                 .ForNumericValue(0, -100, 100);
-            iBox.ShowDialog();
+
+            if (inputBox.ShowDialog() == DialogResult.OK)
+            {
+                StylableMessageBox mBox = StylableMessageBox.BUILDER
+                    .WithTitle("Result value", MessageBoxIcon.Information)
+                    .WithText($"You entered the following value: {inputBox.Value}")
+                    .WithButtons(MessageBoxButtons.OK)
+                    .Build();
+                mBox.ShowDialog();
+            }
         }
     }
 }

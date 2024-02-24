@@ -30,11 +30,11 @@ namespace StylableWinFormsControls.Example
         /// </summary>
         private void InitializeComponent()
         {
-            ListViewItem listViewItem6 = new ListViewItem("Content");
-            ListViewItem listViewItem7 = new ListViewItem("Content");
-            ListViewItem listViewItem8 = new ListViewItem(new string[] { "Content", "Content" }, -1);
-            ListViewItem listViewItem9 = new ListViewItem("Content");
-            ListViewItem listViewItem10 = new ListViewItem("Content");
+            ListViewItem listViewItem1 = new ListViewItem("Content");
+            ListViewItem listViewItem2 = new ListViewItem("Content");
+            ListViewItem listViewItem3 = new ListViewItem(new string[] { "Content", "Content" }, -1);
+            ListViewItem listViewItem4 = new ListViewItem("Content");
+            ListViewItem listViewItem5 = new ListViewItem("Content");
             stylableButton1 = new StylableButton();
             stylableCheckBox1 = new StylableCheckBox();
             stylableComboBox1 = new StylableComboBox();
@@ -56,13 +56,13 @@ namespace StylableWinFormsControls.Example
             gb_stylabletabcontrol = new StylableGroupBox();
             gb_stylablelistview = new StylableGroupBox();
             gb_stylablebutton = new StylableGroupBox();
+            stylableButton2 = new StylableButton();
             gb_stylablecheckbox = new StylableGroupBox();
             gb_stylableComboBox = new StylableGroupBox();
             gb_stylableDateTimePicker = new StylableGroupBox();
             gb_stylableDataGridView = new StylableGroupBox();
             gb_stylableLabel = new StylableGroupBox();
             gb_stylableTextBox = new StylableGroupBox();
-            stylableButton2 = new StylableButton();
             ((System.ComponentModel.ISupportInitialize)stylableDataGridView1).BeginInit();
             stylableTabControl1.SuspendLayout();
             gb_stylabletabcontrol.SuspendLayout();
@@ -90,6 +90,7 @@ namespace StylableWinFormsControls.Example
             stylableButton1.TabIndex = 0;
             stylableButton1.Text = "This is content";
             stylableButton1.UseVisualStyleBackColor = true;
+            stylableButton1.Click += stylableButton1_Click;
             // 
             // stylableCheckBox1
             // 
@@ -178,7 +179,7 @@ namespace StylableWinFormsControls.Example
             stylableListView1.Columns.AddRange(new ColumnHeader[] { columnHeader1, columnHeader2 });
             stylableListView1.GroupHeaderBackColor = Color.LightGray;
             stylableListView1.GroupHeaderForeColor = Color.Black;
-            stylableListView1.Items.AddRange(new ListViewItem[] { listViewItem6, listViewItem7, listViewItem8, listViewItem9, listViewItem10 });
+            stylableListView1.Items.AddRange(new ListViewItem[] { listViewItem1, listViewItem2, listViewItem3, listViewItem4, listViewItem5 });
             stylableListView1.Location = new Point(6, 18);
             stylableListView1.Name = "stylableListView1";
             stylableListView1.SelectedItemBackColor = Color.LightGray;
@@ -294,6 +295,22 @@ namespace StylableWinFormsControls.Example
             gb_stylablebutton.TabStop = false;
             gb_stylablebutton.Text = "StylableButton";
             // 
+            // stylableButton2
+            // 
+            stylableButton2.BorderColor = Color.Black;
+            stylableButton2.DisabledBackColor = Color.Gray;
+            stylableButton2.DisabledForeColor = Color.Black;
+            stylableButton2.EnabledBackColor = Color.White;
+            stylableButton2.EnabledForeColor = Color.Black;
+            stylableButton2.EnabledHoverColor = Color.LightGray;
+            stylableButton2.Location = new Point(111, 22);
+            stylableButton2.Name = "stylableButton2";
+            stylableButton2.Size = new Size(85, 23);
+            stylableButton2.TabIndex = 1;
+            stylableButton2.Text = "InputBox";
+            stylableButton2.UseVisualStyleBackColor = true;
+            stylableButton2.Click += stylableButton2_Click;
+            // 
             // gb_stylablecheckbox
             // 
             gb_stylablecheckbox.Controls.Add(stylableCheckBox1);
@@ -365,22 +382,6 @@ namespace StylableWinFormsControls.Example
             gb_stylableTextBox.TabIndex = 19;
             gb_stylableTextBox.TabStop = false;
             gb_stylableTextBox.Text = "StylableTextBox";
-            // 
-            // stylableButton2
-            // 
-            stylableButton2.BorderColor = Color.Black;
-            stylableButton2.DisabledBackColor = Color.Gray;
-            stylableButton2.DisabledForeColor = Color.Black;
-            stylableButton2.EnabledBackColor = Color.White;
-            stylableButton2.EnabledForeColor = Color.Black;
-            stylableButton2.EnabledHoverColor = Color.LightGray;
-            stylableButton2.Location = new Point(111, 22);
-            stylableButton2.Name = "stylableButton2";
-            stylableButton2.Size = new Size(85, 23);
-            stylableButton2.TabIndex = 1;
-            stylableButton2.Text = "InputBox";
-            stylableButton2.UseVisualStyleBackColor = true;
-            stylableButton2.Click += stylableButton2_Click;
             // 
             // FrmDefault
             // 
