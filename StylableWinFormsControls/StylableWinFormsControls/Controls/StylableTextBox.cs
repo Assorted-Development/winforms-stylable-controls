@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.Reflection;
 
 namespace StylableWinFormsControls;
 
@@ -52,12 +53,29 @@ public class StylableTextBox : TextBox
     /// We are hiding this as it is only the current color of the text.
     /// Use <see cref="TextForeColor"/> to set the color of the text or <see cref="HintForeColor"/> for the hint.
     /// </summary>
+    /// <exception cref="InvalidOperationException">thrown when called from outside this lib</exception>
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-    [Obsolete("Use TextForeColor or HintForeColor instead")]
+    [InternalUseOnly("Use TextForeColor or HintForeColor instead")]
     public new Color ForeColor
     {
-        get => base.ForeColor;
-        set => base.ForeColor = value;
+        get
+        {
+            if (StylableWinFormsControlsSettings.DEFAULT.IsErrorHandlingFail() && Assembly.GetCallingAssembly() != GetType().Assembly)
+            {
+                throw new InvalidOperationException("Do not call ForeColor. Use other available properties HintForeColor/TextForeColor instead");
+            }
+
+            return base.ForeColor;
+        }
+        set
+        {
+            if (StylableWinFormsControlsSettings.DEFAULT.IsErrorHandlingFail() && Assembly.GetCallingAssembly() != GetType().Assembly)
+            {
+                throw new InvalidOperationException("Do not call ForeColor. Use other available properties HintForeColor/TextForeColor instead");
+            }
+
+            base.ForeColor = value;
+        }
     }
 
     [Editor]
@@ -222,15 +240,11 @@ public class StylableTextBox : TextBox
     {
         if (IsHintActive)
         {
-#pragma warning disable CS0618 //Obsolete
             ForeColor = HintForeColor;
-#pragma warning restore CS0618 //Obsolete
         }
         else
         {
-#pragma warning disable CS0618 //Obsolete
             ForeColor = TextForeColor;
-#pragma warning restore CS0618 //Obsolete
         }
     }
 }
