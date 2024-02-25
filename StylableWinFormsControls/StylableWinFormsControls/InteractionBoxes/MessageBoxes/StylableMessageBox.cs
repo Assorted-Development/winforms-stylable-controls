@@ -3,7 +3,7 @@ namespace StylableWinFormsControls
     /// <summary>
     /// A stylable version of the <see cref="MessageBox"/>
     /// </summary>
-    public sealed class StylableMessageBox : StylableInteractionBox
+    public sealed class StylableMessageBox : StylableInteractionBox<CheckBox>
     {
         /// <summary>
         /// returns a builder object to configure the <see cref="StylableMessageBox"/>
@@ -39,19 +39,19 @@ namespace StylableWinFormsControls
             DialogResult timeoutResult
         ) : base(caption, icon, text, buttons, defaultButton, helpUri, timeout, timeoutResult)
         {
-            StylableControls.CheckBox = handleCheckBox(checkboxText);
+            StylableControls.InputControl = handleCheckBox(checkboxText);
             UpdateSize();
         }
 
         protected override Point OnUpdateControlSizeMid(int marginLeft, int marginTop, Point currentContentPos)
         {
             currentContentPos.Y += StylableControls.Text is null ? 0 : StylableControls.Text.Height + 6;
-            if (StylableControls.CheckBox is not null)
+            if (StylableControls.InputControl is not null)
             {
                 // Margins on CheckBoxes seem to not work directly
-                StylableControls.CheckBox.Left = currentContentPos.X + marginLeft;
-                StylableControls.CheckBox.Top = currentContentPos.Y + marginTop;
-                currentContentPos.Y += StylableControls.CheckBox.Height + 6;
+                StylableControls.InputControl.Left = currentContentPos.X + marginLeft;
+                StylableControls.InputControl.Top = currentContentPos.Y + marginTop;
+                currentContentPos.Y += StylableControls.InputControl.Height + 6;
             }
 
             currentContentPos.Y += 16;

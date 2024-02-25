@@ -10,7 +10,7 @@ namespace StylableWinFormsControls
     /// A stylable base version of informational boxes with interaction possibilities
     /// </summary>
     /// <seealso cref="StylableMessageBox"/>
-    public abstract class StylableInteractionBox : Form
+    public abstract class StylableInteractionBox<T> : Form where T : Control
     {
         /// <summary>
         /// additional form width
@@ -25,12 +25,12 @@ namespace StylableWinFormsControls
         /// <summary>
         /// resource manager used to access localized texts
         /// </summary>
-        private static ResourceManager _resources = new(typeof(StylableInteractionBox));
+        private static ResourceManager _resources = new("StylableWinFormsControls.StylableInteractionBox", typeof(StylableInteractionBox<>).Assembly);
 
         /// <summary>
         /// contains the stylable controls for easier access than iterating over Controls
         /// </summary>
-        public InteractionBoxControls StylableControls { get; }
+        public InteractionBoxControls<T> StylableControls { get; }
 
         /// <summary>
         /// constructor. not available to others as they should use the <see cref="StylableMessageBoxBuilder"/>
@@ -58,7 +58,7 @@ namespace StylableWinFormsControls
             MinimizeBox = false;
             MaximizeBox = false;
             handleTitle(caption, icon, helpUri);
-            StylableControls = new InteractionBoxControls()
+            StylableControls = new InteractionBoxControls<T>()
             {
                 Text = handleText(text),
                 Buttons = handleButtons(buttons, defaultButton)

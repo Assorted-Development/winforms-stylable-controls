@@ -5,7 +5,7 @@ namespace StylableWinFormsControls
     /// </summary>
     /// <typeparam name="T">the type of the input control</typeparam>
     /// <typeparam name="U">the type of the value returned from the input control</typeparam>
-    public abstract class StylableInputBox<T, U> : StylableInteractionBox where T : Control
+    public abstract class StylableInputBox<T, U> : StylableInteractionBox<T> where T : Control
     {
         /// <summary>
         /// Returns a builder object to configure the <see cref="StylableInputBox"/>

@@ -29,8 +29,7 @@ namespace StylableWinFormsControls
             string startValue
         ) : base(caption, icon, text, buttons, defaultButton, helpUri, timeout, timeoutResult, new TextBox(), text => text.Text)
         {
-            TextBox nup = (TextBox)StylableControls.InputControl;
-            nup.Text = startValue;
+            StylableControls.InputControl!.Text = startValue;
         }
     }
 }

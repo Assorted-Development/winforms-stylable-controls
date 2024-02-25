@@ -33,10 +33,10 @@ namespace StylableWinFormsControls
             decimal maxValue
         ) : base(caption, icon, text, buttons, defaultButton, helpUri, timeout, timeoutResult, new NumericUpDown(), nup => nup.Value)
         {
-            NumericUpDown nup = (NumericUpDown) StylableControls.InputControl;
-            nup.Minimum = minValue;
-            nup.Maximum = maxValue;
-            nup.Value = startValue;
+
+            StylableControls.InputControl!.Minimum = minValue;
+            StylableControls.InputControl!.Maximum = maxValue;
+            StylableControls.InputControl!.Value = startValue;
         }
     }
 }
