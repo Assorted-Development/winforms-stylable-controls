@@ -1,6 +1,6 @@
 using System.ComponentModel;
 
-namespace StylableWinFormsControls.Controls
+namespace StylableWinFormsControls
 {
     /// <summary>
     /// the default GroupBox does not support changing the text/border color
