@@ -1,10 +1,12 @@
+using System.Security.Policy;
+
 namespace StylableWinFormsControls
 {
     /// <summary>
     /// the builder to configure all informational boxes Set interaction possibilities
     /// </summary>
     /// <seealso cref="StylableInteractionBox"/>
-    public abstract class StylableInteractionBoxBuilder
+    public abstract class StylableInteractionBoxBuilder<T> where T : StylableInteractionBoxBuilder<T>
     {
         /// <summary>
         /// the caption
@@ -44,66 +46,71 @@ namespace StylableWinFormsControls
         /// </summary>
         /// <param name="buttons">describes which buttons should be shown to the user</param>
         /// <param name="defaultButton">defines which button should be selected by default</param>
-        protected void SetButtons(
+        public T WithButtons(
             MessageBoxButtons buttons,
             MessageBoxDefaultButton defaultButton = MessageBoxDefaultButton.Button1)
         {
             Buttons = buttons;
             DefaultButton = defaultButton;
+            return (T)(object)this;
         }
         /// <summary>
-        /// Set the messagebox text
+        /// Set the messagebox/prompt text
         /// </summary>
         /// <param name="text"></param>
-        protected void SetText(string text)
+        public T WithText(string text)
         {
             Text = text ?? string.Empty;
+            return (T)(object)this;
         }
         /// <summary>
         /// Configure the title bar
         /// </summary>
         /// <param name="caption">the caption</param>
         /// <param name="icon">the icon</param>
-        protected void SetTitle(string caption = "", MessageBoxIcon icon = MessageBoxIcon.None)
+        public T WithTitle(string caption = "", MessageBoxIcon icon = MessageBoxIcon.None)
         {
             Caption = caption ?? string.Empty;
             Icon = icon;
+            return (T)(object)this;
         }
         /// <summary>
         /// when called, the dialog will close after the given timeout and return the given default result
         /// </summary>
         /// <param name="timeout">defines the intervall after which the messagebox is closed automatically</param>
         /// <param name="timeoutResult">defines the <see cref="DialogResult"/> to return when the timeout hits</param>
-        protected void SetTimeout(TimeSpan timeout, DialogResult timeoutResult = DialogResult.Cancel)
+        public T WithTimeout(TimeSpan timeout, DialogResult timeoutResult = DialogResult.Cancel)
         {
             Timeout = timeout;
             TimeoutResult = timeoutResult;
+            return (T)(object)this;
         }
         /// <summary>
         /// Shows the help button in the title bar
         /// </summary>
         /// <param name="url">the url to open when the user clicks on the help button</param>
         /// <exception cref="ArgumentNullException">url must be non-null</exception>
-        protected void SetHelpButton(string url)
+        public T WithHelpButton(string url)
         {
             if (url is null)
             {
                 throw new ArgumentNullException(nameof(url));
             }
-            SetHelpButton(new Uri(url));
+            return WithHelpButton(new Uri(url));
         }
         /// <summary>
         /// Shows the help button in the title bar
         /// </summary>
-        /// <param name="url">the url to open when the user clicks on the help button</param>
+        /// <param name="uri">the url to open when the user clicks on the help button</param>
         /// <exception cref="ArgumentNullException">url must be non-null</exception>
-        protected void SetHelpButton(Uri url)
+        public T WithHelpButton(Uri uri)
         {
-            if (url is null)
+            if (uri is null)
             {
-                throw new ArgumentNullException(nameof(url));
+                throw new ArgumentNullException(nameof(uri));
             }
-            HelpUri = url;
+            HelpUri = uri;
+            return (T)(object)this;
         }
     }
 }

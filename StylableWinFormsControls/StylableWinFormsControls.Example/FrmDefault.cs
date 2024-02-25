@@ -22,7 +22,7 @@ namespace StylableWinFormsControls.Example
 
         private void stylableButton2_Click(object sender, EventArgs e)
         {
-            StylableInputBox<NumericUpDown> inputBox = StylableInputBox<NumericUpDown>.BUILDER
+            StylableNumericInputBox inputBox = StylableNumericInputBox.BUILDER
                 .WithTitle("Numeric Test", MessageBoxIcon.Question)
                 .WithText("Please enter a random number between -100 and 100")
                 .WithButtons(MessageBoxButtons.OKCancel)

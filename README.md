@@ -137,7 +137,7 @@ Therefore, we allow you to style and adjust the form before you show it.
 
 Let's create an input box first:  
 ```csharp
-StylableInputBox<NumericUpDown> iBox = StylableInputBox<NumericUpDown>.BUILDER
+StylableNumericInputBox iBox = StylableNumericInputBox.BUILDER
                 .WithTitle("Numeric Test", MessageBoxIcon.Information)
                 .WithText("Please enter a random number between -100 and 100")
                 .WithHelpButton(new Uri("https://github.com/Assorted-Development/winforms-stylable-controls"))

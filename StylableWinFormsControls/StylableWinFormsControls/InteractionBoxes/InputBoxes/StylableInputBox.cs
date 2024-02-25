@@ -1,11 +1,20 @@
 namespace StylableWinFormsControls
 {
-    public sealed class StylableInputBox<T> : StylableInteractionBox where T : Control
+    /// <summary>
+    /// A stylable version of  VB.NETs Interaction.InputBox
+    /// </summary>
+    /// <typeparam name="T">the type of the input control</typeparam>
+    /// <typeparam name="U">the type of the value returned from the input control</typeparam>
+    public abstract class StylableInputBox<T, U> : StylableInteractionBox where T : Control
     {
         /// <summary>
         /// Returns a builder object to configure the <see cref="StylableInputBox"/>
         /// </summary>
         public static StylableInputBoxBuilder BUILDER => new();
+        /// <summary>
+        /// accessor to return the current value
+        /// </summary>
+        private Func<T, U> _accessor;
 
         /// <summary>
         /// Returns the value of the input control used with this instance. <br/>
@@ -16,18 +25,7 @@ namespace StylableWinFormsControls
         /// <exception cref="NotSupportedException">
         /// Throws if <typeparamref name="T"/> hasn't been implemented for this property.
         /// </exception>
-        public object Value
-        {
-            get
-            {
-                return StylableControls.InputControl switch
-                {
-                    NumericUpDown numUpDown => numUpDown.Value,
-                    TextBox textBox => textBox.Text,
-                    _ => throw new NotSupportedException("The type of this input field has not been prepared for fetching values yet.")
-                };
-            }
-        }
+        public U Value => _accessor((T)StylableControls.InputControl);
 
         /// <summary>
         /// constructor. not available to others as they should use the <see cref="StylableMessageBoxBuilder"/>
@@ -40,7 +38,8 @@ namespace StylableWinFormsControls
         /// <param name="timeout">defines the intervall after which the messagebox is closed automatically</param>
         /// <param name="timeoutResult">defines the <see cref="DialogResult"/> to return when the timeout hits</param>
         /// <param name="inputControl">the control to input the value</param>
-        internal StylableInputBox(
+        /// <param name="accessor">accessor to read the current value from the control</param>
+        protected StylableInputBox(
             string caption,
             MessageBoxIcon icon,
             string text,
@@ -49,9 +48,11 @@ namespace StylableWinFormsControls
             Uri? helpUri,
             TimeSpan? timeout,
             DialogResult timeoutResult,
-            T inputControl
+            T inputControl,
+            Func<T, U> accessor
         ) : base(caption, icon, text, buttons, defaultButton, helpUri, timeout, timeoutResult)
         {
+            _accessor = accessor;
             StylableControls.InputControl = handleInput(inputControl);
             UpdateSize();
             stretchInputControlWidth(inputControl);

@@ -10,7 +10,7 @@ namespace StylableWinFormsControls
     /// A stylable base version of informational boxes with interaction possibilities
     /// </summary>
     /// <seealso cref="StylableMessageBox"/>
-    public class StylableInteractionBox : Form
+    public abstract class StylableInteractionBox : Form
     {
         /// <summary>
         /// additional form width
