@@ -1,4 +1,3 @@
-using StylableWinFormsControls.Controls;
 
 namespace StylableWinFormsControls.Example
 {
