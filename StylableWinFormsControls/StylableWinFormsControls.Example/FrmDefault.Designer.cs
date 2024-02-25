@@ -236,7 +236,7 @@ namespace StylableWinFormsControls.Example
             stylableTextBox1.BorderColor = Color.Blue;
             stylableTextBox1.BorderStyle = BorderStyle.None;
             stylableTextBox1.DelayedTextChangedTimeout = 900;
-            stylableTextBox1.ForeColor = Color.Gray;
+            stylableTextBox1.HintForeColor = Color.Gray;
             stylableTextBox1.Hint = "Hello, my name is ...";
             stylableTextBox1.HintForeColor = Color.Gray;
             stylableTextBox1.IsDelayActive = true;
