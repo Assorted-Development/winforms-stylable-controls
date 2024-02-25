@@ -2,41 +2,36 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.Resources;
-
 using StylableWinFormsControls.Extensions;
 
 namespace StylableWinFormsControls
 {
     /// <summary>
-    /// A stylable version of the <see cref="MessageBox"/>
+    /// A stylable base version of informational boxes with interaction possibilities
     /// </summary>
-    public sealed class StylableMessageBox : Form
+    /// <seealso cref="StylableMessageBox"/>
+    public abstract class StylableInteractionBox<T> : Form where T : Control
     {
         /// <summary>
         /// additional form width
         /// </summary>
         public const int BORDER_WIDTH = 20;
+
         /// <summary>
         /// additional form height
         /// </summary>
         public const int BORDER_HEIGHT = 10;
-        /// <summary>
-        /// returns a builder object to configure the <see cref="StylableMessageBox"/>
-        /// </summary>
-        public static StylableMessageBoxBuilder BUILDER => new();
+
         /// <summary>
         /// resource manager used to access localized texts
         /// </summary>
-        private static ResourceManager _resources = new(typeof(StylableMessageBox));
+        private static ResourceManager _resources = new("StylableWinFormsControls.StylableInteractionBox", typeof(StylableInteractionBox<>).Assembly);
 
-        /// <summary>
-        /// the checkstate of the checkbox if shown
-        /// </summary>
-        public CheckState CheckState { get; private set; } = CheckState.Indeterminate;
         /// <summary>
         /// contains the stylable controls for easier access than iterating over Controls
         /// </summary>
-        public MessageBoxControls StylableControls { get; }
+        public InteractionBoxControls<T> StylableControls { get; }
+
         /// <summary>
         /// constructor. not available to others as they should use the <see cref="StylableMessageBoxBuilder"/>
         /// </summary>
@@ -46,25 +41,32 @@ namespace StylableWinFormsControls
         /// <param name="buttons">describes which buttons should be shown to the user</param>
         /// <param name="defaultButton">defines which button should be selected by default</param>
         /// <param name="helpUri">the url to open when the user clicks on the help button</param>
-        /// <param name="checkboxText">the checkbox text to be shown to the user</param>
         /// <param name="timeout">defines the intervall after which the messagebox is closed automatically</param>
         /// <param name="timeoutResult">defines the <see cref="DialogResult"/> to return when the timeout hits</param>
-        internal StylableMessageBox(string caption, MessageBoxIcon icon, string text, MessageBoxButtons buttons, MessageBoxDefaultButton defaultButton, Uri? helpUri, string? checkboxText, TimeSpan? timeout, DialogResult timeoutResult)
+        internal StylableInteractionBox(
+            string caption,
+            MessageBoxIcon icon,
+            string text,
+            MessageBoxButtons buttons,
+            MessageBoxDefaultButton defaultButton,
+            Uri? helpUri,
+            TimeSpan? timeout,
+            DialogResult timeoutResult)
         {
             StartPosition = FormStartPosition.CenterScreen;
             FormBorderStyle = FormBorderStyle.FixedDialog;
             MinimizeBox = false;
             MaximizeBox = false;
             handleTitle(caption, icon, helpUri);
-            StylableControls = new MessageBoxControls()
+            StylableControls = new InteractionBoxControls<T>()
             {
                 Text = handleText(text),
-                CheckBox = handleCheckBox(checkboxText),
                 Buttons = handleButtons(buttons, defaultButton)
             };
+            OnAfterSetStylableControls();
             handleTimeouts(timeout, timeoutResult);
-            UpdateSize();
         }
+
         /// <summary>
         /// resize the form to fit the content
         /// </summary>
@@ -88,16 +90,7 @@ namespace StylableWinFormsControls
                     StylableControls.Text.Top = currentContentPos.Y;
                 }
 
-                currentContentPos.Y += StylableControls.Text is null ? 0 : StylableControls.Text.Height + 6;
-                if (StylableControls.CheckBox is not null)
-                {
-                    // Margins on CheckBoxes seem to not work directly
-                    StylableControls.CheckBox.Left = currentContentPos.X + marginLeft;
-                    StylableControls.CheckBox.Top = currentContentPos.Y + marginTop;
-                    currentContentPos.Y += StylableControls.CheckBox.Height + 6;
-                }
-
-                currentContentPos.Y += 16;
+                currentContentPos = OnUpdateControlSizeMid(marginLeft, marginTop, currentContentPos);
 
                 foreach (StylableButton sb in StylableControls.Buttons)
                 {
@@ -114,6 +107,27 @@ namespace StylableWinFormsControls
         }
 
         /// <summary>
+        /// Gets called within <see cref="UpdateSize(bool)"/> between the text area and the bottom area.<br/>
+        /// Can be used to add own elements to the control.
+        /// </summary>
+        /// <param name="marginLeft">Currently calculated highest Margin.Left value of all controls</param>
+        /// <param name="marginTop">Currently calculated highest Margin.Top value of all controls</param>
+        /// <param name="currentContentPos">Position at which the calculation of elements currently is.</param>
+        /// <returns>Returns the position the calculation of further elements should continue</returns>
+        protected virtual Point OnUpdateControlSizeMid(int marginLeft, int marginTop, Point currentContentPos)
+        {
+            return currentContentPos;
+        }
+
+        /// <summary>
+        /// Gets called after the <see cref="StylableControls"/> object has been initialized.
+        /// </summary>
+        protected virtual void OnAfterSetStylableControls()
+        {
+
+        }
+
+        /// <summary>
         /// creates the message box content
         /// </summary>
         /// <param name="text">the messagebox text</param>
@@ -126,26 +140,6 @@ namespace StylableWinFormsControls
             };
             Controls.Add(label);
             return label;
-        }
-        /// <summary>
-        /// creates the message box content
-        /// </summary>
-        /// <param name="checkboxText">the checkbox text to be shown to the user</param>
-        private StylableCheckBox? handleCheckBox(string? checkboxText)
-        {
-            if (checkboxText is null)
-            {
-                return null;
-            }
-            StylableCheckBox checkbox = new()
-            {
-                Text = checkboxText,
-                AutoSize = true,
-            };
-            checkbox.CheckStateChanged += (sender, e) => CheckState = checkbox.CheckState;
-
-            Controls.Add(checkbox);
-            return checkbox;
         }
         /// <summary>
         /// Create a button for the given DialogResult

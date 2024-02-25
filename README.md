@@ -131,6 +131,26 @@ At last, you can show the dialog using `mBox.ShowDialog()`
 
 **Note:** If you change the size on the controls (e.g. increase the font size), please call `UpdateSize()` to update the UI to the new settings. Otherwise, the Ui may look weird.
 
+### Interaction.InputBox => StylableInputBox
+With the `StylableInputBox`, you can create forms similar to VB.NETs `Interaction.InputBox` but the handling is a bit different (as it's practically a slightly different `StylableMessageBox`).
+Therefore, we allow you to style and adjust the form before you show it.
+
+Let's create an input box first:  
+```csharp
+StylableNumericInputBox iBox = StylableNumericInputBox.BUILDER
+                .WithTitle("Numeric Test", MessageBoxIcon.Information)
+                .WithText("Please enter a random number between -100 and 100")
+                .WithHelpButton(new Uri("https://github.com/Assorted-Development/winforms-stylable-controls"))
+                .WithTimeout(TimeSpan.FromSeconds(30), DialogResult.Cancel)
+                .ForNumericValue(0, -100, 100);
+```
+This will create an input box for numeric values (currently, we support text via `TextBox` and numeric input via `NumericUpDown`).
+Now, let's style the form as we want to: `iBox.StylableControls.Text.ForeColor = Color.Red;`
+At last, you can show the dialog using `iBox.ShowDialog()` and either use its `DialogResult` or `iBox.Value` to get the input entered by the user.
+
+**Note:** If you change the size on the controls (e.g. increase the font size), please call `UpdateSize()` to update the UI to the new settings. Otherwise, the Ui may look weird.
+
+
 ## Contributions
 
 Please view the [contributing guide](/CONTRIBUTING.md) for more information.
