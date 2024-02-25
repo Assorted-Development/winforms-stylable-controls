@@ -172,9 +172,7 @@ public class StylableTextBox : TextBox
         {
             //The text change either comes from the user or the application setting a default value
             IsHintActive = false;
-#pragma warning disable CS0618 //Obsolete
             ForeColor = TextForeColor;
-#pragma warning restore CS0618 //Obsolete
         }
     }
 
@@ -184,9 +182,7 @@ public class StylableTextBox : TextBox
         {
             IsHintActive = true;
             _hintRefresh = true;
-#pragma warning disable CS0618 //Obsolete
             ForeColor = HintForeColor;
-#pragma warning restore CS0618 //Obsolete
             base.Text = Hint;
             _hintRefresh = false;
             if (_hintActiveChanged is not null)
@@ -203,9 +199,7 @@ public class StylableTextBox : TextBox
         if (IsHintActive && !string.IsNullOrEmpty(base.Text))
         {
             IsHintActive = false;
-#pragma warning disable CS0618 //Obsolete
             ForeColor = TextForeColor;
-#pragma warning restore CS0618 //Obsolete
             _hintRefresh = true;
 
             base.Text = string.Empty;
