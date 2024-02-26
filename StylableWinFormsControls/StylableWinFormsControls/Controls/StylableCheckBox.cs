@@ -67,7 +67,7 @@ public class StylableCheckBox : CheckBox
 
     private void drawCheckBox(Graphics graphics)
     {
-        Size glyphSize = CheckBoxRenderer.GetGlyphSize(graphics, convertToCheckBoxState());
+        Size glyphSize = CheckBoxRenderer.GetGlyphSize(graphics, getCheckBoxState());
 
         // Calculate the text bounds, excluding the check box.
         Rectangle textRectangle = getTextRectangle(glyphSize);
@@ -94,11 +94,11 @@ public class StylableCheckBox : CheckBox
 
         if (this.CheckState == CheckState.Indeterminate)
         {
-            ControlPaint.DrawMixedCheckBox(graphics, glyphBounds, convertToButtonState() | ButtonState.Flat);
+            ControlPaint.DrawMixedCheckBox(graphics, glyphBounds, getButtonState() | ButtonState.Flat);
         }
         else
         {
-            ControlPaint.DrawCheckBox(graphics, glyphBounds, convertToButtonState() | ButtonState.Flat);
+            ControlPaint.DrawCheckBox(graphics, glyphBounds, getButtonState() | ButtonState.Flat);
         }
 
         Color textColor = Enabled ? ForeColor : DisabledForeColor;
@@ -140,8 +140,10 @@ public class StylableCheckBox : CheckBox
 
         return _textRectangleValue;
     }
-
-    private ButtonState convertToButtonState()
+    /// <summary>
+    /// gets the <see cref="ButtonState"/> based on the current <see cref="CheckState"/>
+    /// </summary>
+    private ButtonState getButtonState()
     {
         return CheckState switch
         {
@@ -152,7 +154,10 @@ public class StylableCheckBox : CheckBox
             _ => ButtonState.Normal,
         };
     }
-    private CheckBoxState convertToCheckBoxState()
+    /// <summary>
+    /// gets the <see cref="CheckBoxState"/> based on the current <see cref="CheckState"/>
+    /// </summary>
+    private CheckBoxState getCheckBoxState()
     {
         return CheckState switch
         {
