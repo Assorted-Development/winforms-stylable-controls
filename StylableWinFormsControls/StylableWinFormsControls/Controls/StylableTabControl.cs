@@ -177,7 +177,7 @@ public class StylableTabControl : TabControl
 
     internal void DrawControl(Graphics g)
     {
-        if (!Visible || _scUpDown is null)
+        if (!Visible)
         {
             return;
         }
@@ -206,7 +206,7 @@ public class StylableTabControl : TabControl
         Rectangle rreg;
 
         int nWidth = tabArea.Width + N_MARGIN;
-        if (_bUpDown)
+        if (_bUpDown && _scUpDown is not null)
         {
             // exclude updown control for painting
             if (NativeMethods.IsWindowVisible(_scUpDown.Handle))
