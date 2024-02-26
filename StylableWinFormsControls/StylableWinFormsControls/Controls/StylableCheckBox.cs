@@ -12,8 +12,6 @@ namespace StylableWinFormsControls;
 public class StylableCheckBox : CheckBox
 {
     private Rectangle _textRectangleValue;
-    private bool _clicked;
-    private CheckBoxState _state = CheckBoxState.UncheckedNormal;
 
     /// <summary>
     /// Indicates whether the control is automatically resized to fit its contents
@@ -69,7 +67,7 @@ public class StylableCheckBox : CheckBox
 
     private void drawCheckBox(Graphics graphics)
     {
-        Size glyphSize = CheckBoxRenderer.GetGlyphSize(graphics, _state);
+        Size glyphSize = CheckBoxRenderer.GetGlyphSize(graphics, convertToCheckBoxState());
 
         // Calculate the text bounds, excluding the check box.
         Rectangle textRectangle = getTextRectangle(glyphSize);
@@ -94,13 +92,13 @@ public class StylableCheckBox : CheckBox
             graphics.FillRectangle(backBrush, ClientRectangle);
         }
 
-        if (isMixed(_state))
+        if (this.CheckState == CheckState.Indeterminate)
         {
-            ControlPaint.DrawMixedCheckBox(graphics, glyphBounds, convertToButtonState(_state) | ButtonState.Flat);
+            ControlPaint.DrawMixedCheckBox(graphics, glyphBounds, convertToButtonState() | ButtonState.Flat);
         }
         else
         {
-            ControlPaint.DrawCheckBox(graphics, glyphBounds, convertToButtonState(_state) | ButtonState.Flat);
+            ControlPaint.DrawCheckBox(graphics, glyphBounds, convertToButtonState() | ButtonState.Flat);
         }
 
         Color textColor = Enabled ? ForeColor : DisabledForeColor;
@@ -143,70 +141,25 @@ public class StylableCheckBox : CheckBox
         return _textRectangleValue;
     }
 
-    private static ButtonState convertToButtonState(CheckBoxState state)
+    private ButtonState convertToButtonState()
     {
-        return state switch
+        return CheckState switch
         {
-            CheckBoxState.CheckedNormal or CheckBoxState.CheckedHot => ButtonState.Checked,
-            CheckBoxState.CheckedPressed => ButtonState.Checked | ButtonState.Pushed,
-            CheckBoxState.CheckedDisabled => ButtonState.Checked | ButtonState.Inactive,
-            CheckBoxState.UncheckedPressed => ButtonState.Pushed,
-            CheckBoxState.UncheckedDisabled => ButtonState.Inactive,
+            CheckState.Checked => Enabled ? ButtonState.Checked : ButtonState.Checked | ButtonState.Inactive,
+            CheckState.Unchecked => Enabled ? ButtonState.Normal : ButtonState.Inactive,
             //Downlevel mixed drawing works only if ButtonState.Checked is set
-            CheckBoxState.MixedNormal or CheckBoxState.MixedHot => ButtonState.Checked,
-            CheckBoxState.MixedPressed => ButtonState.Checked | ButtonState.Pushed,
-            CheckBoxState.MixedDisabled => ButtonState.Checked | ButtonState.Inactive,
+            CheckState.Indeterminate => Enabled ? ButtonState.Checked : ButtonState.Checked | ButtonState.Inactive,
             _ => ButtonState.Normal,
         };
     }
-
-    private static bool isMixed(CheckBoxState state)
+    private CheckBoxState convertToCheckBoxState()
     {
-        return state switch
+        return CheckState switch
         {
-            CheckBoxState.MixedNormal => true,
-            CheckBoxState.MixedHot => true,
-            CheckBoxState.MixedPressed => true,
-            CheckBoxState.MixedDisabled => true,
-            _ => false
+            CheckState.Checked => Enabled ? CheckBoxState.CheckedNormal : CheckBoxState.CheckedDisabled,
+            CheckState.Unchecked => Enabled ? CheckBoxState.UncheckedNormal : CheckBoxState.UncheckedDisabled,
+            CheckState.Indeterminate => Enabled ? CheckBoxState.MixedNormal : CheckBoxState.MixedDisabled,
+            _ => CheckBoxState.UncheckedNormal,
         };
-    }
-
-    protected override void OnMouseDown(MouseEventArgs mevent)
-    {
-        // Draw the check box in the checked or unchecked state, alternately.
-        if (!_clicked)
-        {
-            _clicked = true;
-            _state = CheckBoxState.CheckedPressed;
-        }
-        else
-        {
-            _clicked = false;
-            _state = CheckBoxState.UncheckedNormal;
-        }
-
-        base.OnMouseDown(mevent);
-    }
-
-    protected override void OnMouseHover(EventArgs e)
-    {
-        _state = _clicked ? CheckBoxState.CheckedHot : CheckBoxState.UncheckedHot;
-        // Invalidate is unnecessary as long as we don't handle hovers visually
-        //Invalidate();
-        base.OnMouseHover(e);
-    }
-
-    protected override void OnMouseUp(MouseEventArgs mevent)
-    {
-        base.OnMouseUp(mevent);
-        OnMouseHover(mevent);
-    }
-
-    protected override void OnMouseLeave(EventArgs eventargs)
-    {
-        // Draw the check box in the unpressed state.
-        _state = _clicked ? CheckBoxState.CheckedNormal : CheckBoxState.UncheckedNormal;
-        base.OnMouseLeave(eventargs);
     }
 }
