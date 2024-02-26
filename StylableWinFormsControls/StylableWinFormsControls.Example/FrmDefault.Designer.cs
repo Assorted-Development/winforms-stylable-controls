@@ -236,16 +236,14 @@ namespace StylableWinFormsControls.Example
             stylableTextBox1.BorderColor = Color.Blue;
             stylableTextBox1.BorderStyle = BorderStyle.None;
             stylableTextBox1.DelayedTextChangedTimeout = 900;
-            stylableTextBox1.HintForeColor = Color.Gray;
-            stylableTextBox1.Hint = "Hello, my name is ...";
-            stylableTextBox1.HintForeColor = Color.Gray;
             stylableTextBox1.IsDelayActive = true;
             stylableTextBox1.Location = new Point(6, 22);
             stylableTextBox1.Name = "stylableTextBox1";
+            stylableTextBox1.PlaceHolderForeColor = Color.Red;
+            stylableTextBox1.PlaceholderText = "Hello, my name is ...";
             stylableTextBox1.Size = new Size(207, 16);
             stylableTextBox1.TabIndex = 8;
-            stylableTextBox1.Text = "Hello, my name is ...";
-            stylableTextBox1.TextForeColor = Color.Black;
+            stylableTextBox1.ForeColor = Color.Black;
             // 
             // lbl_description
             // 
