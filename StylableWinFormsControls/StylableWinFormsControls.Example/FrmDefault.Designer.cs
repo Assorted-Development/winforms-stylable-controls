@@ -93,6 +93,8 @@ namespace StylableWinFormsControls.Example
             // 
             // stylableCheckBox1
             // 
+            stylableCheckBox1.Checked = true;
+            stylableCheckBox1.CheckState = CheckState.Checked;
             stylableCheckBox1.DisabledForeColor = Color.Empty;
             stylableCheckBox1.Location = new Point(6, 16);
             stylableCheckBox1.Name = "stylableCheckBox1";
@@ -100,6 +102,7 @@ namespace StylableWinFormsControls.Example
             stylableCheckBox1.TabIndex = 1;
             stylableCheckBox1.Text = "This is content";
             stylableCheckBox1.UseVisualStyleBackColor = true;
+            stylableCheckBox1.CheckedChanged += stylableCheckBox1_CheckedChanged;
             // 
             // stylableComboBox1
             // 
@@ -236,7 +239,6 @@ namespace StylableWinFormsControls.Example
             stylableTextBox1.BorderColor = Color.Blue;
             stylableTextBox1.BorderStyle = BorderStyle.None;
             stylableTextBox1.DelayedTextChangedTimeout = 900;
-            stylableTextBox1.HintForeColor = Color.Gray;
             stylableTextBox1.Hint = "Hello, my name is ...";
             stylableTextBox1.HintForeColor = Color.Gray;
             stylableTextBox1.IsDelayActive = true;
@@ -245,7 +247,7 @@ namespace StylableWinFormsControls.Example
             stylableTextBox1.Size = new Size(207, 16);
             stylableTextBox1.TabIndex = 8;
             stylableTextBox1.Text = "Hello, my name is ...";
-            stylableTextBox1.TextForeColor = Color.Black;
+            stylableTextBox1.TextForeColor = Color.Gray;
             // 
             // lbl_description
             // 
