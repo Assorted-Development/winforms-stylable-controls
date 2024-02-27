@@ -106,7 +106,7 @@ Exposes the following additional properties:
 * `Color PlaceHolderForeColor`: Gets/Sets the foreground color of the hint text
 * `Color ForeColor`: Gets/Sets the foreground color of non-hint text
 * `string PlaceholderText`: Gets/Sets the value to be shown if no user-provided text or default text is shown
-*`bool IsDelayActive`: Gets/Sets a value indicating whether the `TextChanged` event is to be triggered only after a specified amount of time.
+* `bool IsDelayActive`: Gets/Sets a value indicating whether the `TextChanged` event is to be triggered only after a specified amount of time.
 * `DelayedTextChangedTimeout`: Gets/Sets the delay time for triggering the `TextChanged` event after the last user input
 
 Has the following additional characteristics:
