@@ -188,34 +188,15 @@ public class StylableComboBox : ComboBox
 
     private void drawComboBox(Graphics graphics)
     {
-        Rectangle drawArea = ClientRectangle;
-        using SolidBrush backBrush = new(BackColor);
-        using SolidBrush foreBrush = new(ForeColor);
-
-        using StringFormat stringFormat = new()
-        {
-            LineAlignment = StringAlignment.Center
-        };
-
-        graphics.FillRectangle(backBrush, drawArea);
-
-        Rectangle textDrawArea = drawArea;
-        textDrawArea.X += 4;
-        graphics.DrawString(
-            Text,
-            Font,
-            foreBrush,
-            textDrawArea,
-            stringFormat);
+        TextRenderer.DrawText(graphics, Text, Font, ClientRectangle, ForeColor, BackColor, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.WordEllipsis);
 
         ComboBoxRenderer.DrawDropDownButton(graphics, getDownRectangle(), System.Windows.Forms.VisualStyles.ComboBoxState.Normal);
 
-        Rectangle borderRectangle = drawArea;
-        graphics.DrawRectangle(_borderColorPen, borderRectangle);
+        graphics.DrawRectangle(_borderColorPen, ClientRectangle);
 
         if (Focused && ShowFocusCues)
         {
-            ControlPaint.DrawFocusRectangle(graphics, borderRectangle);
+            ControlPaint.DrawFocusRectangle(graphics, ClientRectangle);
         }
     }
 }
