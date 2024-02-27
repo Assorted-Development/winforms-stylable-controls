@@ -14,7 +14,7 @@ public class StylableTextBox : TextBox
     /// <summary>
     /// used to set the color of the hint text
     /// </summary>
-    public Color PlaceHolderForeColor { get; set; } = Color.Gray;
+    public Color PlaceholderForeColor { get; set; } = Color.Gray;
 
     [Editor]
     public int DelayedTextChangedTimeout { get; set; }
@@ -132,6 +132,6 @@ public class StylableTextBox : TextBox
                 break;
         }
         g.FillRectangle(background, ClientRectangle);
-        TextRenderer.DrawText(g, PlaceholderText, Font, rectangle, PlaceHolderForeColor, flags);
+        TextRenderer.DrawText(g, PlaceholderText, Font, rectangle, PlaceholderForeColor, flags);
     }
 }

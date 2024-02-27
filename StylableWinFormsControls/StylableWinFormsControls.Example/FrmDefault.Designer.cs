@@ -239,7 +239,7 @@ namespace StylableWinFormsControls.Example
             stylableTextBox1.IsDelayActive = true;
             stylableTextBox1.Location = new Point(6, 22);
             stylableTextBox1.Name = "stylableTextBox1";
-            stylableTextBox1.PlaceHolderForeColor = Color.Red;
+            stylableTextBox1.PlaceholderForeColor = Color.Red;
             stylableTextBox1.PlaceholderText = "Hello, my name is ...";
             stylableTextBox1.Size = new Size(207, 16);
             stylableTextBox1.TabIndex = 8;
