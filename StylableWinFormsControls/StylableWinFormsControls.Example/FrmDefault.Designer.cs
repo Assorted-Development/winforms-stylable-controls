@@ -29,6 +29,7 @@ namespace StylableWinFormsControls.Example
         /// </summary>
         private void InitializeComponent()
         {
+            ListViewGroup listViewGroup1 = new ListViewGroup("ListViewGroup", HorizontalAlignment.Left);
             ListViewItem listViewItem1 = new ListViewItem("Content");
             ListViewItem listViewItem2 = new ListViewItem("Content");
             ListViewItem listViewItem3 = new ListViewItem(new string[] { "Content", "Content" }, -1);
@@ -181,6 +182,11 @@ namespace StylableWinFormsControls.Example
             stylableListView1.Columns.AddRange(new ColumnHeader[] { columnHeader1, columnHeader2 });
             stylableListView1.GroupHeaderBackColor = Color.LightGray;
             stylableListView1.GroupHeaderForeColor = Color.Black;
+            listViewGroup1.Header = "ListViewGroup";
+            listViewGroup1.Name = "listViewGroup1";
+            stylableListView1.Groups.AddRange(new ListViewGroup[] { listViewGroup1 });
+            listViewItem1.Group = listViewGroup1;
+            listViewItem2.Group = listViewGroup1;
             stylableListView1.Items.AddRange(new ListViewItem[] { listViewItem1, listViewItem2, listViewItem3, listViewItem4, listViewItem5 });
             stylableListView1.Location = new Point(6, 18);
             stylableListView1.Name = "stylableListView1";

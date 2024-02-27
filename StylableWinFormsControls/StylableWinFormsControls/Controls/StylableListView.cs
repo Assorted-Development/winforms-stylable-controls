@@ -227,6 +227,11 @@ public class StylableListView : ListView
 
     private IntPtr drawGroupHeader(IntPtr mHWnd, NativeMethods.NMLVCUSTOMDRAW pnmlv)
     {
+        //fix "failed to do native call 'SendMessage' (msg = LVM_GETGROUPINFO, wParam = 16)"
+        if (pnmlv.nmcd.dwItemSpec == IntPtr.Zero)
+        {
+            return new IntPtr((int)NativeMethods.CDRF.SkipDefault);
+        }
         NativeMethods.RECT rectHeader = new()
         {
             top = NativeConstants.LVGGR_HEADER
