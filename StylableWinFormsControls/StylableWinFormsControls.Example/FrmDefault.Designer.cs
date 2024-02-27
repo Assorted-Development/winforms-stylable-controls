@@ -93,6 +93,8 @@ namespace StylableWinFormsControls.Example
             // 
             // stylableCheckBox1
             // 
+            stylableCheckBox1.Checked = true;
+            stylableCheckBox1.CheckState = CheckState.Checked;
             stylableCheckBox1.DisabledForeColor = Color.Empty;
             stylableCheckBox1.Location = new Point(6, 16);
             stylableCheckBox1.Name = "stylableCheckBox1";
@@ -100,6 +102,7 @@ namespace StylableWinFormsControls.Example
             stylableCheckBox1.TabIndex = 1;
             stylableCheckBox1.Text = "This is content";
             stylableCheckBox1.UseVisualStyleBackColor = true;
+            stylableCheckBox1.CheckedChanged += stylableCheckBox1_CheckedChanged;
             // 
             // stylableComboBox1
             // 

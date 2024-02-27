@@ -40,5 +40,10 @@ namespace StylableWinFormsControls.Example
                 mBox.ShowDialog();
             }
         }
+
+        private void stylableCheckBox1_CheckedChanged(object sender, EventArgs e)
+        {
+            MessageBox.Show($"CheckState={stylableCheckBox1.CheckState}. Checked={stylableCheckBox1.Checked}");
+        }
     }
 }
