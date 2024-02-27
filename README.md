@@ -103,10 +103,9 @@ Has the following additional characteristics:
 ### TextBox => StylableTextBox
 Exposes the following additional properties:
 * `Color BorderColor`: Gets/Sets the color of the border around the TextBox
-* `Color HintForeColor`: Gets/Sets the foreground color of the hint text
-* `Color TextForeColor`: Gets/Sets the foreground color of non-hint text
-* `string Hint`: Gets/Sets the value to be shown if no user-provided text or default text is shown
-* `bool IsHintActive`: Gets a value indicating whether the text currently shows a hint text or not.
+* `Color PlaceholderForeColor`: Gets/Sets the foreground color of the hint text
+* `Color ForeColor`: Gets/Sets the foreground color of non-hint text
+* `string PlaceholderText`: Gets/Sets the value to be shown if no user-provided text or default text is shown
 * `bool IsDelayActive`: Gets/Sets a value indicating whether the `TextChanged` event is to be triggered only after a specified amount of time.
 * `DelayedTextChangedTimeout`: Gets/Sets the delay time for triggering the `TextChanged` event after the last user input
 

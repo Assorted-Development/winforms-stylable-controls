@@ -1,111 +1,30 @@
 using System.ComponentModel;
-using System.Reflection;
+using StylableWinFormsControls.Native;
 
 namespace StylableWinFormsControls;
 
 public class StylableTextBox : TextBox
 {
     private System.Windows.Forms.Timer? _mDelayedTextChangedTimer;
-    private string? _hint;
 
     public event EventHandler? DelayedTextChanged;
-
-    private EventHandler? _hintActiveChanged;
-
-    /// <summary>
-    /// will be set when the Text is being set because of Hint logic
-    /// </summary>
-    private bool _hintRefresh;
-
-    /// <summary>
-    /// will be triggered when IsHintActive changes.
-    /// this event will detect when a callback is already registered and will not register again
-    /// </summary>
-    public event EventHandler HintActiveChanged
-    {
-        add
-        {
-            if (_hintActiveChanged?.GetInvocationList().Contains(value) != true)
-            {
-                _hintActiveChanged += value;
-            }
-        }
-        remove => _hintActiveChanged -= value;
-    }
 
     public Color BorderColor { get; set; } = Color.Blue;
 
     /// <summary>
     /// used to set the color of the hint text
     /// </summary>
-    public Color HintForeColor { get; set; } = Color.Gray;
-
-    /// <summary>
-    /// used to set the color of the hint text
-    /// </summary>
-    public Color TextForeColor { get; set; } = Color.Black;
+    public Color PlaceholderForeColor { get; set; } = Color.Gray;
 
     [Editor]
     public int DelayedTextChangedTimeout { get; set; }
-
-    /// <summary>
-    /// Gets or sets the foreground color of the control.
-    /// We are hiding this as it is only the current color of the text.
-    /// Use <see cref="TextForeColor"/> to set the color of the text or <see cref="HintForeColor"/> for the hint.
-    /// </summary>
-    /// <exception cref="InvalidOperationException">thrown when called from outside this lib</exception>
-    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-    [InternalUseOnly("Use TextForeColor or HintForeColor instead")]
-    public new Color ForeColor
-    {
-        get
-        {
-            if (StylableWinFormsControlsSettings.DEFAULT.IsErrorHandlingFail() && Assembly.GetCallingAssembly() != GetType().Assembly)
-            {
-                throw new InvalidOperationException("Do not call ForeColor. Use other available properties HintForeColor/TextForeColor instead");
-            }
-
-            return base.ForeColor;
-        }
-        set
-        {
-            if (StylableWinFormsControlsSettings.DEFAULT.IsErrorHandlingFail() && Assembly.GetCallingAssembly() != GetType().Assembly)
-            {
-                throw new InvalidOperationException("Do not call ForeColor. Use other available properties HintForeColor/TextForeColor instead");
-            }
-
-            base.ForeColor = value;
-        }
-    }
-
-    [Editor]
-    [Description("If set, this text will be shown as grayed hint until the user enters the box")]
-    public string? Hint
-    {
-        get => _hint;
-        set
-        {
-            _hint = value;
-            if (string.IsNullOrEmpty(base.Text))
-            {
-                _hintRefresh = true;
-                base.Text = value;
-                _hintRefresh = false;
-            }
-        }
-    }
-
-    public bool IsHintActive { get; private set; }
 
     public bool IsDelayActive { get; set; } = true;
 
     public StylableTextBox()
     {
-        initializeComponent();
         DelayedTextChangedTimeout = 900; // 0.9 seconds
-        IsHintActive = true;
         BorderStyle = BorderStyle.FixedSingle;
-        TextChanged += onTextChanged;
     }
 
     protected override void Dispose(bool disposing)
@@ -164,81 +83,55 @@ public class StylableTextBox : TextBox
 
     #endregion timer events / methods
 
-    #region hint events / methods
+    private bool IsHintActive => !string.IsNullOrEmpty(PlaceholderText) && !Focused && TextLength == 0;
 
-    private void onTextChanged(object? sender, EventArgs e)
+    protected override void WndProc(ref Message m)
     {
-        if (!_hintRefresh)
+        switch (m.Msg)
         {
-            //The text change either comes from the user or the application setting a default value
-            IsHintActive = false;
-            ForeColor = TextForeColor;
-        }
-    }
-
-    protected override void OnLostFocus(EventArgs e)
-    {
-        if (!IsHintActive && string.IsNullOrEmpty(base.Text))
-        {
-            IsHintActive = true;
-            _hintRefresh = true;
-            ForeColor = HintForeColor;
-            base.Text = Hint;
-            _hintRefresh = false;
-            if (_hintActiveChanged is not null)
+            case NativeConstants.Messages.WM_PAINT:
             {
-                _hintActiveChanged(this, EventArgs.Empty);
+                base.WndProc(ref m);
+                if (IsHintActive)
+                {
+                    drawPlaceholderText();
+                }
             }
+
+            break;
+            default:
+                base.WndProc(ref m);
+                break;
         }
-
-        base.OnLostFocus(e);
     }
-
-    protected override void OnGotFocus(EventArgs e)
-    {
-        if (IsHintActive && !string.IsNullOrEmpty(base.Text))
-        {
-            IsHintActive = false;
-            ForeColor = TextForeColor;
-            _hintRefresh = true;
-
-            base.Text = string.Empty;
-            _hintRefresh = false;
-            if (_hintActiveChanged is not null)
-            {
-                _hintActiveChanged(this, EventArgs.Empty);
-            }
-        }
-
-        base.OnGotFocus(e);
-    }
-
-    #endregion hint events / methods
-
-    private void initializeComponent()
-    {
-        SuspendLayout();
-        //
-        // StylableTextBox
-        //
-        VisibleChanged += stylableTextBox_VisibleChanged;
-        ResumeLayout(false);
-    }
-
     /// <summary>
-    /// ensure the correct forecolor is set when the control is first shown
+    ///  Draws the <see cref="PlaceholderText"/> in the client area of the <see cref="TextBox"/> using the default font and color.
     /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    private void stylableTextBox_VisibleChanged(object? sender, EventArgs e)
+    private void drawPlaceholderText()
     {
-        if (IsHintActive)
+        using Graphics g = CreateGraphics();
+        using SolidBrush background = new(BackColor);
+        TextFormatFlags flags = TextFormatFlags.NoPadding | TextFormatFlags.Top |
+                            TextFormatFlags.EndEllipsis;
+        Rectangle rectangle = ClientRectangle;
+
+        if (RightToLeft == RightToLeft.Yes)
         {
-            ForeColor = HintForeColor;
+            flags |= TextFormatFlags.RightToLeft;
         }
-        else
+        switch (TextAlign)
         {
-            ForeColor = TextForeColor;
+            case HorizontalAlignment.Center:
+                flags |= TextFormatFlags.HorizontalCenter;
+                break;
+            case HorizontalAlignment.Left:
+                flags |= TextFormatFlags.Left;
+                break;
+            case HorizontalAlignment.Right:
+                flags |= TextFormatFlags.Right;
+                break;
         }
+        g.FillRectangle(background, ClientRectangle);
+        TextRenderer.DrawText(g, PlaceholderText, Font, rectangle, PlaceholderForeColor, flags);
     }
 }
